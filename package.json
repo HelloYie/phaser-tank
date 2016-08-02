@@ -1,0 +1,57 @@
+{
+  "name": "TankGame",
+  "version": "0.1.0",
+  "description": "坦克大战游戏",
+  "main": "server/server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/helloYie/tank"
+  },
+  "keywords": [
+    "express",
+    "webpack",
+    "node"
+  ],
+  "author": "xiongyj",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/helloYie/tank/issues"
+  },
+  "homepage": "",
+  "scripts": {
+    "test": "",
+    "start": "node server/server.js",
+    "build": "rimraf dist && cross-env NODE_ENV=production webpack --config ./webpack.production.config.js --progress --profile --colors",
+    "eslint": "eslint ."
+  },
+  "dependencies": {
+    "babel-cli": "^6.4.0",
+    "phaser": "^2.6.1",
+    "pixi": "^0.3.1",
+    "socket.io": "^1.4.8",
+    "socket.io-client": "^1.4.8"
+  },
+  "devDependencies": {
+    "babel-eslint": "^4.1.6",
+    "babel-loader": "^6.2.3",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-0": "^6.3.13",
+    "babel-preset-stage-1": "^6.5.0",
+    "cross-env": "^1.0.7",
+    "css-loader": "^0.19.0",
+    "eslint": "^1.5.0",
+    "express": "^4.13.3",
+    "extract-text-webpack-plugin": "^0.8.2",
+    "file-loader": "^0.9.0",
+    "html-webpack-plugin": "^1.6.1",
+    "jsdom": "^6.5.1",
+    "json-loader": "^0.5.3",
+    "script-loader": "^0.7.0",
+    "socket.io-client": "^1.4.8",
+    "stats-webpack-plugin": "^0.2.1",
+    "style-loader": "^0.12.4",
+    "webpack": "^1.12.2",
+    "webpack-dev-middleware": "^1.2.0",
+    "webpack-hot-middleware": "^2.2.0"
+  }
+}
