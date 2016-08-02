@@ -7,20 +7,12 @@ import 'pixi.js';
 import 'p2';
 import 'phaser';
 import 'socket.io-client';
-import './RemotePlayer';
+import RemotePlayer from './RemotePlayer';
 import lightSandPng from  'assets/light_sand.png';
 import dudePng from  'assets/dude.png';
 
 import 'css/reset.css';
 import 'css/game.css';
-
-const game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render });
-
-function preload () {
-  game.load.image('earth', lightSandPng);
-  game.load.spritesheet('dude', dudePng, 64, 64);
-  game.load.spritesheet('enemy', dudePng, 64, 64);
-}
 
 let socket; // Socket connection
 let land;
@@ -29,12 +21,29 @@ let enemies;
 let currentSpeed = 0;
 let cursors;
 
+const game = new Phaser.Game(
+  800,
+  600,
+  Phaser.AUTO,
+  '',
+  {
+    preload,
+    create,
+    update,
+    render,
+  }
+);
+
+function preload () {
+  game.load.image('earth', lightSandPng);
+  game.load.spritesheet('dude', dudePng, 64, 64);
+  game.load.spritesheet('enemy', dudePng, 64, 64);
+}
+
 function create () {
   socket = io.connect();
-
   // Resize our game world to be a 2000 x 2000 square
   game.world.setBounds(-500, -500, 1000, 1000);
-
   // Our tiled scrolling background
   land = game.add.tileSprite(0, 0, 800, 600, 'earth');
   land.fixedToCamera = true;

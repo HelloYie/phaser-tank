@@ -10,7 +10,7 @@ const config = require('../webpack.config.js');
 const isDeveloping = process.env.NODE_ENV !== 'production';
 const port = isDeveloping ? 3000 : process.env.PORT;
 const app = express();
-const socketInit = require('./game.js');
+const socketInit = require('./socket');
 
 if (isDeveloping) {
   const compiler = webpack(config);

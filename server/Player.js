@@ -1,38 +1,38 @@
 /* ************************************************
 ** GAME PLAYER CLASS
 ************************************************ */
-var Player = function (startX, startY) {
-  var x = startX
-  var y = startY
-  var id
+'use strict';  
+
+const Player = function (startX, startY) {
+  let x = startX;
+  let y = startY;
+  let id;
 
   // Getters and setters
-  var getX = function () {
-    return x
+  const getX = () => {
+    return x;
   }
 
-  var getY = function () {
-    return y
+  const getY = () => {
+    return y;
   }
 
-  var setX = function (newX) {
-    x = newX
+  const setX = (newX) => {
+    x = newX;
   }
 
-  var setY = function (newY) {
-    y = newY
+  const setY = (newY) => {
+    y = newY;
   }
 
   // Define which variables and methods can be accessed
   return {
-    getX: getX,
-    getY: getY,
-    setX: setX,
-    setY: setY,
-    id: id
-  }
+    getX ,
+    getY,
+    setX,
+    setY,
+    id,
+  };
 }
 
-// Export the Player class so you can use it in
-// other files by using require("Player")
-module.exports = Player
+module.exports = Player;

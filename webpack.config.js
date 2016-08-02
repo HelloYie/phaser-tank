@@ -55,7 +55,7 @@ module.exports = {
         loader: "script"
       },
       {
-      test: /\.jsx?$/,
+      test: /\.js?$/,
       exclude: /node_modules/,
       loader: 'babel',
       query: {
