@@ -1,13 +1,14 @@
 /**
  * 定义远程玩家
- * @return class RemotePlayer 
- * 
+ * @return class RemotePlayer
+ *
  */
+
 
 export default class RemotePlayer {
   constructor(index, game, player, startX, startY) {
-    let x = startX;
-    let y = startY;
+    const x = startX;
+    const y = startY;
     this.game = game;
     this.health = 3;
     this.player = player;
@@ -17,20 +18,20 @@ export default class RemotePlayer {
     this.player.animations.add('stop', [3], 20, true);
     this.player.anchor.setTo(0.5, 0.5);
     this.player.name = index.toString();
-    game.physics.enable(this.player, Phaser.Physics.ARCADE);
+    game.physics.enable(this.player, Phaser.Physics.ARCADE); /* eslint no-undef:0 */
     this.player.body.immovable = true;
     this.player.body.collideWorldBounds = true;
     this.player.angle = game.rnd.angle();
     this.lastPosition = {
-      x: x,
-      y: y
+      x,
+      y,
     };
   }
 
   update() {
     if (this.player.x !== this.lastPosition.x || this.player.y !== this.lastPosition.y) {
       this.player.play('move');
-      this.player.rotation = Math.PI + game.physics.arcade.angleToXY(this.player, this.lastPosition.x, this.lastPosition.y);
+      this.player.rotation = Math.PI + this.game.physics.arcade.angleToXY(this.player, this.lastPosition.x, this.lastPosition.y);
     } else {
       this.player.play('stop');
     }

@@ -37,6 +37,11 @@ module.exports = {
     })
   ],
   module: {
+    preLoaders: [{
+      test: /\.js?$/,
+      include: [path.join(__dirname, '/client/js')],
+      loader: 'eslint-loader',
+    }],
     loaders: [
       {
         test: /pixi.js/,

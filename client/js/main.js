@@ -3,6 +3,8 @@
  * @desc  负责绘制整个游戏, 并监听socket
  */
 
+/*eslint-disable */
+
 import 'pixi.js';
 import 'p2';
 import 'phaser';
