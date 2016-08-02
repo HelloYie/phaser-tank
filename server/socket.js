@@ -3,7 +3,7 @@
 const util = require('util');
 const path = require('path');
 const io = require('socket.io');
-const Player = require('./Player');
+const Player = require('./player');
 const port = process.env.PORT || 8080;
 
 let socket;	// Socket controller
