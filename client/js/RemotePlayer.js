@@ -4,7 +4,6 @@
  *
  */
 
-
 export default class RemotePlayer {
   constructor(index, game, player, startX, startY) {
     const x = startX;

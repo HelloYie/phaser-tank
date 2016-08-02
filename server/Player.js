@@ -1,6 +1,7 @@
 /* ************************************************
 ** GAME PLAYER CLASS
 ************************************************ */
+
 'use strict';  
 
 const Player = function (startX, startY) {
@@ -25,7 +26,6 @@ const Player = function (startX, startY) {
     y = newY;
   }
 
-  // Define which variables and methods can be accessed
   return {
     getX ,
     getY,
