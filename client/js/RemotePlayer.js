@@ -5,11 +5,12 @@
  */
 
 export default class RemotePlayer {
-  constructor(index, game, player, startX, startY) {
+  constructor(index, game, player, startX, startY, camp) {
     const x = startX;
     const y = startY;
     this.game = game;
     this.health = 3;
+    this.camp = camp;  // 阵营
     this.player = player;
     this.alive = true;
     this.player = game.add.sprite(x, y, 'enemy');
@@ -28,6 +29,7 @@ export default class RemotePlayer {
   }
 
   update() {
+    // 更新精灵状态
     if (this.player.x !== this.lastPosition.x || this.player.y !== this.lastPosition.y) {
       this.player.play('move');
       this.player.rotation = Math.PI + this.game.physics.arcade.angleToXY(this.player, this.lastPosition.x, this.lastPosition.y);
@@ -36,5 +38,10 @@ export default class RemotePlayer {
     }
     this.lastPosition.x = this.player.x;
     this.lastPosition.y = this.player.y;
+  }
+
+  is_teammates(player) {
+    // 判断是否是队友
+    return this.camp === player.camp;
   }
 }

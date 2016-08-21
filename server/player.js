@@ -2,7 +2,7 @@
 ** GAME PLAYER CLASS
 ************************************************ */
 
-'use strict';  
+'use strict';
 
 const Player = function (startX, startY) {
   let x = startX;
@@ -12,19 +12,19 @@ const Player = function (startX, startY) {
   // Getters and setters
   const getX = () => {
     return x;
-  }
+  };
 
   const getY = () => {
     return y;
-  }
+  };
 
   const setX = (newX) => {
     x = newX;
-  }
+  };
 
   const setY = (newY) => {
     y = newY;
-  }
+  };
 
   return {
     getX ,
@@ -33,6 +33,6 @@ const Player = function (startX, startY) {
     setY,
     id,
   };
-}
+};
 
 module.exports = Player;

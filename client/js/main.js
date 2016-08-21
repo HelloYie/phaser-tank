@@ -18,8 +18,8 @@ import 'css/game.css';
 
 let socket; // Socket connection
 let land;
-let player;
-let enemies;
+let player; // current plaery
+let gamers; // other remote players
 let currentSpeed = 0;
 let cursors;
 
@@ -65,7 +65,7 @@ function create () {
   player.body.collideWorldBounds = true;
 
   // Create some baddies to waste :)
-  enemies = [];
+  gamers = {};
 
   player.bringToTop();
 
@@ -94,17 +94,21 @@ const setEventHandlers = function () {
 
   // Player removed message received
   socket.on('remove player', onRemovePlayer);
+
+  // shot message received
+  socket.on('shot', onShot);
 }
 
 // Socket connected
 function onSocketConnected () {
   console.log('Connected to socket server');
 
-  // Reset enemies on reconnect
-  enemies.forEach(function (enemy) {
-    enemy.player.kill();
-  })
-  enemies = [];
+  // Reset gamers on reconnect
+  Object.keys(gamers).forEach(function(gamerId){
+    let gamerObj = gamers[gamerId];
+    gamerObj.player.kill();
+  });
+  gamers = {};
 
   // Send local player data to the game server
   socket.emit('new player', { x: player.x, y: player.y });
@@ -120,23 +124,22 @@ function onNewPlayer (data) {
   console.log('New player connected:', data.id);
 
   // Avoid possible duplicate players
-  const duplicate = playerById(data.id);
+  const duplicate = gamerById(data.id, true);
   if (duplicate) {
     console.log('Duplicate player!');
     return;
   }
 
   // Add new player to the remote players array
-  enemies.push(new RemotePlayer(data.id, game, player, data.x, data.y));
+  gamers[data.id] = new RemotePlayer(data.id, game, player, data.x, data.y, 'red');
 }
 
 // Move player
 function onMovePlayer (data) {
-  const movePlayer = playerById(data.id);
+  const movePlayer = gamerById(data.id);
 
   // Player not found
   if (!movePlayer) {
-    console.log('Player not found: ', data.id);
     return;
   }
 
@@ -145,29 +148,40 @@ function onMovePlayer (data) {
   movePlayer.player.y = data.y;
 }
 
+// Shot
+function onShot(data) {
+  const gamerObj = gamerById(data.id);
+
+  // Player not found
+  if (!gamerObj) {
+    return;
+  }
+}
+
+
 // Remove player
 function onRemovePlayer (data) {
-  const removePlayer = playerById(data.id);
+  const removePlayer = gamerById(data.id);
 
   // Player not found
   if (!removePlayer) {
-    console.log('Player not found: ', data.id);
     return;
   }
 
   removePlayer.player.kill();
 
   // Remove player from array
-  enemies.splice(enemies.indexOf(removePlayer), 1);
+  delete gamers[data.id];
 }
 
 function update () {
-  for (let i = 0; i < enemies.length; i++) {
-    if (enemies[i].alive) {
-      enemies[i].update();
-      game.physics.arcade.collide(player, enemies[i].player);
+  Object.keys(gamers).forEach(function(gamerId){
+    let gamerObj = gamers[gamerId];
+    if(gamerObj.alive){
+      gamerObj.update();
+      game.physics.arcade.collide(player, gamerObj.player);
     }
-  }
+  });
 
   if (cursors.left.isDown) {
     player.angle -= 4;
@@ -211,11 +225,15 @@ function render () {
 }
 
 // Find player by ID
-function playerById (id) {
-  for (let i = 0; i < enemies.length; i++) {
-    if (enemies[i].player.name === id) {
-      return enemies[i];
-    }
+function gamerById (id, silence=false) {
+  let gamerObj = gamers[id];
+  if(gamerObj){
+    return gamerObj;
   }
-  return false;
+  else{
+    if(!silence){
+      console.log('Player not found: ', id);
+    }
+    return false;
+  }
 }
