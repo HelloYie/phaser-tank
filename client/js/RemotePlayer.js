@@ -11,6 +11,7 @@ export default class RemotePlayer {
     this.game = game;
     this.health = 3;
     this.camp = camp;  // 阵营
+    this.weapon = game.add.weapon(30, 'knife1');
     this.player = player;
     this.alive = true;
     this.player = game.add.sprite(x, y, 'enemy');
@@ -26,6 +27,11 @@ export default class RemotePlayer {
       x,
       y,
     };
+    this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+    this.weapon.bulletAngleOffset = 90;
+    this.weapon.bulletSpeed = 400;
+    this.weapon.fireRate = 500;
+    this.weapon.trackSprite(this.player, 0, 0, true);
   }
 
   update() {

@@ -11,6 +11,7 @@ import 'phaser';
 import 'socket.io-client';
 import RemotePlayer from './RemotePlayer';
 import lightSandPng from  'assets/light_sand.png';
+import knife1 from  'assets/knife1.png';
 import dudePng from  'assets/dude.png';
 
 import 'css/reset.css';
@@ -20,8 +21,12 @@ let socket; // Socket connection
 let land;
 let player; // current plaery
 let gamers; // other remote players
+let bullets;
+let bullet;
 let currentSpeed = 0;
 let cursors;
+let weapon;
+
 
 const game = new Phaser.Game(
   800,
@@ -38,6 +43,7 @@ const game = new Phaser.Game(
 
 function preload () {
   game.load.image('earth', lightSandPng);
+  game.load.image('knife1', knife1);
   game.load.spritesheet('dude', dudePng, 64, 64);
   game.load.spritesheet('enemy', dudePng, 64, 64);
 }
@@ -64,6 +70,22 @@ function create () {
   player.body.maxVelocity.setTo(400, 400);
   player.body.collideWorldBounds = true;
 
+  // 初始化子弹数据
+  weapon = game.add.weapon(5, 'knife1');
+
+  //  The bullet will be automatically killed when it leaves the world bounds
+  weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+
+  //  Because our bullet is drawn facing up, we need to offset its rotation:
+  weapon.bulletAngleOffset = 90;
+
+  //  The speed at which the bullet is fired
+  weapon.bulletSpeed = 400;
+
+  //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
+  weapon.fireRate = 500;
+  weapon.trackSprite(player, 0, 0, true);
+
   // Create some baddies to waste :)
   gamers = {};
 
@@ -77,6 +99,7 @@ function create () {
 
   // Start listening for events
   setEventHandlers();
+
 }
 
 const setEventHandlers = function () {
@@ -97,7 +120,7 @@ const setEventHandlers = function () {
 
   // shot message received
   socket.on('shot', onShot);
-}
+};
 
 // Socket connected
 function onSocketConnected () {
@@ -156,6 +179,7 @@ function onShot(data) {
   if (!gamerObj) {
     return;
   }
+  gamerObj.weapon.fire();
 }
 
 
@@ -182,42 +206,41 @@ function update () {
       game.physics.arcade.collide(player, gamerObj.player);
     }
   });
-
-  if (cursors.left.isDown) {
-    player.angle -= 4;
-  } else if (cursors.right.isDown) {
-    player.angle += 4;
-  }
-
-  if (cursors.up.isDown) {
-    // The speed we'll travel at
-    currentSpeed = 300;
-  } else {
-    if (currentSpeed > 0) {
-      currentSpeed -= 4;
-    }
-  }
-
-  game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity);
-
-  if (currentSpeed > 0) {
-    player.animations.play('move');
-  } else {
-    player.animations.play('stop');
-  }
-
-  land.tilePosition.x = -game.camera.x;
-  land.tilePosition.y = -game.camera.y;
-
   if (game.input.activePointer.isDown) {
-    if (game.physics.arcade.distanceToPointer(player) >= 10) {
-      currentSpeed = 300;
-
-      player.rotation = game.physics.arcade.angleToPointer(player);
-    }
+    // 攻击
+    weapon.fire();
+    socket.emit('shot', { x: player.x, y: player.y, angle: player.angle});
   }
+  else{
+    // 移动
+    if (cursors.left.isDown) {
+      player.angle -= 4;
+    } else if (cursors.right.isDown) {
+      player.angle += 4;
+    }
 
-  socket.emit('move player', { x: player.x, y: player.y });
+    if (cursors.up.isDown) {
+      // TODO: 添加手机陀螺仪支持
+      // The speed we'll travel at
+      currentSpeed = 300;
+    } else {
+      if (currentSpeed > 0) {
+        currentSpeed -= 4;
+      }
+    }
+
+    game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity);
+
+    if (currentSpeed > 0) {
+      player.animations.play('move');
+    } else {
+      player.animations.play('stop');
+    }
+
+    land.tilePosition.x = -game.camera.x;
+    land.tilePosition.y = -game.camera.y;
+    socket.emit('move player', { x: player.x, y: player.y });
+  }
 }
 
 function render () {
