@@ -4,9 +4,11 @@
 
 'use strict';
 
-const Player = function (startX, startY) {
+const Player = function (startX, startY, _angle, _name) {
   let x = startX;
   let y = startY;
+  let angle = _angle;
+  let name = _name;
   let id;
 
   // Getters and setters
@@ -26,11 +28,31 @@ const Player = function (startX, startY) {
     y = newY;
   };
 
+  const getAngle = () => {
+    return angle;
+  };
+
+  const setAngle = (newAngle) => {
+    angle = newAngle;
+  };
+
+  const getName = () => {
+    return name;
+  };
+
+  const setName = (newName) => {
+    name = newName;
+  };
+
   return {
     getX ,
     getY,
+    getAngle,
+    getName,
     setX,
     setY,
+    setAngle,
+    setName,
     id,
   };
 };

@@ -21,12 +21,27 @@ let socket; // Socket connection
 let land;
 let player; // current plaery
 let gamers; // other remote players
+let playerGroup;
 let bullets;
-let bullet;
 let currentSpeed = 0;
 let cursors;
 let weapon;
-
+let names = [
+  '丁丁',
+  '东东',
+  '信钊',
+  '超哥',
+  '一姐',
+  '一哥',
+  '狗二蛋',
+  '王妈',
+  '丁香',
+  '苦瓜',
+  '二麻子',
+  '张三哥',
+];
+let name = names[Math.floor(Math.random()*names.length)];
+let name_text;
 
 const game = new Phaser.Game(
   800,
@@ -63,6 +78,7 @@ function create () {
   player.anchor.setTo(0.5, 0.5);
   player.animations.add('move', [0, 1, 2, 3, 4, 5, 6, 7], 20, true);
   player.animations.add('stop', [3], 20, true);
+  player.camp = 'red';
 
   // This will force it to decelerate and limit its speed
   // player.body.drag.setTo(200, 200)
@@ -70,8 +86,14 @@ function create () {
   player.body.maxVelocity.setTo(400, 400);
   player.body.collideWorldBounds = true;
 
+  // 所有玩家添加到组中
+  playerGroup = game.add.group();
+  playerGroup.add(player);
+  name_text = game.add.text(startX, startY - player.height, name, {font: '12px'});
+
   // 初始化子弹数据
   weapon = game.add.weapon(5, 'knife1');
+  bullets = weapon.bullets;
 
   //  The bullet will be automatically killed when it leaves the world bounds
   weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
@@ -100,6 +122,22 @@ function create () {
   // Start listening for events
   setEventHandlers();
 
+  /*
+  // 初始化加速度感应器
+	// setting gyroscope update frequency
+    gyro.frequency = 10;
+  // start gyroscope detection
+    gyro.startTracking(function(o) {
+      // updating player velocity
+      let gama = o.gama/20;
+      let beta = o.beta/20;
+      if(gama > 1 || beta > 1){
+        player.angle += gama;
+        currentSpeed += beta;
+        playerMove();
+      }
+    });
+  */
 }
 
 const setEventHandlers = function () {
@@ -134,7 +172,7 @@ function onSocketConnected () {
   gamers = {};
 
   // Send local player data to the game server
-  socket.emit('new player', { x: player.x, y: player.y });
+  socket.emit('new player', { x: player.x, y: player.y, angle: player.angle, name: name});
 }
 
 // Socket disconnected
@@ -154,7 +192,9 @@ function onNewPlayer (data) {
   }
 
   // Add new player to the remote players array
-  gamers[data.id] = new RemotePlayer(data.id, game, player, data.x, data.y, 'red');
+  let gamer = new RemotePlayer(data.id, game, player, data.x, data.y, data.name, 'blue');
+  gamers[data.id] = gamer;
+  playerGroup.add(gamer.player);
 }
 
 // Move player
@@ -169,6 +209,7 @@ function onMovePlayer (data) {
   // Update player position
   movePlayer.player.x = data.x;
   movePlayer.player.y = data.y;
+  movePlayer.player.angle = data.angle;
 }
 
 // Shot
@@ -198,49 +239,90 @@ function onRemovePlayer (data) {
   delete gamers[data.id];
 }
 
+function hitHandler(gamer, bullet){
+  let bullet_owner = bullet.data.bulletManager.trackedSprite;
+  if (bullet_owner.camp != gamer.camp){
+    gamer.kill();
+    socket.emit('kill', {id: gamer.id});
+    if(gamer === player){
+      // 阵亡
+      name_text.kill();
+    }
+    else{
+      gamer.manager.name_text.kill();
+    }
+  }
+  if(bullet_owner != gamer){
+    // 碰撞后子弹消失
+    bullet.kill();
+  }
+}
+
 function update () {
+  game.physics.arcade.overlap(playerGroup, bullets, hitHandler, null, this);
   Object.keys(gamers).forEach(function(gamerId){
     let gamerObj = gamers[gamerId];
     if(gamerObj.alive){
       gamerObj.update();
       game.physics.arcade.collide(player, gamerObj.player);
+      game.physics.arcade.overlap(playerGroup, gamerObj.bullets, hitHandler, null, this);
+    }
+    else{
+      gamerObj.name_text.kill();
+      gamerObj.player.kill();
     }
   });
   if (game.input.activePointer.isDown) {
     // 攻击
-    weapon.fire();
-    socket.emit('shot', { x: player.x, y: player.y, angle: player.angle});
+    if(player.alive){
+      weapon.fire();
+      socket.emit('shot', { x: player.x, y: player.y, angle: player.angle});
+    }
   }
   else{
     // 移动
+    let updated = false;
     if (cursors.left.isDown) {
       player.angle -= 4;
+      updated = 1;
     } else if (cursors.right.isDown) {
       player.angle += 4;
+      updated = 1;
     }
 
     if (cursors.up.isDown) {
       // TODO: 添加手机陀螺仪支持
       // The speed we'll travel at
       currentSpeed = 300;
+      updated = 1;
     } else {
       if (currentSpeed > 0) {
         currentSpeed -= 4;
+        updated = 1;
       }
     }
 
-    game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity);
-
-    if (currentSpeed > 0) {
-      player.animations.play('move');
-    } else {
-      player.animations.play('stop');
+    if(updated){
+      playerMove();
     }
-
-    land.tilePosition.x = -game.camera.x;
-    land.tilePosition.y = -game.camera.y;
-    socket.emit('move player', { x: player.x, y: player.y });
   }
+}
+
+function playerMove(){
+      game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity);
+
+      if (currentSpeed > 0) {
+        player.animations.play('move');
+      } else {
+        player.animations.play('stop');
+      }
+
+      land.tilePosition.x = -game.camera.x;
+      land.tilePosition.y = -game.camera.y;
+
+      name_text.x = Math.floor(player.x);
+      name_text.y = Math.floor(player.y - player.height);
+      socket.emit('move player', { x: player.x, y: player.y, angle: player.angle });
 }
 
 function render () {

@@ -7,11 +7,11 @@ const Player = require('./player');
 const port = process.env.PORT || 8080;
 
 let socket;	// Socket controller
-let players;	// Array of connected players
+let players;	// object of connected players
 
 module.exports = function init (server) {
-  // Create an empty array to store players
-  players = [];
+  // Create an empty object to store players
+  players = {};
 
   // Attach Socket.IO to server
   socket = io.listen(server);
@@ -41,6 +41,9 @@ function onSocketConnection (client) {
 
   // Listen for move player message
   client.on('move player', onMovePlayer);
+
+  // Listen for shot
+  client.on('shot', onShot);
 }
 
 function onClientDisconnect () {
@@ -49,50 +52,74 @@ function onClientDisconnect () {
   const removePlayer = playerById(this.id);
 
   if (!removePlayer) {
-    util.log('Player not found: ' + this.id);
     return;
   }
-
-  players.splice(players.indexOf(removePlayer), 1);
+  delete players[this.id];
 
   this.broadcast.emit('remove player', {id: this.id});
 }
 
 function onNewPlayer (data) {
-  const newPlayer = new Player(data.x, data.y);
+  const newPlayer = new Player(data.x, data.y, data.angle, data.name);
+  let self = this;
   newPlayer.id = this.id;
 
-  this.broadcast.emit('new player', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY()});
+  this.broadcast.emit('new player', {id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), name: newPlayer.getName()});
 
   let i, existingPlayer;
-  for (i = 0; i < players.length; i++) {
-    existingPlayer = players[i];
-    this.emit('new player', {id: existingPlayer.id, x: existingPlayer.getX(), y: existingPlayer.getY()});
-  }
+  Object.keys(players).forEach(function(playerId){
+    existingPlayer = players[playerId];
+    self.emit(
+      'new player',
+      {
+        id: existingPlayer.id,
+        x: existingPlayer.getX(),
+        y: existingPlayer.getY(),
+        name: existingPlayer.getName(),
+      }
+    );
+  });
 
-  players.push(newPlayer);
+  players[this.id] = newPlayer;
 }
 
 function onMovePlayer (data) {
-  
+
   const movePlayer = playerById(this.id);
 
   if (!movePlayer) {
-    util.log('Player not found: ' + this.id);
     return;
   }
 
   movePlayer.setX(data.x);
   movePlayer.setY(data.y);
-  
-  this.broadcast.emit('move player', {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY()});
+  movePlayer.setAngle(data.angle);
+
+  this.broadcast.emit('move player', {id: movePlayer.id, x: movePlayer.getX(), y: movePlayer.getY(), angle: movePlayer.getAngle()});
 }
 
-function playerById (id) {
-  for (let i = 0; i < players.length; i++) {
-    if (players[i].id === id) {
-      return players[i];
+function onShot(data){
+  let playerObj = playerById(this.id);
+  let self = this;
+  self.broadcast.emit(
+    'shot',
+    {
+      id: self.id,
+      x: playerObj.getX(),
+      y: playerObj.getY(),
     }
+  );
+}
+
+function playerById (id, silence) {
+  let playerObj = players[id];
+  if(playerObj){
+    return playerObj;
   }
-  return false;
+  else{
+    if(!silence){
+      util.log('Player not found: ', id);
+    }
+    return false;
+  }
 }
