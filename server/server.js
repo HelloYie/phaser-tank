@@ -8,8 +8,9 @@ const webpackHotMiddleware = require('webpack-hot-middleware');
 const config = require('../webpack.config.js');
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
-const sPort = process.argv[2] || 3000;
-const port = isDeveloping ? sPort : process.env.PORT || sPort;
+const args = process.argv[2] && process.argv[2].split(':') || [];
+const ip = args.length > 0 ? args[0] : '0.0.0.0';
+const port = args.length > 0 ? (args[1] || 3000) : 3000;
 
 const app = express();
 const socketInit = require('./socket');
@@ -42,11 +43,11 @@ if (isDeveloping) {
   });
 }
 
-const server = app.listen(port, '0.0.0.0', function onStart(err) {
+const server = app.listen(port, ip, function onStart(err) {
   socketInit(server);
   if (err) {
     console.log(err);
   }
-  console.info('==> 🌎 Listening on port %s. Open up http://0.0.0.0:%s/ in your browser.', port, port);
+  console.info('==> 🌎 Listening on port %s. Open up http://%s:%s/ in your browser.', port, ip, port);
 });
 
