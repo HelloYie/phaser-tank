@@ -8,9 +8,7 @@ const webpackHotMiddleware = require('webpack-hot-middleware');
 const config = require('../webpack.config.js');
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
-
 const sPort = process.argv[2] || 3000;
-
 const port = isDeveloping ? sPort : process.env.PORT || sPort;
 
 const app = express();
