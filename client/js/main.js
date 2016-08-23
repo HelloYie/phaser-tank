@@ -46,8 +46,8 @@ let name = names[Math.floor(Math.random()*names.length)];
 let name_text;
 
 const game = new Phaser.Game(
-  800,
-  600,
+  '100',
+  '100',
   Phaser.AUTO,
   '',
   {
@@ -70,7 +70,8 @@ function create () {
   // Resize our game world to be a 2000 x 2000 square
   game.world.setBounds(-500, -500, 1000, 1000);
   // Our tiled scrolling background
-  land = game.add.tileSprite(0, 0, 800, 600, 'earth');
+
+  land = game.add.tileSprite(0, 0, game.width, game.height, 'earth');
   land.fixedToCamera = true;
 
   // The base of our player
@@ -91,7 +92,7 @@ function create () {
   // 所有玩家添加到组中
   playerGroup = game.add.group();
   playerGroup.add(player);
-  name_text = game.add.text(startX, startY - player.height, name, {font: '12px'});
+  name_text = game.add.text(startX - 25, startY - player.height, name, {font: '6mm'});
 
   // 初始化子弹数据
   weapon = game.add.weapon(5, 'knife1');
@@ -130,8 +131,8 @@ function create () {
   // start gyroscope detection
     gyro.startTracking(function(o) {
       // updating player velocity
-      let gamma = o.gamma/6;
-      let beta = -o.beta;
+      let gamma = o.gamma/8;
+      let beta = -o.beta/2;
       gyroUpdated = false;
       if(gamma !== 0 ){
         player.angle += gamma;
@@ -327,7 +328,7 @@ function playerMove(){
       land.tilePosition.x = -game.camera.x;
       land.tilePosition.y = -game.camera.y;
 
-      name_text.x = Math.floor(player.x);
+      name_text.x = Math.floor(player.x - 25);
       name_text.y = Math.floor(player.y - player.height);
       socket.emit('move player', { x: player.x, y: player.y, angle: player.angle });
 }
