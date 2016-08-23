@@ -8,7 +8,11 @@ const webpackHotMiddleware = require('webpack-hot-middleware');
 const config = require('../webpack.config.js');
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
-const port = isDeveloping ? 3000 : process.env.PORT;
+
+const sPort = process.argv[2] || 3000;
+
+const port = isDeveloping ? sPort : process.env.PORT || sPort;
+
 const app = express();
 const socketInit = require('./socket');
 
