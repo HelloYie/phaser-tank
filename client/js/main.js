@@ -41,6 +41,16 @@ let names = [
   '苦瓜',
   '二麻子',
   '张三哥',
+  '王小二',
+  '飞飞',
+  '妮妮',
+  '呆妹',
+  '呆哥',
+  '条子',
+  '山鸡',
+  '浩南哥',
+  '耀阳哥',
+  '红孩儿'
 ];
 let name = names[Math.floor(Math.random()*names.length)];
 let name_text;
@@ -67,8 +77,8 @@ function preload () {
 
 function create () {
   socket = io.connect();
-  // Resize our game world to be a 2000 x 2000 square
-  game.world.setBounds(-500, -500, 1000, 1000);
+  // Resize our game world to be a 4000 x 4000 square
+  game.world.setBounds(-2000, -2000, 2000, 2000);
   // Our tiled scrolling background
 
   land = game.add.tileSprite(0, 0, game.width, game.height, 'earth');
@@ -132,7 +142,7 @@ function create () {
     gyro.startTracking(function(o) {
       // updating player velocity
       let gamma = o.gamma/8;
-      let beta = -o.beta/2;
+      let beta = -(o.beta - 40);
       gyroUpdated = false;
       if(gamma !== 0 ){
         player.angle += gamma;
@@ -142,6 +152,9 @@ function create () {
         currentSpeed += beta;
         if(currentSpeed < 0){
           currentSpeed = 0;
+        }
+        else if(currentSpeed > 350){
+          currentSpeed = 350;
         }
         gyroUpdated = true;
       }
