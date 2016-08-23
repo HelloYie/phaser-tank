@@ -9,6 +9,7 @@ import 'pixi.js';
 import 'p2';
 import 'phaser';
 import 'socket.io-client';
+import gyro from 'js/lib/gyro';
 import RemotePlayer from './RemotePlayer';
 import lightSandPng from  'assets/light_sand.png';
 import knife1 from  'assets/knife1.png';
@@ -23,6 +24,7 @@ let player; // current plaery
 let gamers; // other remote players
 let playerGroup;
 let bullets;
+let gyroUpdated;
 let currentSpeed = 0;
 let cursors;
 let weapon;
@@ -122,22 +124,27 @@ function create () {
   // Start listening for events
   setEventHandlers();
 
-  /*
   // 初始化加速度感应器
 	// setting gyroscope update frequency
     gyro.frequency = 10;
   // start gyroscope detection
     gyro.startTracking(function(o) {
       // updating player velocity
-      let gama = o.gama/20;
-      let beta = o.beta/20;
-      if(gama > 1 || beta > 1){
-        player.angle += gama;
+      let gamma = o.gamma/6;
+      let beta = -o.beta;
+      gyroUpdated = false;
+      if(gamma !== 0 ){
+        player.angle += gamma;
+        gyroUpdated = true;
+      }
+      if(beta !== 0){
         currentSpeed += beta;
-        playerMove();
+        if(currentSpeed < 0){
+          currentSpeed = 0;
+        }
+        gyroUpdated = true;
       }
     });
-  */
 }
 
 const setEventHandlers = function () {
@@ -302,7 +309,7 @@ function update () {
       }
     }
 
-    if(updated){
+    if(updated || gyroUpdated){
       playerMove();
     }
   }
