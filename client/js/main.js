@@ -20,7 +20,7 @@ import 'css/game.css';
 
 let socket; // Socket connection
 let land;
-let player; // current plaery
+let player; // current player
 let gamers; // other remote players
 let playerGroup;
 let bullets;
@@ -179,6 +179,8 @@ const setEventHandlers = function () {
 
   // shot message received
   socket.on('shot', onShot);
+
+  socket.on('kill', onKill);
 };
 
 // Socket connected
@@ -260,11 +262,25 @@ function onRemovePlayer (data) {
   delete gamers[data.id];
 }
 
+function onKill(data) {
+  const removePlayer = gamerById(data.id);
+  // Player not found
+  if (!removePlayer) {
+    console.log('not');
+    return;
+  }
+
+  removePlayer.player.kill();
+  console.log(removePlayer);
+  // Remove player from array
+  delete gamers[data.id];
+}
+
 function hitHandler(gamer, bullet){
   let bullet_owner = bullet.data.bulletManager.trackedSprite;
   if (bullet_owner.camp != gamer.camp){
     gamer.kill();
-    socket.emit('kill', {id: gamer.id});
+    socket.emit('kill', {id: gamer.name});
     if(gamer === player){
       // 阵亡
       name_text.kill();
@@ -330,20 +346,20 @@ function update () {
 }
 
 function playerMove(){
-      game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity);
+  game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity);
 
-      if (currentSpeed > 0) {
-        player.animations.play('move');
-      } else {
-        player.animations.play('stop');
-      }
+  if (currentSpeed > 0) {
+    player.animations.play('move');
+  } else {
+    player.animations.play('stop');
+  }
 
-      land.tilePosition.x = -game.camera.x;
-      land.tilePosition.y = -game.camera.y;
+  land.tilePosition.x = -game.camera.x;
+  land.tilePosition.y = -game.camera.y;
 
-      name_text.x = Math.floor(player.x - 25);
-      name_text.y = Math.floor(player.y - player.height);
-      socket.emit('move player', { x: player.x, y: player.y, angle: player.angle });
+  name_text.x = Math.floor(player.x - 25);
+  name_text.y = Math.floor(player.y - player.height);
+  socket.emit('move player', { x: player.x, y: player.y, angle: player.angle });
 }
 
 function render () {
