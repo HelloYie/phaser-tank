@@ -37,7 +37,7 @@ export default class RemotePlayer {
     this.weapon.fireRate = 500;
     this.weapon.trackSprite(this.player, 0, 0, true);
     this.bullets = this.weapon.bullets;
-    this.name_text = game.add.text(x, y, this.name, { font: '12px' });
+    this.name_text = game.add.text(x - 25, y - this.player.height, this.name, { font: '6mm' });
   }
 
   update() {
@@ -46,7 +46,7 @@ export default class RemotePlayer {
       // 移动
       this.player.play('move');
       this.player.rotation = Math.PI + this.game.physics.arcade.angleToXY(this.player, this.lastPosition.x, this.lastPosition.y);
-      this.name_text.x = Math.floor(this.player.x);
+      this.name_text.x = Math.floor(this.player.x - 25);
       this.name_text.y = Math.floor(this.player.y - this.player.height);
     } else if (this.player.angle !== this.lastPosition.angle) {
       // 旋转

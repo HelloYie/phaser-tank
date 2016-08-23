@@ -41,11 +41,12 @@ module.exports = {
       test: /\.js?$/,
       include: [path.join(__dirname, '/client/js')],
       loader: 'eslint-loader',
+      exclude: /lib/,
     }],
     loaders: [
       {
         test: /pixi.js/,
-        loader: "script" 
+        loader: "script"
       },
       {
         test: /phaser-split.js/,
