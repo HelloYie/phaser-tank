@@ -137,28 +137,34 @@ function create () {
 
   // 初始化加速度感应器
 	// setting gyroscope update frequency
-    gyro.frequency = 10;
+  gyro.frequency = 100;
   // start gyroscope detection
-    gyro.startTracking(function(o) {
-      // updating player velocity
-      let gamma = o.gamma/8;
-      let beta = -(o.beta - 40);
-      gyroUpdated = false;
-      if(gamma !== 0 ){
-        player.angle += gamma;
-        gyroUpdated = true;
-      }
-      if(beta !== 0){
-        currentSpeed += beta;
-        if(currentSpeed < 0){
-          currentSpeed = 0;
-        }
-        else if(currentSpeed > 350){
-          currentSpeed = 350;
-        }
-        gyroUpdated = true;
-      }
-    });
+  gyro.startTracking(function(o) {
+    // 近乎完美的重力加速度传感器体验
+    // updating player velocity
+    let gamma = -(o.gamma);  // x轴
+    let beta = o.beta - 20;  // Y轴
+    let rad = Math.atan2(gamma, beta);
+    let angle = rad * (180 / Math.PI) + 90;
+
+    gyroUpdated = false;
+    if(player.angle != angle){
+      player.angle = angle;
+      gyroUpdated = true;
+    }
+
+    let speed = Math.max(Math.abs(gamma), Math.abs(beta)) * 10;
+    if(speed < 0){
+      speed = 0;
+    }
+    else if(speed > 350){
+      speed = 350;
+    }
+    if(speed != currentSpeed){
+      currentSpeed =  speed;
+      gyroUpdated = true;
+    }
+  });
 }
 
 const setEventHandlers = function () {
@@ -328,7 +334,6 @@ function update () {
     }
 
     if (cursors.up.isDown) {
-      // TODO: 添加手机陀螺仪支持
       // The speed we'll travel at
       currentSpeed = 300;
       updated = 1;

@@ -44,15 +44,10 @@ export default class RemotePlayer {
     // 更新精灵状态
     if (this.player.x !== this.lastPosition.x || this.player.y !== this.lastPosition.y) {
       // 移动
-      this.player.play('move');
+      this.player.animations.play('move');
       this.player.rotation = Math.PI + this.game.physics.arcade.angleToXY(this.player, this.lastPosition.x, this.lastPosition.y);
       this.name_text.x = Math.floor(this.player.x - 25);
       this.name_text.y = Math.floor(this.player.y - this.player.height);
-    } else if (this.player.angle !== this.lastPosition.angle) {
-      // 旋转
-      this.player.play('move');
-    } else {
-      this.player.play('stop');
     }
     this.lastPosition.x = this.player.x;
     this.lastPosition.y = this.player.y;
