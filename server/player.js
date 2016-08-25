@@ -45,7 +45,7 @@ const Player = function (startX, startY, _angle, _name) {
   };
 
   return {
-    getX ,
+    getX,
     getY,
     getAngle,
     getName,

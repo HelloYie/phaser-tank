@@ -50,4 +50,3 @@ const server = app.listen(port, ip, function onStart(err) {
   }
   console.info('==> 🌎 Listening on port %s. Open up http://%s:%s/ in your browser.', port, ip, port);
 });
-
