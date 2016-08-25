@@ -1,12 +1,11 @@
 
 /**
  * @summary:
- *   每个 player 实例代表玩家自己
+ *   玩家类： 每个 player 实例代表玩家自己
  * @description:
  *
  */
 export default class Player {
-
   /**
    * game: Phaser.Game
    * name: 玩家名称如: 张三
@@ -14,6 +13,7 @@ export default class Player {
    * spriteSheetName: 载入的spriteSheet 名称
    *
    */
+
   constructor(game, name, group, spriteSheetName) {
     this.game = game;
     this.name = name;
