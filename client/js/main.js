@@ -28,6 +28,7 @@ let gyroUpdated;
 let currentSpeed = 0;
 let cursors;
 let weapon;
+let update_rate = 1;
 let names = [
   '丁丁',
   '东东',
@@ -127,7 +128,7 @@ function create () {
   player.bringToTop();
 
   game.camera.follow(player);
-  game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
+  game.camera.deadzone = new Phaser.Rectangle(game.width/3, game.height/3, game.width/3, game.height/3);
   game.camera.focusOnXY(0, 0);
 
   cursors = game.input.keyboard.createCursorKeys();
@@ -137,28 +138,34 @@ function create () {
 
   // 初始化加速度感应器
 	// setting gyroscope update frequency
-    gyro.frequency = 10;
+  gyro.frequency = 200;
   // start gyroscope detection
-    gyro.startTracking(function(o) {
-      // updating player velocity
-      let gamma = o.gamma/8;
-      let beta = -(o.beta - 40);
-      gyroUpdated = false;
-      if(gamma !== 0 ){
-        player.angle += gamma;
-        gyroUpdated = true;
-      }
-      if(beta !== 0){
-        currentSpeed += beta;
-        if(currentSpeed < 0){
-          currentSpeed = 0;
-        }
-        else if(currentSpeed > 350){
-          currentSpeed = 350;
-        }
-        gyroUpdated = true;
-      }
-    });
+  gyro.startTracking(function(o) {
+    // 近乎完美的重力加速度传感器体验
+    // updating player velocity
+    let gamma = -(o.gamma);  // x轴
+    let beta = o.beta - 20;  // Y轴
+    let rad = Math.atan2(gamma, beta);
+    let angle = rad * (180 / Math.PI) + 90;
+
+    gyroUpdated = false;
+    if(player.angle != angle){
+      player.angle = angle;
+      gyroUpdated = true;
+    }
+
+    let speed = Math.max(Math.abs(gamma), Math.abs(beta)) * 14;
+    if(speed < 0){
+      speed = 0;
+    }
+    else if(speed > 350){
+      speed = 350;
+    }
+    if(speed != currentSpeed){
+      currentSpeed =  speed;
+      gyroUpdated = true;
+    }
+  });
 }
 
 const setEventHandlers = function () {
@@ -296,6 +303,7 @@ function hitHandler(gamer, bullet){
 }
 
 function update () {
+  let updated = false;
   game.physics.arcade.overlap(playerGroup, bullets, hitHandler, null, this);
   Object.keys(gamers).forEach(function(gamerId){
     let gamerObj = gamers[gamerId];
@@ -318,7 +326,6 @@ function update () {
   }
   else{
     // 移动
-    let updated = false;
     if (cursors.left.isDown) {
       player.angle -= 4;
       updated = 1;
@@ -328,20 +335,17 @@ function update () {
     }
 
     if (cursors.up.isDown) {
-      // TODO: 添加手机陀螺仪支持
       // The speed we'll travel at
-      currentSpeed = 300;
+      currentSpeed = 350;
       updated = 1;
-    } else {
-      if (currentSpeed > 0) {
-        currentSpeed -= 4;
+    } else if(currentSpeed > 0){
+        currentSpeed -= 1;
         updated = 1;
-      }
     }
+  }
 
-    if(updated || gyroUpdated){
-      playerMove();
-    }
+  if(updated || gyroUpdated){
+    playerMove();
   }
 }
 
@@ -359,7 +363,12 @@ function playerMove(){
 
   name_text.x = Math.floor(player.x - 25);
   name_text.y = Math.floor(player.y - player.height);
-  socket.emit('move player', { x: player.x, y: player.y, angle: player.angle });
+  if((update_rate % 3) === 0){
+    // 每秒20个请求， 降低请求数
+    update_rate = 1;
+    socket.emit('move player', { x: player.x, y: player.y, angle: player.angle });
+  }
+  update_rate += 1;
 }
 
 function render () {
