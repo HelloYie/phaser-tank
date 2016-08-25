@@ -25,6 +25,7 @@ export default class RemotePlayer {
     this.player.body.collideWorldBounds = true;
     this.player.angle = game.rnd.angle();
     this.player.manager = this;
+    this.player.no_update_times = 1;
     this.lastPosition = {
       x,
       y,
@@ -48,6 +49,14 @@ export default class RemotePlayer {
       this.player.rotation = Math.PI + this.game.physics.arcade.angleToXY(this.player, this.lastPosition.x, this.lastPosition.y);
       this.name_text.x = Math.floor(this.player.x - 25);
       this.name_text.y = Math.floor(this.player.y - this.player.height);
+      this.player.no_update_times = 1;
+    } else {
+      // 未移动， 20次之后停止动画
+      if (this.player.no_update_times % 20 === 0) {
+        this.player.animations.play('stop');
+        this.player.no_update_times = 1;
+      }
+      this.player.no_update_times += 1;
     }
     this.lastPosition.x = this.player.x;
     this.lastPosition.y = this.player.y;
