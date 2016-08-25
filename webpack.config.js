@@ -19,9 +19,9 @@ module.exports = {
     path.join(__dirname, 'client/js/main.js')
   ],
   output: {
-    path: path.join(__dirname, '/dist/'),
+    path: path.join(__dirname, '/client/static/'),
     filename: '[name].js',
-    publicPath: '/'
+    publicPath: '/static/'
   },
   plugins: [
     new HtmlWebpackPlugin({
