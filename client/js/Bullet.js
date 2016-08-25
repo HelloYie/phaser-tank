@@ -8,9 +8,7 @@
 export default class Bullets {
   /**
    * game: Phaser.Game
-   * name: 玩家名称如: 张三
-   * group: 组: 'kzTeam'
-   * spriteSheetName: 载入的spriteSheet 名称
+   * imgName: 子弹图片名称
    *
    */
   constructor(game, imgName) {
