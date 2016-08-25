@@ -1,10 +1,12 @@
 /**
- * 定义远程玩家
+ * @summary
+ *  远程玩家类：定义远程玩家
  * @return class RemotePlayer
  *
  */
 
 export default class RemotePlayer {
+
   constructor(index, game, player, startX, startY, name, camp) {
     const x = startX;
     const y = startY;
@@ -38,7 +40,7 @@ export default class RemotePlayer {
     this.weapon.fireRate = 500;
     this.weapon.trackSprite(this.player, 0, 0, true);
     this.bullets = this.weapon.bullets;
-    this.name_text = game.add.text(x - 25, y - this.player.height, this.name, { font: '6mm' });
+    this.nameText = game.add.text(x - 25, y - this.player.height, this.name, { font: '6mm' });
   }
 
   update() {
@@ -47,8 +49,8 @@ export default class RemotePlayer {
       // 移动
       this.player.animations.play('move');
       this.player.rotation = Math.PI + this.game.physics.arcade.angleToXY(this.player, this.lastPosition.x, this.lastPosition.y);
-      this.name_text.x = Math.floor(this.player.x - 25);
-      this.name_text.y = Math.floor(this.player.y - this.player.height);
+      this.nameText.x = Math.floor(this.player.x - 25);
+      this.nameText.y = Math.floor(this.player.y - this.player.height);
       this.player.no_update_times = 1;
     } else {
       // 未移动， 20次之后停止动画
@@ -63,7 +65,7 @@ export default class RemotePlayer {
     this.lastPosition.angle = this.player.angle;
   }
 
-  is_teammates(player) {
+  isTeammates(player) {
     // 判断是否是队友
     return this.camp === player.camp;
   }
