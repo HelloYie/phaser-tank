@@ -10,6 +10,8 @@ import 'p2';
 import 'phaser';
 import 'socket.io-client';
 import gyro from 'js/lib/gyro';
+
+import Player from './Player';
 import RemotePlayer from './RemotePlayer';
 import lightSandPng from  'assets/light_sand.png';
 import knife1 from  'assets/knife1.png';
@@ -21,6 +23,7 @@ import 'css/game.css';
 let socket; // Socket connection
 let land;
 let player; // current player
+let sPlayer;
 let gamers; // other remote players
 let playerGroup;
 let bullets;
@@ -85,25 +88,8 @@ function create () {
   land = game.add.tileSprite(0, 0, game.width, game.height, 'earth');
   land.fixedToCamera = true;
 
-  // The base of our player
-  const startX = Math.round(Math.random() * (1000) - 500);
-  const startY = Math.round(Math.random() * (1000) - 500);
-  player = game.add.sprite(startX, startY, 'dude');
-  player.anchor.setTo(0.5, 0.5);
-  player.animations.add('move', [0, 1, 2, 3, 4, 5, 6, 7], 20, true);
-  player.animations.add('stop', [3], 20, true);
-  player.camp = 'red';
-
-  // This will force it to decelerate and limit its speed
-  // player.body.drag.setTo(200, 200)
-  game.physics.enable(player, Phaser.Physics.ARCADE);
-  player.body.maxVelocity.setTo(400, 400);
-  player.body.collideWorldBounds = true;
-
-  // 所有玩家添加到组中
-  playerGroup = game.add.group();
-  playerGroup.add(player);
-  name_text = game.add.text(startX - 25, startY - player.height, name, {font: '6mm'});
+  player = new Player(game, name,  null, 'dude' ).init();
+  sPlayer = player.sPlayer;
 
   // 初始化子弹数据
   weapon = game.add.weapon(5, 'knife1');
@@ -120,14 +106,14 @@ function create () {
 
   //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
   weapon.fireRate = 500;
-  weapon.trackSprite(player, 0, 0, true);
+  weapon.trackSprite(sPlayer, 0, 0, true);
 
   // Create some baddies to waste :)
   gamers = {};
 
-  player.bringToTop();
+  sPlayer.bringToTop();
 
-  game.camera.follow(player);
+  game.camera.follow(sPlayer);
   game.camera.deadzone = new Phaser.Rectangle(game.width/3, game.height/3, game.width/3, game.height/3);
   game.camera.focusOnXY(0, 0);
 
@@ -149,8 +135,8 @@ function create () {
     let angle = rad * (180 / Math.PI) + 90;
 
     gyroUpdated = false;
-    if(player.angle != angle){
-      player.angle = angle;
+    if(sPlayer.angle != angle){
+      sPlayer.angle = angle;
       gyroUpdated = true;
     }
 
@@ -202,7 +188,7 @@ function onSocketConnected () {
   gamers = {};
 
   // Send local player data to the game server
-  socket.emit('new player', { x: player.x, y: player.y, angle: player.angle, name: name});
+  socket.emit('new player', { x: sPlayer.x, y: sPlayer.y, angle: sPlayer.angle, name: name});
 }
 
 // Socket disconnected
@@ -222,7 +208,7 @@ function onNewPlayer (data) {
   }
 
   // Add new player to the remote players array
-  let gamer = new RemotePlayer(data.id, game, player, data.x, data.y, data.name, 'blue');
+  let gamer = new RemotePlayer(data.id, game, sPlayer, data.x, data.y, data.name, 'blue');
   gamers[data.id] = gamer;
   playerGroup.add(gamer.player);
 }
@@ -288,7 +274,7 @@ function hitHandler(gamer, bullet){
   if (bullet_owner.camp != gamer.camp){
     gamer.kill();
     socket.emit('kill', {id: gamer.name});
-    if(gamer === player){
+    if(gamer === sPlayer){
       // 阵亡
       name_text.kill();
     }
@@ -309,7 +295,7 @@ function update () {
     let gamerObj = gamers[gamerId];
     if(gamerObj.alive){
       gamerObj.update();
-      game.physics.arcade.collide(player, gamerObj.player);
+      game.physics.arcade.collide(sPlayer, gamerObj.player);
       game.physics.arcade.overlap(playerGroup, gamerObj.bullets, hitHandler, null, this);
     }
     else{
@@ -319,18 +305,18 @@ function update () {
   });
   if (game.input.activePointer.isDown) {
     // 攻击
-    if(player.alive){
+    if(sPlayer.alive){
       weapon.fire();
-      socket.emit('shot', { x: player.x, y: player.y, angle: player.angle});
+      socket.emit('shot', { x: sPlayer.x, y: sPlayer.y, angle: sPlayer.angle});
     }
   }
   else{
     // 移动
     if (cursors.left.isDown) {
-      player.angle -= 4;
+      sPlayer.angle -= 4;
       updated = 1;
     } else if (cursors.right.isDown) {
-      player.angle += 4;
+      sPlayer.angle += 4;
       updated = 1;
     }
 
@@ -350,23 +336,23 @@ function update () {
 }
 
 function playerMove(){
-  game.physics.arcade.velocityFromRotation(player.rotation, currentSpeed, player.body.velocity);
+  game.physics.arcade.velocityFromRotation(sPlayer.rotation, currentSpeed, sPlayer.body.velocity);
 
   if (currentSpeed > 0) {
-    player.animations.play('move');
+    sPlayer.animations.play('move');
   } else {
-    player.animations.play('stop');
+    sPlayer.animations.play('stop');
   }
 
   land.tilePosition.x = -game.camera.x;
   land.tilePosition.y = -game.camera.y;
-
-  name_text.x = Math.floor(player.x - 25);
-  name_text.y = Math.floor(player.y - player.height);
+  //
+  player.playerName.x = Math.floor(sPlayer.x - 25);
+  player.playerName.y = Math.floor(sPlayer.y - sPlayer.height);
   if((update_rate % 3) === 0){
     // 每秒20个请求， 降低请求数
     update_rate = 1;
-    socket.emit('move player', { x: player.x, y: player.y, angle: player.angle });
+    socket.emit('move player', { x: sPlayer.x, y: sPlayer.y, angle: sPlayer.angle });
   }
   update_rate += 1;
 }

@@ -9,6 +9,8 @@
         "max-len": [2, 150, 2, {"ignoreComments": true, "ignoreUrls": true}],
         "camelcase": 0,
         "import/no-extraneous-dependencies": 0,
+        "import/no-unresolved": 0,
+        "no-undef": 0,
     },
     "plugins": [],
 }
