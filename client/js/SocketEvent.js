@@ -11,12 +11,12 @@ import RemotePlayer from './RemotePlayer';
 
 export default class SocketEvent {
 
-  constructor(game, socket, gamers, player, playerGroup) {
+  constructor(game, socket, player) {
     this.game = game;
     this.socket = socket;
-    this.gamers = gamers;
+    this.gamers = {};
     this.player = player;
-    this.playerGroup = playerGroup;
+    this.sPlayer = player.sPlayer;
   }
 
   init() {
@@ -41,7 +41,7 @@ export default class SocketEvent {
     this.gamers = {};
 
     // Send local player data to the game server
-    this.socket.emit('new player', { x: this.player.x, y: this.player.y, angle: this.player.angle, name });
+    this.socket.emit('new player', { x: this.sPlayer.x, y: this.sPlayer.y, angle: this.sPlayer.angle, name });
   }
 
   // Socket disconnected
@@ -60,7 +60,7 @@ export default class SocketEvent {
       return;
     }
     // Add new player to the remote players array
-    const gamer = new RemotePlayer(data.id, this.game, this.player, data.x, data.y, data.name, 'blue');
+    const gamer = new RemotePlayer(data.id, this.game, data.x, data.y, data.name, 'blue');
     this.gamers[data.id] = gamer;
     this.playerGroup.add(gamer.player);
   }
@@ -104,7 +104,6 @@ export default class SocketEvent {
     const removePlayer = this.gamerById(data.id);
     // Player not found
     if (!removePlayer) {
-      console.log('not');
       return;
     }
 

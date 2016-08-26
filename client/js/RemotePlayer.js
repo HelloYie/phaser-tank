@@ -7,7 +7,7 @@
 
 export default class RemotePlayer {
 
-  constructor(index, game, player, startX, startY, name, camp) {
+  constructor(index, game, startX, startY, name, camp) {
     const x = startX;
     const y = startY;
     this.game = game;
@@ -15,7 +15,6 @@ export default class RemotePlayer {
     this.health = 3;
     this.camp = camp;  // 阵营
     this.weapon = game.add.weapon(30, 'knife1');
-    this.player = player;
     this.alive = true;
     this.player = game.add.sprite(x, y, 'enemy');
     this.player.animations.add('move', [0, 1, 2, 3, 4, 5, 6, 7], 20, true);
@@ -33,7 +32,6 @@ export default class RemotePlayer {
       y,
       angle: this.player.angle,
     };
-    game.physics.enable(this.weapon.bullets, Phaser.Physics.ARCADE);
     this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
     this.weapon.bulletAngleOffset = 90;
     this.weapon.bulletSpeed = 400;
@@ -41,6 +39,7 @@ export default class RemotePlayer {
     this.weapon.trackSprite(this.player, 0, 0, true);
     this.bullets = this.weapon.bullets;
     this.nameText = game.add.text(x - 25, y - this.player.height, this.name, { font: '6mm' });
+    this.player.playerObj = this;
   }
 
   update() {
@@ -65,8 +64,8 @@ export default class RemotePlayer {
     this.lastPosition.angle = this.player.angle;
   }
 
-  isTeammates(player) {
+  isTeammates(playerObj) {
     // 判断是否是队友
-    return this.camp === player.camp;
+    return this.camp === playerObj.camp;
   }
 }
