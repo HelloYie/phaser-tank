@@ -62,7 +62,6 @@ export default class SocketEvent {
     // Add new player to the remote players array
     const gamer = new RemotePlayer(data.id, this.game, this.player, data.x, data.y, data.name, 'blue');
     this.gamers[data.id] = gamer;
-    console.info(this);
     this.playerGroup.add(gamer.player);
   }
 
