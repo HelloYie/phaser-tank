@@ -56,17 +56,15 @@ class Main {
 
     // 初始化玩家
     const name = names[Math.floor(Math.random() * names.length)];
-    this.player = new Player(this.game, name, null, 'dude').init();
+    this.player = new Player(this.game, name, 'red', 'dude').init();
     this.sPlayer = this.player.sPlayer;
     this.nameText = this.player.playerName;
-    this.playerGroup = this.player.playerGroup;
 
     // 初始化子弹
     const bullet = new Bullets(this.game, 'knife1').init();
     this.weapon = bullet.weapon;
     this.weapon.trackSprite(this.sPlayer, 0, 0, true);
     this.bullets = bullet.bullets;
-    this.gamers = {};
 
     this.sPlayer.bringToTop();
 
@@ -75,23 +73,21 @@ class Main {
       this.game.width / 3,
       this.game.height / 3,
       this.game.width / 3,
-      this.game.height / 3,
+      this.game.height / 3
     );
     this.game.camera.focusOnXY(0, 0);
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
     // Start listening for events
-    const sEvent = new SocketEvent(this.game, this.socket, this.gamers, this.sPlayer, this.playerGroup).init();
-    this.gamers = sEvent.gamers;
-    this.playerGroup = sEvent.playerGroup;
+    this.sEvent = new SocketEvent(this.game, this.socket, this.player).init();
 
     new Gravity(this.sPlayer).init();
   }
 
   hitHandler(gamer, bullet) {
     const bullet_owner = bullet.data.bulletManager.trackedSprite;
-    if (bullet_owner.camp !== gamer.camp) {
+    if (!bullet_owner.playerObj.isTeammates(gamer.playerObj)) {
       gamer.kill();
       this.socket.emit('kill', {
         id: gamer.name,
@@ -111,13 +107,13 @@ class Main {
 
   update() {
     let updated = false;
-    this.game.physics.arcade.overlap(this.playerGroup, this.bullets, this.hitHandler, null, this);
-    Object.keys(this.gamers).forEach((gamerId) => {
-      const gamerObj = this.gamers[gamerId];
-      if (gamerObj.alive) {
+    this.game.physics.arcade.overlap(this.player.playerGroup, this.bullets, this.hitHandler, null, this);
+    Object.keys(this.sEvent.gamers).forEach((gamerId) => {
+      const gamerObj = this.sEvent.gamers[gamerId];
+      if (gamerObj.player.alive) {
         gamerObj.update();
-        game.physics.arcade.collide(this.sPlayer, gamerObj.player);
-        game.physics.arcade.overlap(this.playerGroup, gamerObj.bullets, this.hitHandler, null, this);
+        this.game.physics.arcade.collide(this.sPlayer, gamerObj.player);
+        this.game.physics.arcade.overlap(this.player.playerGroup, gamerObj.bullets, this.hitHandler, null, this);
       } else {
         gamerObj.nameText.kill();
         gamerObj.player.kill();

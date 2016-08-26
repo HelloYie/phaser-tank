@@ -14,10 +14,11 @@ export default class Player {
    *
    */
 
-  constructor(game, name, group, spriteSheetName) {
+  constructor(game, name, camp, spriteSheetName) {
     this.game = game;
     this.name = name;
-    this.group = group;
+    this.camp = camp; // 阵营
+    this.playerGroup = game.add.group();
     this.spriteSheetName = spriteSheetName;
     this.startX = Math.round((Math.random() * 1000) - 500);
     this.startY = Math.round((Math.random() * 1000) - 500);
@@ -32,9 +33,11 @@ export default class Player {
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.body.maxVelocity.setTo(400, 400);
     this.sPlayer.body.collideWorldBounds = true;
+    this.sPlayer.playerObj = this;
+    this.sPlayer.name = 'me';
+    this.playerGroup.add(this.sPlayer);
 
     this.setName();
-    this.setGroup();
 
     return this;
   }
@@ -54,11 +57,8 @@ export default class Player {
     return this;
   }
 
-  // 设置玩家组
-  setGroup() {
-    const playerGroup = this.game.add.group();
-    playerGroup.add(this.sPlayer);
-    this.playerGroup = playerGroup;
-    return this;
+  isTeammates(playerObj) {
+    // 判断是否是队友
+    return this.camp === playerObj.camp;
   }
 }
