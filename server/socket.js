@@ -1,15 +1,11 @@
 'use strict';
 
 const util = require('util');
-const path = require('path');
 const io = require('socket.io');
 const Player = require('./player');
 
-const port = process.env.PORT || 8080;
-
 let socket;	// Socket controller
 let players;	// object of connected players
-
 
 /* ************************************************
 ** GAME EVENT HANDLERS
@@ -40,7 +36,6 @@ function onKill(data) {
   delete players[data.id];
   this.broadcast.emit('kill', { id: data.id });
 }
-
 
 function onClientDisconnect() {
   util.log(`Player has disconnected: ${this.id}`);
@@ -107,7 +102,6 @@ function onShot(data) {
   );
 }
 
-
 // New socket connection
 function onSocketConnection(client) {
   util.log(`New player has connected: ${client.id}`);
@@ -135,10 +129,8 @@ const setEventHandlers = function () {
 module.exports = function init(server) {
   // Create an empty object to store players
   players = {};
-
   // Attach Socket.IO to server
   socket = io.listen(server);
-
   // Start listening for events
   setEventHandlers();
 };
