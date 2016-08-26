@@ -1,60 +1,54 @@
-/* ************************************************
-** GAME PLAYER CLASS
-************************************************ */
+/**
+ *  玩家
+ */
 
 'use strict';
 
-const Player = function (startX, startY, _angle, _name) {
-  let x = startX;
-  let y = startY;
-  let angle = _angle;
-  let name = _name;
-  let id;
+class Player {
+  /**
+   * startX: x坐标开始点
+   * startY: y坐标开始点
+   * angle: 角度
+   * name: 名称
+   */
+  constructor(startX, startY, angle, name) {
+    this.x = startX;
+    this.y = startY;
+    this.angle = angle;
+    this.name = name;
+  }
 
-  // Getters and setters
-  const getX = () => {
-    return x;
-  };
+  getX() {
+    return this.x;
+  }
 
-  const getY = () => {
-    return y;
-  };
+  getY() {
+    return this.y;
+  }
 
-  const setX = (newX) => {
-    x = newX;
-  };
+  setX(x) {
+    this.x = x;
+  }
 
-  const setY = (newY) => {
-    y = newY;
-  };
+  setY(y) {
+    this.y = y;
+  }
 
-  const getAngle = () => {
-    return angle;
-  };
+  getAngle() {
+    return this.angle;
+  }
 
-  const setAngle = (newAngle) => {
-    angle = newAngle;
-  };
+  setAngle(angle) {
+    this.angle = angle;
+  }
 
-  const getName = () => {
-    return name;
-  };
+  getName() {
+    return this.name;
+  }
 
-  const setName = (newName) => {
-    name = newName;
-  };
-
-  return {
-    getX,
-    getY,
-    getAngle,
-    getName,
-    setX,
-    setY,
-    setAngle,
-    setName,
-    id,
-  };
-};
+  setName(name) {
+    this.name = name;
+  }
+}
 
 module.exports = Player;
