@@ -6,7 +6,7 @@
  *
  */
 
-import RemotePlayer from './RemotePlayer';
+import RemotePlayer from './remote_player';
 
 
 export default class SocketEvent {
@@ -82,6 +82,8 @@ export default class SocketEvent {
       data.speed,
       166
     );
+    // movePlayer.x = data.x;
+    // movePlayer.y = data.y;
     movePlayer.angle = data.angle;
     // 移动
     movePlayer.animations.play('move');

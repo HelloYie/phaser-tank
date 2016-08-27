@@ -11,10 +11,10 @@ import 'p2';
 import 'phaser';
 import 'socket.io-client';
 import { names } from './constant';
-import Player from './Player';
-import Bullets from './Bullet';
-import SocketEvent from './SocketEvent';
-import Gravity from './Gravity';
+import Player from './player';
+import Bullets from './bullet';
+import SocketEvent from './socket_event';
+import Gravity from './gravity';
 import lightSandPng from 'assets/light_sand.png';
 import knife1 from 'assets/knife1.png';
 import dudePng from 'assets/dude.png';
@@ -77,6 +77,8 @@ class Main {
     );
     this.game.camera.focusOnXY(0, 0);
 
+    this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
     // 按键500ms触发一次
@@ -115,13 +117,15 @@ class Main {
       const gamerObj = this.sEvent.gamers[gamerId];
       if (gamerObj.player.alive) {
         gamerObj.update();
-        this.game.physics.arcade.collide(this.sPlayer, gamerObj.player);
         this.game.physics.arcade.overlap(this.player.playerGroup, gamerObj.bullets, this.hitHandler, null, this);
       } else {
         gamerObj.nameText.kill();
         gamerObj.player.kill();
       }
     });
+
+    this.game.physics.arcade.collide(this.sPlayer, this.player.playerGroup);
+
     if (this.game.input.activePointer.justPressed()) {
       // 攻击
       if (this.sPlayer.alive) {
@@ -163,6 +167,7 @@ class Main {
       window.currentSpeed,
       this.sPlayer.body.velocity
     );
+
 
     if (window.currentSpeed > 0) {
       this.sPlayer.animations.play('move');

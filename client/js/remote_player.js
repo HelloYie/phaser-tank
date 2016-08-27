@@ -21,7 +21,7 @@ export default class RemotePlayer {
     this.player.animations.add('stop', [3], 20, true);
     this.player.anchor.setTo(0.5, 0.5);
     this.player.name = index.toString();
-    game.physics.enable(this.player, Phaser.Physics.ARCADE); /* eslint no-undef:0 */
+    this.game.physics.enable(this.player, Phaser.Physics.ARCADE); /* eslint no-undef:0 */
     this.player.body.immovable = true;
     this.player.body.collideWorldBounds = true;
     this.player.angle = game.rnd.angle();
