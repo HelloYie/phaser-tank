@@ -16,6 +16,7 @@ class Player {
     this.y = startY;
     this.angle = angle;
     this.name = name;
+    this.speed = 0;
   }
 
   getX() {
@@ -40,6 +41,14 @@ class Player {
 
   setAngle(angle) {
     this.angle = angle;
+  }
+
+  getSpeed() {
+    return this.speed;
+  }
+
+  setSpeed(speed) {
+    this.speed = speed;
   }
 
   getName() {

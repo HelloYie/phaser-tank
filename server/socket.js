@@ -112,12 +112,14 @@ class SocketHandler {
     movePlayer.setX(data.x);
     movePlayer.setY(data.y);
     movePlayer.setAngle(data.angle);
+    movePlayer.setSpeed(data.speed);
 
     this.broadcast.emit('move player', {
       id: movePlayer.id,
       x: movePlayer.getX(),
       y: movePlayer.getY(),
       angle: movePlayer.getAngle(),
+      speed: movePlayer.getSpeed(),
     });
   }
 

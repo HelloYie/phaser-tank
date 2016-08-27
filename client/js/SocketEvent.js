@@ -62,20 +62,29 @@ export default class SocketEvent {
     // Add new player to the remote players array
     const gamer = new RemotePlayer(data.id, this.game, data.x, data.y, data.name, 'blue');
     this.gamers[data.id] = gamer;
-    this.playerGroup.add(gamer.player);
+    this.player.playerGroup.add(gamer.player);
   }
 
   // Move player
   onMovePlayer(data) {
-    const movePlayer = this.gamerById(data.id);
+    console.log(data.id);
+    const PlayerObj = this.gamerById(data.id);
     // Player not found
-    if (!movePlayer) {
+    if (!PlayerObj) {
       return;
     }
+    const movePlayer = PlayerObj.player;
     // Update player position
-    movePlayer.player.x = data.x;
-    movePlayer.player.y = data.y;
-    movePlayer.player.angle = data.angle;
+    this.game.physics.arcade.moveToXY(
+      movePlayer,
+      data.x,
+      data.y,
+      data.speed,
+      166
+    );
+    movePlayer.angle = data.angle;
+    // 移动
+    movePlayer.animations.play('move');
   }
 
   // Shot
