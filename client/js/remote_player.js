@@ -16,12 +16,12 @@ export default class RemotePlayer {
     this.camp = camp;  // 阵营
     this.weapon = game.add.weapon(30, 'knife1');
     this.alive = true;
-    this.player = game.add.sprite(x, y, 'enemy');
-    this.player.animations.add('move', [0, 1, 2, 3, 4, 5, 6, 7], 20, true);
-    this.player.animations.add('stop', [3], 20, true);
+
+    this.player = game.add.sprite(x, y, 'enemy', 'tank1');
+    this.player.addChild(game.add.sprite(-15, -15, 'enemy', 'turret'));
+
     this.player.anchor.setTo(0.5, 0.5);
-    this.player.name = index.toString();
-    this.game.physics.enable(this.player, Phaser.Physics.ARCADE); /* eslint no-undef:0 */
+    this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
     this.player.body.immovable = true;
     this.player.body.collideWorldBounds = true;
     this.player.angle = game.rnd.angle();
@@ -33,20 +33,27 @@ export default class RemotePlayer {
       angle: this.player.angle,
     };
     this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-    this.weapon.bulletAngleOffset = 90;
     this.weapon.bulletSpeed = 400;
-    this.weapon.fireRate = 500;
+    this.weapon.fireRate = 400;
     this.weapon.trackSprite(this.player, 0, 0, true);
     this.bullets = this.weapon.bullets;
-    this.nameText = game.add.text(x - 25, y - this.player.height, this.name, { font: '6mm' });
+
+    const playerName = this.game.add.text(
+      -30,
+      -23,
+      this.name,
+      {
+        font: '6mm',
+      });
+    playerName.angle = 90;
+    playerName.fill = 'blue';
+    this.player.addChild(playerName);
     this.player.playerObj = this;
   }
 
   update() {
     // 更新精灵状态
     if (this.player.x !== this.lastPosition.x || this.player.y !== this.lastPosition.y) {
-      this.nameText.x = Math.floor(this.player.x - 25);
-      this.nameText.y = Math.floor(this.player.y - this.player.height);
       this.player.no_update_times = 1;
     } else {
       // 未移动， 1s之后停止动画

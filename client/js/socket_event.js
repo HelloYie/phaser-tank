@@ -41,7 +41,12 @@ export default class SocketEvent {
     this.gamers = {};
 
     // Send local player data to the game server
-    this.socket.emit('new player', { x: this.sPlayer.x, y: this.sPlayer.y, angle: this.sPlayer.angle, name });
+    this.socket.emit('new player', {
+      x: this.sPlayer.x,
+      y: this.sPlayer.y,
+      angle: this.sPlayer.angle,
+      name: this.sPlayer.name,
+    });
   }
 
   // Socket disconnected
@@ -67,7 +72,6 @@ export default class SocketEvent {
 
   // Move player
   onMovePlayer(data) {
-    console.log(data.id);
     const PlayerObj = this.gamerById(data.id);
     // Player not found
     if (!PlayerObj) {
@@ -119,7 +123,6 @@ export default class SocketEvent {
     }
 
     removePlayer.player.kill();
-    console.log(removePlayer);
     // Remove player from array
     delete this.gamers[data.id];
   }

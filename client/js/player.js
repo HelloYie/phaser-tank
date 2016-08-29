@@ -25,16 +25,23 @@ export default class Player {
   }
 
   init() {
-    this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.spriteSheetName);
+    this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.spriteSheetName, 'tank1');
     this.sPlayer.anchor.setTo(0.5, 0.5);
-    this.sPlayer.animations.add('move', [0, 1, 2, 3, 4, 5, 6, 7], 20, true);
-    this.sPlayer.animations.add('stop', [3], 20, true);
+
+    this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
+
+    // this.sPlayer.animations.add('move', [0, 1, 2, 3, 4, 5, 6, 7], 20, true);
+    // this.sPlayer.animations.add('stop', [3], 20, true);
+    const turret = this.game.add.sprite(0, 0, this.spriteSheetName, 'turret');
+    turret.anchor.setTo(0.3, 0.5);
+    this.sPlayer.addChild(turret);
+
 
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.body.maxVelocity.setTo(400, 400);
     this.sPlayer.body.collideWorldBounds = true;
     this.sPlayer.playerObj = this;
-    this.sPlayer.name = 'me';
+    this.sPlayer.name = this.name;
     this.playerGroup.add(this.sPlayer);
 
     this.setName();
@@ -45,16 +52,15 @@ export default class Player {
   // 设置玩家名称
   setName() {
     const playerName = this.game.add.text(
-      this.startX - 25,
-      this.startY - this.sPlayer.height,
+      -30,
+      -23,
       this.name,
       {
         font: '6mm',
       });
-    playerName.x = Math.floor(this.sPlayer.x - 25);
-    playerName.y = Math.floor(this.sPlayer.y - this.sPlayer.height);
-    this.playerName = playerName;
-    return this;
+    playerName.angle = 90;
+    playerName.fill = 'blue';
+    this.sPlayer.addChild(playerName);
   }
 
   isTeammates(playerObj) {
