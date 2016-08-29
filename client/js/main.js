@@ -6,10 +6,6 @@
  *  负责绘制整个游戏, 并监听socket
  */
 
-import 'pixi.js';
-import 'p2';
-import 'phaser';
-import 'socket.io-client';
 import { names } from './constant';
 import Player from './player';
 import Bullets from './bullet';
@@ -201,4 +197,16 @@ class Main {
   }
 }
 
-new Main();
+require.ensure([], () => {
+  window.PIXI = require('./lib/pixi.min');
+
+  window.p2 = require('./lib/p2.min');
+
+  window.io = require('./lib/socket.io-client');
+
+  require.ensure([], () => {
+    window.Phaser = require('./lib/phaser-split.min');
+
+    new Main();
+  });
+});
