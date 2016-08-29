@@ -11,9 +11,18 @@ import Player from './player';
 import Bullets from './bullet';
 import SocketEvent from './socket_event';
 import Gravity from './gravity';
-import lightSandPng from 'assets/light_sand.png';
-import knife1 from 'assets/knife1.png';
-import dudePng from 'assets/dude.png';
+// import lightSandPng from 'assets/light_sand.png';
+// import knife1 from 'assets/knife1.png';
+// import dudePng from 'assets/dude.png';
+
+import tankPng from '../assets/tank/tanks.png';
+import enemyPng from '../assets/tank/enemy-tanks.png';
+import bulletPng from '../assets/tank/bullet.png';
+import earthPng from '../assets/tank/scorched_earth.png';
+// import kaboomPng from '../assets/tank/explosion.png';
+
+import tanksJson from '../assets/tank/tanks.json';
+
 import 'css/reset.css';
 import 'css/game.css';
 
@@ -38,10 +47,18 @@ class Main {
   }
 
   preload() {
-    this.game.load.image('earth', lightSandPng);
-    this.game.load.image('knife1', knife1);
-    this.game.load.spritesheet('dude', dudePng, 64, 64);
-    this.game.load.spritesheet('enemy', dudePng, 64, 64);
+    // this.game.load.image('earth', lightSandPng);
+    // this.game.load.image('knife1', knife1);
+    // this.game.load.spritesheet('dude', dudePng, 64, 64);
+    // this.game.load.spritesheet('enemy', dudePng, 64, 64);
+
+    // tank
+    this.game.load.atlas('dude', tankPng, null, tanksJson);
+    this.game.load.atlas('enemy', enemyPng, null, tanksJson);
+    // this.game.load.image('logo', 'assets/games/tanks/logo.png');
+    this.game.load.image('knife1', bulletPng);
+    this.game.load.image('earth', earthPng);
+    // this.game.load.spritesheet('kaboom', kaboomPng, 64, 64, 23);
   }
 
   create() {
@@ -57,9 +74,8 @@ class Main {
     this.nameText = this.player.playerName;
 
     // 初始化子弹
-    const bullet = new Bullets(this.game, 'knife1').init();
+    const bullet = new Bullets(this.game, this.sPlayer, 'knife1').init();
     this.weapon = bullet.weapon;
-    this.weapon.trackSprite(this.sPlayer, 0, 0, true);
     this.bullets = bullet.bullets;
 
     this.sPlayer.bringToTop();
@@ -83,7 +99,7 @@ class Main {
     // Start listening for events
     this.sEvent = new SocketEvent(this.game, this.socket, this.player).init();
 
-    new Gravity(this.sPlayer).init();
+    new Gravity(this.sPlayer, this.game).init();
   }
 
   hitHandler(gamer, bullet) {
@@ -107,7 +123,6 @@ class Main {
   }
 
   update() {
-    let updated = false;
     this.game.physics.arcade.overlap(this.player.playerGroup, this.bullets, this.hitHandler, null, this);
     Object.keys(this.sEvent.gamers).forEach((gamerId) => {
       const gamerObj = this.sEvent.gamers[gamerId];
@@ -125,6 +140,7 @@ class Main {
     if (this.game.input.activePointer.justPressed()) {
       // 攻击
       if (this.sPlayer.alive) {
+        this.weapon.bulletAngleOffset = 0;
         this.weapon.fire();
         this.socket.emit('shot', {
           x: this.sPlayer.x,
@@ -132,27 +148,9 @@ class Main {
           angle: this.sPlayer.angle,
         });
       }
-    } else {
-      // 移动
-      if (this.cursors.left.isDown) {
-        this.sPlayer.angle -= 4;
-        updated = 1;
-      } else if (this.cursors.right.isDown) {
-        this.sPlayer.angle += 4;
-        updated = 1;
-      }
-
-      if (this.cursors.up.isDown) {
-        // The speed we'll travel at
-        window.currentSpeed = 350;
-        updated = 1;
-      } else if (window.currentSpeed > 0) {
-        window.currentSpeed -= 1;
-        updated = 1;
-      }
     }
 
-    if (updated || window.gyroUpdated) {
+    if (window.gyroUpdated) {
       this.playerMove();
     }
   }
@@ -164,18 +162,15 @@ class Main {
       this.sPlayer.body.velocity
     );
 
-
     if (window.currentSpeed > 0) {
-      this.sPlayer.animations.play('move');
+      // this.sPlayer.animations.play('move');
+      this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
     } else {
       this.sPlayer.animations.play('stop');
     }
 
     this.land.tilePosition.x = -this.game.camera.x;
     this.land.tilePosition.y = -this.game.camera.y;
-    //
-    this.player.playerName.x = Math.floor(this.sPlayer.x - 25);
-    this.player.playerName.y = Math.floor(this.sPlayer.y - this.sPlayer.height);
     if ((this.updateRate % 10) === 0) {
       // 每秒6个请求， 降低请求数
       this.updateRate = 1;

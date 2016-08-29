@@ -11,8 +11,9 @@ export default class Bullets {
    * imgName: 子弹图片名称
    *
    */
-  constructor(game, imgName) {
+  constructor(game, player, imgName) {
     this.game = game;
+    this.player = player;
     this.imgName = imgName;
   }
 
@@ -28,6 +29,7 @@ export default class Bullets {
     this.weapon.bulletSpeed = 400;
     //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
     this.weapon.fireRate = 500;
+    this.weapon.trackSprite(this.player, 50, 0, true);
     return this;
   }
 }
