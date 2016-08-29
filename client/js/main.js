@@ -11,10 +11,10 @@ import 'p2';
 import 'phaser';
 import 'socket.io-client';
 import { names } from './constant';
-import Player from './Player';
-import Bullets from './Bullet';
-import SocketEvent from './SocketEvent';
-import Gravity from './Gravity';
+import Player from './player';
+import Bullets from './bullet';
+import SocketEvent from './socket_event';
+import Gravity from './gravity';
 import lightSandPng from 'assets/light_sand.png';
 import knife1 from 'assets/knife1.png';
 import dudePng from 'assets/dude.png';
@@ -77,7 +77,12 @@ class Main {
     );
     this.game.camera.focusOnXY(0, 0);
 
+    this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
     this.cursors = this.game.input.keyboard.createCursorKeys();
+
+    // 按键500ms触发一次
+    this.game.input.justPressedRate = 30;
 
     // Start listening for events
     this.sEvent = new SocketEvent(this.game, this.socket, this.player).init();
@@ -112,14 +117,16 @@ class Main {
       const gamerObj = this.sEvent.gamers[gamerId];
       if (gamerObj.player.alive) {
         gamerObj.update();
-        this.game.physics.arcade.collide(this.sPlayer, gamerObj.player);
         this.game.physics.arcade.overlap(this.player.playerGroup, gamerObj.bullets, this.hitHandler, null, this);
       } else {
         gamerObj.nameText.kill();
         gamerObj.player.kill();
       }
     });
-    if (this.game.input.activePointer.isDown) {
+
+    this.game.physics.arcade.collide(this.sPlayer, this.player.playerGroup);
+
+    if (this.game.input.activePointer.justPressed()) {
       // 攻击
       if (this.sPlayer.alive) {
         this.weapon.fire();
@@ -161,6 +168,7 @@ class Main {
       this.sPlayer.body.velocity
     );
 
+
     if (window.currentSpeed > 0) {
       this.sPlayer.animations.play('move');
     } else {
@@ -172,10 +180,18 @@ class Main {
     //
     this.player.playerName.x = Math.floor(this.sPlayer.x - 25);
     this.player.playerName.y = Math.floor(this.sPlayer.y - this.sPlayer.height);
-    if ((this.updateRate % 3) === 0) {
-      // 每秒20个请求， 降低请求数
+    if ((this.updateRate % 10) === 0) {
+      // 每秒6个请求， 降低请求数
       this.updateRate = 1;
-      this.socket.emit('move player', { x: this.sPlayer.x, y: this.sPlayer.y, angle: this.sPlayer.angle });
+      this.socket.emit(
+        'move player',
+        {
+          x: this.sPlayer.x,
+          y: this.sPlayer.y,
+          angle: this.sPlayer.angle,
+          speed: window.currentSpeed,
+        }
+      );
     }
     this.updateRate += 1;
   }
