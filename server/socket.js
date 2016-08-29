@@ -78,7 +78,12 @@ class SocketHandler {
     const newPlayer = new Player(data.x, data.y, data.angle, data.name);
     newPlayer.id = this.id;
 
-    it.broadcast.emit('new player', { id: newPlayer.id, x: newPlayer.getX(), y: newPlayer.getY(), name: newPlayer.getName() });
+    it.broadcast.emit('new player', {
+      id: newPlayer.id,
+      x: newPlayer.getX(),
+      y: newPlayer.getY(),
+      name: newPlayer.getName(),
+    });
 
     // let i;
     let existingPlayer;
@@ -149,23 +154,23 @@ class SocketHandler {
 
     util.log(`New player has connected: ${client.id}`);
 
-    client.on('disconnect', function() {
+    client.on('disconnect', function () {
       self.onClientDisconnect.call(this, self);
     });
 
-    client.on('new player', function(data) {
+    client.on('new player', function (data) {
       self.onNewPlayer.call(this, self, data);
     });
 
-    client.on('move player', function(data) {
+    client.on('move player', function (data) {
       self.onMovePlayer.call(this, self, data);
     });
 
-    client.on('shot', function(data) {
+    client.on('shot', function (data) {
       self.onShot.call(this, self, data);
     });
 
-    client.on('kill', function(data) {
+    client.on('kill', function (data) {
       self.onKill.call(this, self, data);
     });
   }

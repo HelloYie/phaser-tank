@@ -6,13 +6,6 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var StatsPlugin = require('stats-webpack-plugin');
 
-var phaserModule = path.join(__dirname, '/node_modules/phaser/');
-var socketModule = path.join(__dirname, '/node_modules/socket.io-client/');
-var phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
-  pixi = path.join(phaserModule, 'build/custom/pixi.js'),
-  p2 = path.join(phaserModule, 'build/custom/p2.js'),
-  io = path.join(socketModule, 'socket.io.js');
-
 module.exports = {
   entry: [
     path.join(__dirname, 'client/js/main.js')
@@ -47,22 +40,6 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: /pixi.js/,
-        loader: "script"
-      },
-      {
-        test: /phaser-split.js/,
-        loader: "script"
-      },
-      {
-        test: /p2.js/,
-        loader: "script"
-      },
-      {
-        test: /socket.io.js/,
-        loader: "script"
-      },
-      {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel',
@@ -82,12 +59,6 @@ module.exports = {
     ]
   },
   resolve: {
-    alias: {
-      'phaser': phaser,
-      'pixi.js': pixi,
-      'p2': p2,
-      'socket.io-client': io,
-    },
     extensions: ['', '.js'],
     modulesDirectories: ['node_modules', path.join(__dirname, '/client/')],
   }
