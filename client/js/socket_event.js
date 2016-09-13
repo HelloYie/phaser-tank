@@ -5,7 +5,6 @@
  * @description:
  *
  */
-
 import RemotePlayer from './remote_player';
 
 
@@ -17,6 +16,7 @@ export default class SocketEvent {
     this.gamers = {};
     this.player = player;
     this.sPlayer = player.sPlayer;
+    return this.init();
   }
 
   init() {

@@ -22,6 +22,7 @@ export default class Player {
     this.spriteSheetName = spriteSheetName;
     this.startX = Math.round((Math.random() * 1000) - 500);
     this.startY = Math.round((Math.random() * 1000) - 500);
+    return this.init();
   }
 
   init() {

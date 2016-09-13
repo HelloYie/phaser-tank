@@ -6,29 +6,27 @@
  *  负责绘制整个游戏, 并监听socket
  */
 
+import 'css/reset.css';
+import 'css/game.css';
 import { names } from './constant';
 import Player from './player';
-import Bullets from './bullet';
+import Attack from './attack';
 import SocketEvent from './socket_event';
-import Gravity from './gravity';
-// import lightSandPng from 'assets/light_sand.png';
-// import knife1 from 'assets/knife1.png';
-// import dudePng from 'assets/dude.png';
+import TouchControl from './touch_control';
 
 import tankPng from '../assets/tank/tanks.png';
 import enemyPng from '../assets/tank/enemy-tanks.png';
 import bulletPng from '../assets/tank/bullet.png';
 import earthPng from '../assets/tank/scorched_earth.png';
-// import kaboomPng from '../assets/tank/explosion.png';
+import compassRosePng from '../assets/tank/compass_rose.png';
+import touchSegmentPng from '../assets/tank/touch_segment.png';
+import touchPng from '../assets/tank/touch.png';
+import attackPng from '../assets/tank/attack.png';
 
 import tanksJson from '../assets/tank/tanks.json';
 
-import 'css/reset.css';
-import 'css/game.css';
-
 
 class Main {
-
   constructor() {
     this.game = new Phaser.Game(
       '100',
@@ -42,45 +40,41 @@ class Main {
         render: this.render.bind(this),
       }
     );
-    window.currentSpeed = 0;
+    this.currentSpeed = 0;
     this.updateRate = 1;
+    this.angle = 0;
   }
 
   preload() {
-    // this.game.load.image('earth', lightSandPng);
-    // this.game.load.image('knife1', knife1);
-    // this.game.load.spritesheet('dude', dudePng, 64, 64);
-    // this.game.load.spritesheet('enemy', dudePng, 64, 64);
-
-    // tank
+    this.game.load.image('bullet', bulletPng);
+    this.game.load.image('earth', earthPng);
+    this.game.load.image('compass', compassRosePng);
+    this.game.load.image('touch_segment', touchSegmentPng);
+    this.game.load.image('touch', touchPng);
+    this.game.load.image('attack', attackPng);
     this.game.load.atlas('dude', tankPng, null, tanksJson);
     this.game.load.atlas('enemy', enemyPng, null, tanksJson);
-    // this.game.load.image('logo', 'assets/games/tanks/logo.png');
-    this.game.load.image('knife1', bulletPng);
-    this.game.load.image('earth', earthPng);
-    // this.game.load.spritesheet('kaboom', kaboomPng, 64, 64, 23);
   }
 
   create() {
     this.socket = io.connect();
-    this.game.world.setBounds(-2000, -2000, 2000, 2000);
+    this.game.world.setBounds(0, 0, 2000, 2000);
     this.land = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'earth');
     this.land.fixedToCamera = true;
 
     // 初始化玩家
     const name = names[Math.floor(Math.random() * names.length)];
-    this.player = new Player(this.game, name, 'red', 'dude').init();
+    this.player = new Player(this.game, name, 'red', 'dude');
     this.sPlayer = this.player.sPlayer;
     this.nameText = this.player.playerName;
 
     // 初始化子弹
-    const bullet = new Bullets(this.game, this.sPlayer, 'knife1').init();
-    this.weapon = bullet.weapon;
-    this.bullets = bullet.bullets;
+    this.attack = new Attack(this.game, this.sPlayer, 'bullet', this.socket);
+    this.bullets = this.attack.bullets;
 
     this.sPlayer.bringToTop();
+    this.game.camera.unfollow();
 
-    this.game.camera.follow(this.sPlayer);
     this.game.camera.deadzone = new Phaser.Rectangle(
       this.game.width / 3,
       this.game.height / 3,
@@ -92,14 +86,11 @@ class Main {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
-
-    // 按键500ms触发一次
     this.game.input.justPressedRate = 30;
 
-    // Start listening for events
-    this.sEvent = new SocketEvent(this.game, this.socket, this.player).init();
-
-    new Gravity(this.sPlayer, this.game).init();
+    // 按键500ms触发一次
+    this.sEvent = new SocketEvent(this.game, this.socket, this.player);
+    this.touchControl = new TouchControl(this.game, this).touchControl;
   }
 
   hitHandler(gamer, bullet) {
@@ -110,14 +101,12 @@ class Main {
         id: gamer.name,
       });
       if (gamer === this.sPlayer) {
-        // 阵亡
         this.nameText.kill();
       } else {
         gamer.manager.nameText.kill();
       }
     }
     if (bullet_owner !== gamer) {
-      // 碰撞后子弹消失
       bullet.kill();
     }
   }
@@ -136,41 +125,44 @@ class Main {
     });
 
     this.game.physics.arcade.collide(this.sPlayer, this.player.playerGroup);
-
-    if (this.game.input.activePointer.justPressed()) {
-      // 攻击
-      if (this.sPlayer.alive) {
-        this.weapon.bulletAngleOffset = 0;
-        this.weapon.fire();
-        this.socket.emit('shot', {
-          x: this.sPlayer.x,
-          y: this.sPlayer.y,
-          angle: this.sPlayer.angle,
-        });
-      }
-    }
-
-    if (window.gyroUpdated) {
-      this.playerMove();
-    }
+    this.playerMove();
   }
 
   playerMove() {
-    this.game.physics.arcade.velocityFromRotation(
-      this.sPlayer.rotation,
-      window.currentSpeed,
+    const touchCursors = this.touchControl.cursors;
+    const touchSpeed = this.touchControl.speed;
+
+    if (touchCursors.left) {
+      this.angle = 180;
+      this.currentSpeed = Math.abs(touchSpeed.x);
+    } else if (touchCursors.right) {
+      this.angle = 0;
+      this.currentSpeed = Math.abs(touchSpeed.x);
+    } else if (touchCursors.up) {
+      this.angle = -90;
+      this.currentSpeed = Math.abs(touchSpeed.y);
+    } else if (touchCursors.down) {
+      this.angle = 90;
+      this.currentSpeed = Math.abs(touchSpeed.y);
+    }
+
+    if (this.touchControl.speed.x === 0 && this.touchControl.speed.y === 0) {
+      this.currentSpeed = 0;
+    }
+
+    this.sPlayer.angle = this.angle;
+    this.game.physics.arcade.velocityFromAngle(
+      this.angle,
+      this.currentSpeed * 3,
       this.sPlayer.body.velocity
     );
 
-    if (window.currentSpeed > 0) {
-      // this.sPlayer.animations.play('move');
+    if (this.currentSpeed > 0) {
       this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
     } else {
       this.sPlayer.animations.play('stop');
     }
 
-    this.land.tilePosition.x = -this.game.camera.x;
-    this.land.tilePosition.y = -this.game.camera.y;
     if ((this.updateRate % 10) === 0) {
       // 每秒6个请求， 降低请求数
       this.updateRate = 1;
@@ -180,7 +172,7 @@ class Main {
           x: this.sPlayer.x,
           y: this.sPlayer.y,
           angle: this.sPlayer.angle,
-          speed: window.currentSpeed,
+          speed: this.currentSpeed,
         }
       );
     }
@@ -201,6 +193,8 @@ require.ensure([], () => {
 
   require.ensure([], () => {
     window.Phaser = require('./lib/phaser-split.min');
+
+    require('./lib/phaser-touch-control');
 
     new Main();
   });
