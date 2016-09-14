@@ -5,39 +5,40 @@
  * @description:
  *
  */
+import TouchControl from './touch_control';
+
 export default class Player {
   /**
    * game: Phaser.Game
    * name: 玩家名称如: 张三
    * group: 组: 'kzTeam'
-   * spriteSheetName: 载入的spriteSheet 名称
+   * key: 载入的spriteSheet 名称
    *
    */
 
-  constructor(game, name, camp, spriteSheetName) {
+  constructor(game, name, camp, key, socket) {
     this.game = game;
     this.name = name;
     this.camp = camp; // 阵营
+    this.socket = socket;
     this.playerGroup = game.add.group();
-    this.spriteSheetName = spriteSheetName;
+    this.key = key;
+    this.currentSpeed = 0;
+    this.angle = 0;
     this.startX = Math.round((Math.random() * 1000) - 500);
     this.startY = Math.round((Math.random() * 1000) - 500);
     return this.init();
   }
 
   init() {
-    this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.spriteSheetName, 'tank1');
+    this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key, 'tank1');
     this.sPlayer.anchor.setTo(0.5, 0.5);
 
     this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
 
-    // this.sPlayer.animations.add('move', [0, 1, 2, 3, 4, 5, 6, 7], 20, true);
-    // this.sPlayer.animations.add('stop', [3], 20, true);
-    const turret = this.game.add.sprite(0, 0, this.spriteSheetName, 'turret');
+    const turret = this.game.add.sprite(0, 0, this.key, 'turret');
     turret.anchor.setTo(0.3, 0.5);
     this.sPlayer.addChild(turret);
-
-
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.body.maxVelocity.setTo(400, 400);
     this.sPlayer.body.collideWorldBounds = true;
@@ -67,5 +68,54 @@ export default class Player {
   isTeammates(playerObj) {
     // 判断是否是队友
     return this.camp === playerObj.camp;
+  }
+
+  move() {
+    const touchControl = new TouchControl(this.game, this).touchControl;
+    const touchCursors = touchControl.cursors;
+    const touchSpeed = touchControl.speed;
+
+    if (touchCursors.left) {
+      this.angle = 180;
+      this.currentSpeed = Math.abs(touchSpeed.x);
+    } else if (touchCursors.right) {
+      this.angle = 0;
+      this.currentSpeed = Math.abs(touchSpeed.x);
+    } else if (touchCursors.up) {
+      this.angle = -90;
+      this.currentSpeed = Math.abs(touchSpeed.y);
+    } else if (touchCursors.down) {
+      this.angle = 90;
+      this.currentSpeed = Math.abs(touchSpeed.y);
+    }
+
+    if (touchSpeed.x === 0 && touchSpeed.y === 0) {
+      this.currentSpeed = 0;
+    }
+
+    this.sPlayer.angle = this.angle;
+    this.game.physics.arcade.velocityFromAngle(
+      this.angle,
+      this.currentSpeed * 3,
+      this.sPlayer.body.velocity
+    );
+    if (this.currentSpeed === 0) {
+      return;
+    }
+
+    if (this.currentSpeed > 0) {
+      this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
+    } else {
+      this.sPlayer.animations.play('stop');
+    }
+    this.socket.emit(
+      'move player',
+      {
+        x: this.sPlayer.x,
+        y: this.sPlayer.y,
+        angle: this.sPlayer.angle,
+        speed: this.currentSpeed,
+      }
+    );
   }
 }

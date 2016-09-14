@@ -37,22 +37,21 @@ class SocketHandler {
   /**
    * @param self [Object] SocketHandler 实例
    * @param data [Object] 被kill后返回的数据
+   * TODO: onKill 目前还没有用到
    */
   onKill(self, data) {
+    util.log(data);
     const removePlayer = self.playerById(data.id);
-    // Player not found
     if (!removePlayer) {
       return;
     }
-    // removePlayer.player.kill();
-    // Remove player from array
     delete self.players[data.id];
     this.broadcast.emit('kill', { id: data.id });
   }
 
   /**
    * @param self [Object] SocketHandler 实例
-   * @this [Object] Socket 实例
+   * @this [Object] Socket 实例;
    */
   onClientDisconnect(self) {
     util.log(`Player has disconnected: ${this.id}`);
@@ -84,7 +83,6 @@ class SocketHandler {
       name: newPlayer.getName(),
     });
 
-    // let i;
     let existingPlayer;
     Object.keys(self.players).forEach((playerId) => {
       existingPlayer = self.players[playerId];
@@ -132,15 +130,11 @@ class SocketHandler {
    * @param data: [Object] 移动玩家后返回的数据
    * @this [Object] Socket 实例
    */
-  onShot(self, data) {
-    const playerObj = self.playerById(this.id);
-    console.info(data);
+  onShot() {
     this.broadcast.emit(
       'shot',
       {
-        id: self.id,
-        x: playerObj.getX(),
-        y: playerObj.getY(),
+        id: this.id,
       }
     );
   }
