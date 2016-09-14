@@ -36,21 +36,6 @@ class SocketHandler {
 
   /**
    * @param self [Object] SocketHandler 实例
-   * @param data [Object] 被kill后返回的数据
-   * TODO: onKill 目前还没有用到
-   */
-  onKill(self, data) {
-    util.log(data);
-    const removePlayer = self.playerById(data.id);
-    if (!removePlayer) {
-      return;
-    }
-    delete self.players[data.id];
-    this.broadcast.emit('kill', { id: data.id });
-  }
-
-  /**
-   * @param self [Object] SocketHandler 实例
    * @this [Object] Socket 实例;
    */
   onClientDisconnect(self) {
@@ -162,10 +147,6 @@ class SocketHandler {
 
     client.on('shot', function (data) {
       self.onShot.call(this, self, data);
-    });
-
-    client.on('kill', function (data) {
-      self.onKill.call(this, self, data);
     });
   }
 }
