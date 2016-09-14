@@ -10,7 +10,6 @@ export default class Explosion {
     this.game = game;
     this.key = key;
     this.explosions = this.game.add.group();
-    this.boomed = false;
     return this.init();
   }
 
@@ -30,10 +29,10 @@ export default class Explosion {
    */
   boom(player) {
     const explosionAnimation = this.explosions.getFirstExists(false);
-    if (!this.boomed && explosionAnimation) {
+    if (!player.boomed && explosionAnimation) {
       explosionAnimation.reset(player.x, player.y);
       explosionAnimation.play('kaboom', 30, false, true);
-      this.boomed = true;
+      player.boomed = true;
     }
     return this;
   }
