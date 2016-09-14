@@ -41,7 +41,6 @@ class Main {
       }
     );
     this.currentSpeed = 0;
-    this.updateRate = 1;
     this.angle = 0;
   }
 
@@ -66,7 +65,6 @@ class Main {
     const name = names[Math.floor(Math.random() * names.length)];
     this.player = new Player(this.game, name, 'red', 'dude');
     this.sPlayer = this.player.sPlayer;
-    this.nameText = this.player.playerName;
 
     // 初始化子弹
     this.attack = new Attack(this.game, this.sPlayer, 'bullet', this.socket);
@@ -88,25 +86,19 @@ class Main {
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.game.input.justPressedRate = 30;
 
-    // 按键500ms触发一次
     this.sEvent = new SocketEvent(this.game, this.socket, this.player);
     this.touchControl = new TouchControl(this.game, this).touchControl;
   }
 
   hitHandler(gamer, bullet) {
-    const bullet_owner = bullet.data.bulletManager.trackedSprite;
-    if (!bullet_owner.playerObj.isTeammates(gamer.playerObj)) {
+    const bulletOwner = bullet.data.bulletManager.trackedSprite;
+    if (!bulletOwner.playerObj.isTeammates(gamer.playerObj)) {
       gamer.kill();
       this.socket.emit('kill', {
         id: gamer.name,
       });
-      if (gamer === this.sPlayer) {
-        this.nameText.kill();
-      } else {
-        gamer.manager.nameText.kill();
-      }
     }
-    if (bullet_owner !== gamer) {
+    if (bulletOwner !== gamer) {
       bullet.kill();
     }
   }
@@ -119,7 +111,6 @@ class Main {
         gamerObj.update();
         this.game.physics.arcade.overlap(this.player.playerGroup, gamerObj.bullets, this.hitHandler, null, this);
       } else {
-        gamerObj.nameText.kill();
         gamerObj.player.kill();
       }
     });
@@ -146,7 +137,7 @@ class Main {
       this.currentSpeed = Math.abs(touchSpeed.y);
     }
 
-    if (this.touchControl.speed.x === 0 && this.touchControl.speed.y === 0) {
+    if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
     }
 
@@ -156,27 +147,24 @@ class Main {
       this.currentSpeed * 3,
       this.sPlayer.body.velocity
     );
+    if (this.currentSpeed === 0) {
+      return;
+    }
 
     if (this.currentSpeed > 0) {
       this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
     } else {
       this.sPlayer.animations.play('stop');
     }
-
-    if ((this.updateRate % 10) === 0) {
-      // 每秒6个请求， 降低请求数
-      this.updateRate = 1;
-      this.socket.emit(
-        'move player',
-        {
-          x: this.sPlayer.x,
-          y: this.sPlayer.y,
-          angle: this.sPlayer.angle,
-          speed: this.currentSpeed,
-        }
-      );
-    }
-    this.updateRate += 1;
+    this.socket.emit(
+      'move player',
+      {
+        x: this.sPlayer.x,
+        y: this.sPlayer.y,
+        angle: this.sPlayer.angle,
+        speed: this.currentSpeed,
+      }
+    );
   }
 
   render() {

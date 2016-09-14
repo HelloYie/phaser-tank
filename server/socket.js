@@ -45,7 +45,6 @@ class SocketHandler {
       return;
     }
     // removePlayer.player.kill();
-    console.log(removePlayer);
     // Remove player from array
     delete self.players[data.id];
     this.broadcast.emit('kill', { id: data.id });
@@ -135,6 +134,7 @@ class SocketHandler {
    */
   onShot(self, data) {
     const playerObj = self.playerById(this.id);
+    console.info(data);
     this.broadcast.emit(
       'shot',
       {

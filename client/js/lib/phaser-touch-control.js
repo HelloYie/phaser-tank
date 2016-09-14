@@ -60,7 +60,9 @@
 	Phaser.Plugin.TouchControl.prototype.settings = {
 		// max distance from itial touch
 		maxDistanceInPixels: 200,
-		singleDirection: false
+		singleDirection: false,
+		attackBtnHeight: 128,
+		attackBtnHeight: 128,
 	};
 
 
@@ -83,7 +85,12 @@
 	};
 
 	var initialPoint;
-	var createCompass = function(){
+	var createCompass = function(e) {
+		// 如果是点击发射按钮，则不需要精灵移动
+		if ((e.x >= this.game.width - 200  && e.x <= this.game.width - 72) &&
+		 (e.y >= this.game.height - 200 && e.y <= this.game.height - 72)) {
+			return;
+		}
 		this.imageGroup.forEach(function (e) {
 			e.visible=false;
 			e.bringToTop();

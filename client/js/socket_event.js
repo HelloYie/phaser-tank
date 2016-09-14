@@ -78,16 +78,8 @@ export default class SocketEvent {
       return;
     }
     const movePlayer = PlayerObj.player;
-    // Update player position
-    this.game.physics.arcade.moveToXY(
-      movePlayer,
-      data.x,
-      data.y,
-      data.speed,
-      166
-    );
-    // movePlayer.x = data.x;
-    // movePlayer.y = data.y;
+    movePlayer.x = data.x;
+    movePlayer.y = data.y;
     movePlayer.angle = data.angle;
     // 移动
     movePlayer.animations.play('move');

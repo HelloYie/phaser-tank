@@ -26,7 +26,6 @@ export default class RemotePlayer {
     this.player.body.collideWorldBounds = true;
     this.player.angle = game.rnd.angle();
     this.player.manager = this;
-    this.player.no_update_times = 1;
     this.lastPosition = {
       x,
       y,
@@ -53,15 +52,10 @@ export default class RemotePlayer {
 
   update() {
     // 更新精灵状态
-    if (this.player.x !== this.lastPosition.x || this.player.y !== this.lastPosition.y) {
-      this.player.no_update_times = 1;
+    if (this.player.x !== this.lastPosition.x || this.player.y !== this.lastPosition.y || this.player.angle !== this.lastPosition.angle) {
+      this.player.animations.play('move');
     } else {
-      // 未移动， 1s之后停止动画
-      if (this.player.no_update_times % 60 === 0) {
-        this.player.animations.play('stop');
-        this.player.no_update_times = 1;
-      }
-      this.player.no_update_times += 1;
+      this.player.animations.play('stop');
     }
     this.lastPosition.x = this.player.x;
     this.lastPosition.y = this.player.y;

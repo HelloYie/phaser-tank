@@ -30,6 +30,8 @@ export default class Attack {
 
     // 攻击按钮
     this.attackBtn = this.game.add.sprite(this.game.width - 200, this.game.height - 200, 'attack');
+    this.attackBtn.anchor.x = 0;
+    this.attackBtn.anchor.y = 0;
     this.attackBtn.inputEnabled = true;
     this.attackBtn.events.onInputDown.add(this.attack, this);
     return this;
