@@ -23,8 +23,8 @@ export default class SocketEvent {
     this.socket.on('disconnect', this.onSocketDisconnect.bind(this));
     this.socket.on('new player', this.onNewPlayer.bind(this));
     this.socket.on('move player', this.onMovePlayer.bind(this));
+    this.socket.on('remove player', this.onRemovePlayer.bind(this));
     this.socket.on('shot', this.onShot.bind(this));
-    // this.socket.on('kill', this.onKill.bind(this));
     return this;
   }
 
@@ -83,7 +83,7 @@ export default class SocketEvent {
     gamerObj.weapon.fire();
   }
 
-  onKill(data) {
+  onRemovePlayer(data) {
     const removePlayer = this.gamerById(data.id);
     if (!removePlayer) {
       return;

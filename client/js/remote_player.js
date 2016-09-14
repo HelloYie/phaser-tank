@@ -28,7 +28,7 @@ export default class RemotePlayer {
     this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
     this.player.body.immovable = true;
     this.player.body.collideWorldBounds = true;
-    this.player.angle = game.rnd.angle();
+    // this.player.angle = game.rnd.angle();
     this.lastPosition = {
       x,
       y,

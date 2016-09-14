@@ -40,14 +40,13 @@ class SocketHandler {
    */
   onClientDisconnect(self) {
     util.log(`Player has disconnected: ${this.id}`);
-
     const removePlayer = self.playerById(this.id);
 
     if (!removePlayer) {
       return;
     }
-    delete self.players[this.id];
 
+    delete self.players[this.id];
     this.broadcast.emit('remove player', { id: this.id });
   }
 
