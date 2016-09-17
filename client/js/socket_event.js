@@ -10,26 +10,39 @@ import RemotePlayer from './remote_player';
 
 export default class SocketEvent {
   constructor(game, player, socket) {
-    this.game = game;
-    this.socket = socket;
-    this.gamers = {};
-    this.player = player;
-    this.sPlayer = player.sPlayer;
-    return this.init();
+    const self = this;
+    self.game = game;
+    self.socket = socket;
+    self.gamers = {};
+    self.player = player;
+    self.sPlayer = player.sPlayer;
+    return self.init();
   }
 
   init() {
-    this.socket.on('connect', this.onSocketConnected.bind(this));
-    this.socket.on('disconnect', this.onSocketDisconnect.bind(this));
-    this.socket.on('new player', this.onNewPlayer.bind(this));
-    this.socket.on('move player', this.onMovePlayer.bind(this));
-    this.socket.on('remove player', this.onRemovePlayer.bind(this));
-    this.socket.on('shot', this.onShot.bind(this));
-    return this;
+    const self = this;
+    const events = {
+      connect: self.onSocketConnected,
+      'join room': self.onJoinRoom,
+      'game start': self.onGameStart,
+      disconnect: self.onSocketDisconnect,
+      'new player': self.onNewPlayer,
+      'move player': self.onMovePlayer,
+      'remove player': self.onRemovePlayer,
+      shot: self.onShot,
+    };
+
+    Object.keys(events).forEach((event) => {
+      self.socket.on(event, events[event].bind(self));
+    });
+    return self;
   }
 
   onSocketConnected() {
     console.log('Connected to socket server');
+  }
+
+  onGameStart() {
     Object.keys(this.gamers).forEach((gamerId) => {
       const gamerObj = this.gamers[gamerId];
       gamerObj.player.kill();
@@ -39,7 +52,6 @@ export default class SocketEvent {
       x: this.sPlayer.x,
       y: this.sPlayer.y,
       angle: this.sPlayer.angle,
-      name: this.sPlayer.name,
       id: this.sPlayer.id,
     });
     this.player.id = this.socket.id;
@@ -81,6 +93,11 @@ export default class SocketEvent {
       return;
     }
     gamerObj.weapon.fire();
+  }
+
+  onJoinRoom(data) {
+    console.log('join');
+    console.log(data);
   }
 
   onRemovePlayer(data) {

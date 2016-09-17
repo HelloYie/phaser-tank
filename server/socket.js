@@ -12,6 +12,7 @@ const Player = require('./player');
 class SocketHandler {
   constructor(server) {
     this.players = {};
+    this.roomPlayers = {};
     this.socket = io.listen(server);
     this.socket.sockets.on('connection', (client) => {
       this.onSocketConnection.call(this, client);
@@ -38,7 +39,8 @@ class SocketHandler {
    * @param self [Object] SocketHandler 实例
    * @this [Object] Socket 实例;
    */
-  onClientDisconnect(self) {
+  onClientDisconnect(data) {
+    const self = this.handler;
     util.log(`Player has disconnected: ${this.id}`);
     const removePlayer = self.playerById(this.id);
 
@@ -46,8 +48,10 @@ class SocketHandler {
       return;
     }
 
+    delete self.roomPlayers[this.roomId][this.id];
     delete self.players[this.id];
-    this.broadcast.emit('remove player', { id: this.id });
+    this.to(this.roomId).emit('remove player', { id: this.id });
+    this.leave(this.roomId);
   }
 
   /**
@@ -55,12 +59,13 @@ class SocketHandler {
    * @param data: [Object] 创建玩家后返回的数据
    * @this [Object] Socket 实例
    */
-  onNewPlayer(self, data) {
-    const it = this;
-    const newPlayer = new Player(data.x, data.y, data.angle, data.name);
-    newPlayer.id = this.id;
+  onNewPlayer(data) {
+    const self = this.handler;
+    const client = this;
+    const newPlayer = self.playerById(client.id);
+    newPlayer.setAttrs(data);
 
-    it.broadcast.emit('new player', {
+    client.to(this.roomId).emit('new player', {
       id: newPlayer.id,
       x: newPlayer.getX(),
       y: newPlayer.getY(),
@@ -68,9 +73,10 @@ class SocketHandler {
     });
 
     let existingPlayer;
-    Object.keys(self.players).forEach((playerId) => {
-      existingPlayer = self.players[playerId];
-      it.emit(
+    const roomPlayers = self.roomPlayers[this.roomId];
+    Object.keys(roomPlayers).forEach((playerId) => {
+      existingPlayer = roomPlayers[playerId];
+      client.emit(
         'new player',
         {
           id: existingPlayer.id,
@@ -80,7 +86,6 @@ class SocketHandler {
         }
       );
     });
-    self.players[it.id] = newPlayer;
   }
 
   /**
@@ -88,7 +93,8 @@ class SocketHandler {
    * @param data: [Object] 移动玩家后返回的数据
    * @this [Object] Socket 实例
    */
-  onMovePlayer(self, data) {
+  onMovePlayer(data) {
+    const self = this.handler;
     const movePlayer = self.playerById(this.id);
 
     if (!movePlayer) {
@@ -100,7 +106,7 @@ class SocketHandler {
     movePlayer.setAngle(data.angle);
     movePlayer.setSpeed(data.speed);
 
-    this.broadcast.emit('move player', {
+    this.to(this.roomId).emit('move player', {
       id: movePlayer.id,
       x: movePlayer.getX(),
       y: movePlayer.getY(),
@@ -114,13 +120,55 @@ class SocketHandler {
    * @param data: [Object] 移动玩家后返回的数据
    * @this [Object] Socket 实例
    */
-  onShot() {
-    this.broadcast.emit(
+  onShot(data) {
+    const self = this.handler;
+    this.to(this.roomId).emit(
       'shot',
       {
         id: this.id,
       }
     );
+  }
+
+  onJoinRoom(data) {
+    const self = this.handler;
+    const client = this;
+    const newPlayer = new Player({
+      avatar: data.avatar,
+      name: data.name,
+      id: client.id,
+      roomId: data.id,
+    });
+    client.roomId = data.id;
+    // 加入socket 房间
+    client.join(client.roomId);
+    client.to(client.roomId).emit(
+      'join room',
+      {
+        avatar: newPlayer.avatar,
+        name: newPlayer.name,
+      }
+    );
+
+    let existingPlayer;
+    const roomPlayers = self.roomPlayers[client.roomId];
+    if(roomPlayers) {
+      Object.keys(roomPlayers).forEach((playerId) => {
+        existingPlayer = roomPlayers[playerId];
+        client.emit(
+          'join room',
+          {
+            name: existingPlayer.name,
+            avatar: existingPlayer.avatar,
+          }
+        );
+      });
+    } else {
+      self.roomPlayers[client.roomId] = {};
+    }
+
+    self.players[client.id] = newPlayer;
+    self.roomPlayers[client.roomId][client.id] = newPlayer;
   }
 
   /**
@@ -129,23 +177,22 @@ class SocketHandler {
    */
   onSocketConnection(client) {
     const self = this;
+    const events = {
+      'disconnect': self.onClientDisconnect,
+      'new player': self.onNewPlayer,
+      'move player': self.onMovePlayer,
+      'shot': self.onShot,
+      'join room': self.onJoinRoom,
+    };
+    client.handler = self;
 
     util.log(`New player has connected: ${client.id}`);
 
-    client.on('disconnect', function () {
-      self.onClientDisconnect.call(this, self);
-    });
-
-    client.on('new player', function (data) {
-      self.onNewPlayer.call(this, self, data);
-    });
-
-    client.on('move player', function (data) {
-      self.onMovePlayer.call(this, self, data);
-    });
-
-    client.on('shot', function (data) {
-      self.onShot.call(this, self, data);
+    // bild event with client
+    Object.keys(events).forEach((event) => {
+      client.on(event, function(data){
+        events[event].call(client, data);
+      });
     });
   }
 }

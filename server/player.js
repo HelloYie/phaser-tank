@@ -11,12 +11,9 @@ class Player {
    * angle: 角度
    * name: 名称
    */
-  constructor(startX, startY, angle, name) {
-    this.x = startX;
-    this.y = startY;
-    this.angle = angle;
-    this.name = name;
+  constructor(attrs) {
     this.speed = 0;
+    this.setAttrs(attrs);
   }
 
   getX() {
@@ -58,6 +55,19 @@ class Player {
   setName(name) {
     this.name = name;
   }
+
+  setAttrs(attrs) {
+    this.x = attrs.x;
+    this.y = attrs.y;
+    this.angle = attrs.angle;
+    this.name = attrs.name;
+    this.speed = attrs.speed;
+    this.splayerId = attrs.splayerId;
+    this.id = attrs.id;
+    this.roomId = attrs.roomId;
+    this.avatar = attrs.avatar;
+  }
+
 }
 
 module.exports = Player;

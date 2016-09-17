@@ -23,6 +23,7 @@ import touchPng from '../assets/tank/touch.png';
 import attackPng from '../assets/tank/attack.png';
 import explosionPng from '../assets/tank/explosion.png';
 import tanksJson from '../assets/tank/tanks.json';
+import Room from './room';
 
 
 class Main {
@@ -55,7 +56,6 @@ class Main {
 
   create() {
     // 初始化游戏设置
-    this.socket = IO.connect();
     this.game.world.setBounds(0, 0, 2000, 2000);
     this.game.camera.unfollow();
     this.game.camera.deadzone = new Phaser.Rectangle(
@@ -123,17 +123,26 @@ class Main {
 
 // 主入口调用
 require.ensure([], () => {
-  window.PIXI = require('./lib/pixi.min');
-
-  window.p2 = require('./lib/p2.min');
-
+  // 初始化房间
   window.IO = require('./lib/socket.io-client');
 
+  window.room = new Room();
+
   require.ensure([], () => {
-    window.Phaser = require('./lib/phaser-split.min');
+    // 游戏资源加载
+    window.PIXI = require('./lib/pixi.min');
 
-    require('./lib/phaser-touch-control');
+    window.p2 = require('./lib/p2.min');
 
-    new Main();
+    require.ensure([], () => {
+      window.Phaser = require('./lib/phaser-split.min');
+
+      require('./lib/phaser-touch-control');
+
+      if (false) {
+        // 开始游戏
+        new Main();
+      }
+    });
   });
 });

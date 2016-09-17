@@ -21,15 +21,18 @@
   "scripts": {
     "test": "",
     "start": "node server/server.js",
-    "debug": "node --debug server/server.js",
+    "debug": "node debug server/server.js",
+    "node-debug": "node-debug server/server.js",
     "product": "NODE_ENV=production node server/server.js",
     "build": "rimraf dist && cross-env NODE_ENV=production webpack --config ./webpack.production.config.js --progress --profile --colors",
     "eslint": "eslint ."
   },
   "dependencies": {
     "babel-cli": "^6.4.0",
+    "jquery": "^3.1.0",
     "phaser": "^2.6.1",
     "pixi": "^0.3.1",
+    "query-string": "^4.2.3",
     "socket.io": "^1.4.8",
     "socket.io-client": "^1.4.8"
   },
