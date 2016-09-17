@@ -142,13 +142,6 @@ class SocketHandler {
     client.roomId = data.id;
     // 加入socket 房间
     client.join(client.roomId);
-    client.to(client.roomId).emit(
-      'join room',
-      {
-        avatar: newPlayer.avatar,
-        name: newPlayer.name,
-      }
-    );
 
     let existingPlayer;
     const roomPlayers = self.roomPlayers[client.roomId];
@@ -158,6 +151,7 @@ class SocketHandler {
         client.emit(
           'join room',
           {
+            id: existingPlayer.id,
             name: existingPlayer.name,
             avatar: existingPlayer.avatar,
           }
@@ -167,8 +161,26 @@ class SocketHandler {
       self.roomPlayers[client.roomId] = {};
     }
 
+    client.to(client.roomId).emit(
+      'join room',
+      {
+        id: newPlayer.id,
+        avatar: newPlayer.avatar,
+        name: newPlayer.name,
+      }
+    );
+
     self.players[client.id] = newPlayer;
     self.roomPlayers[client.roomId][client.id] = newPlayer;
+  }
+
+  onStartGame() {
+    const self = this.handler;
+    const client = this;
+    client.to(client.roomId).emit(
+      'start game'
+    );
+    client.emit('start game');
   }
 
   /**
@@ -183,6 +195,7 @@ class SocketHandler {
       'move player': self.onMovePlayer,
       'shot': self.onShot,
       'join room': self.onJoinRoom,
+      'start game': self.onStartGame,
     };
     client.handler = self;
 

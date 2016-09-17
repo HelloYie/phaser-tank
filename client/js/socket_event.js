@@ -5,25 +5,27 @@
  * @description:
  *
  */
+
+import $ from 'jquery';
+
+import utils from 'base_utils';
 import RemotePlayer from './remote_player';
+import TankGame from './game';
 
 
 export default class SocketEvent {
-  constructor(game, player, socket) {
+  constructor(room, socket) {
     const self = this;
-    self.game = game;
     self.socket = socket;
     self.gamers = {};
-    self.player = player;
-    self.sPlayer = player.sPlayer;
-    return self.init();
-  }
-
-  init() {
-    const self = this;
-    const events = {
+    self.room = room;
+    self.roomEvents = {
       connect: self.onSocketConnected,
       'join room': self.onJoinRoom,
+      'remove player': self.onLeaveRoom,
+      'start game': self.onStartGame,
+    };
+    self.gameEvents = {
       'game start': self.onGameStart,
       disconnect: self.onSocketDisconnect,
       'new player': self.onNewPlayer,
@@ -31,15 +33,45 @@ export default class SocketEvent {
       'remove player': self.onRemovePlayer,
       shot: self.onShot,
     };
+    return self.init();
+  }
 
-    Object.keys(events).forEach((event) => {
-      self.socket.on(event, events[event].bind(self));
+  init() {
+    const self = this;
+
+    Object.keys(self.roomEvents).forEach((event) => {
+      self.socket.on(event, self.roomEvents[event].bind(self));
+    });
+    return self;
+  }
+
+  initGame(game, player) {
+    // 开始游戏时调用
+    const self = this;
+    self.game = game;
+    self.player = player;
+    self.sPlayer = player.sPlayer;
+
+    // 解绑之前的所有事件
+    Object.keys(self.roomEvents).forEach((event) => {
+      self.socket.removeListener(event, self.roomEvents[event]);
+    });
+
+    Object.keys(self.gameEvents).forEach((event) => {
+      self.socket.on(event, self.gameEvents[event].bind(self));
     });
     return self;
   }
 
   onSocketConnected() {
+    const self = this;
     console.log('Connected to socket server');
+    // 加入房间
+    self.socket.emit('join room', {
+      id: self.room.id,  // room id
+      name: '周大汪',
+      avatar: 'http://obdp0ndxs.bkt.clouddn.com/admin_charts.png',
+    });
   }
 
   onGameStart() {
@@ -96,21 +128,32 @@ export default class SocketEvent {
   }
 
   onJoinRoom(data) {
-    console.log('join');
-    console.log(data);
+    const self = this;
+    self.room.otherJoined(data);
   }
 
   onRemovePlayer(data) {
-    const removePlayer = this.gamerById(data.id);
+    const self = this;
+    const removePlayer = self.gamerById(data.id);
     if (!removePlayer) {
       return;
     }
     removePlayer.player.kill();
-    delete this.gamers[data.id];
+    delete self.gamers[data.id];
+  }
+
+  onLeaveRoom(data) {
+    const plainId = utils.plainId(data.id);
+    $(`.room_user#${plainId}`).remove();
+  }
+
+  onStartGame() {
+    new TankGame();
   }
 
   gamerById(id, silence = false) {
-    const gamerObj = this.gamers[id];
+    const self = this;
+    const gamerObj = self.gamers[id];
     if (gamerObj) {
       return gamerObj;
     }

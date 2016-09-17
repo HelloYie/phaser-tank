@@ -9,13 +9,21 @@
     <div class="room_container container-fluid">
       <div class="title">坦克大战组队中</div>
       <div class="row user_container">
-        <div class="col-xs-2 col-md-1">
-          已加入房间的用户
-        </div>
+      </div>
+      <div class="text-center">
+        <button class="btn btn-primary start_game">开始游戏</button>
       </div>
     </div>
 
     <script type="text/tpl" id="user_tpl">
+      <div class="col-xs-2 col-md-1 room_user" id="<%= plainId %>">
+        <div class="thumbnail">
+          <img src="<%= avatar %>" alt="<%= name %>">
+          <div class="caption">
+            <h3><%= name %></h3>
+          </div>
+        </div>
+      </div>
     </script>
   </body>
 
