@@ -5,31 +5,76 @@
  * @description:
  *
  */
+
+import $ from 'jquery';
+
+import utils from 'base_utils';
 import RemotePlayer from './remote_player';
+import TankGame from './game';
 
 
 export default class SocketEvent {
-  constructor(game, player, socket) {
-    this.game = game;
-    this.socket = socket;
-    this.gamers = {};
-    this.player = player;
-    this.sPlayer = player.sPlayer;
-    return this.init();
+  constructor(room, socket) {
+    const self = this;
+    self.socket = socket;
+    self.gamers = {};
+    self.room = room;
+    self.roomEvents = {
+      connect: self.onSocketConnected,
+      'join room': self.onJoinRoom,
+      'remove player': self.onLeaveRoom,
+      'start game': self.onStartGame,
+    };
+    self.gameEvents = {
+      'game start': self.onGameStart,
+      disconnect: self.onSocketDisconnect,
+      'new player': self.onNewPlayer,
+      'move player': self.onMovePlayer,
+      'remove player': self.onRemovePlayer,
+      shot: self.onShot,
+    };
+    return self.init();
   }
 
   init() {
-    this.socket.on('connect', this.onSocketConnected.bind(this));
-    this.socket.on('disconnect', this.onSocketDisconnect.bind(this));
-    this.socket.on('new player', this.onNewPlayer.bind(this));
-    this.socket.on('move player', this.onMovePlayer.bind(this));
-    this.socket.on('remove player', this.onRemovePlayer.bind(this));
-    this.socket.on('shot', this.onShot.bind(this));
-    return this;
+    const self = this;
+
+    Object.keys(self.roomEvents).forEach((event) => {
+      self.socket.on(event, self.roomEvents[event].bind(self));
+    });
+    return self;
+  }
+
+  initGame(game, player) {
+    // 开始游戏时调用
+    const self = this;
+    self.game = game;
+    self.player = player;
+    self.sPlayer = player.sPlayer;
+
+    // 解绑之前的所有事件
+    Object.keys(self.roomEvents).forEach((event) => {
+      self.socket.removeListener(event, self.roomEvents[event]);
+    });
+
+    Object.keys(self.gameEvents).forEach((event) => {
+      self.socket.on(event, self.gameEvents[event].bind(self));
+    });
+    return self;
   }
 
   onSocketConnected() {
+    const self = this;
     console.log('Connected to socket server');
+    // 加入房间
+    self.socket.emit('join room', {
+      id: self.room.id,  // room id
+      name: self.room.name,
+      avatar: self.room.avatar,
+    });
+  }
+
+  onGameStart() {
     Object.keys(this.gamers).forEach((gamerId) => {
       const gamerObj = this.gamers[gamerId];
       gamerObj.player.kill();
@@ -39,7 +84,6 @@ export default class SocketEvent {
       x: this.sPlayer.x,
       y: this.sPlayer.y,
       angle: this.sPlayer.angle,
-      name: this.sPlayer.name,
       id: this.sPlayer.id,
     });
     this.player.id = this.socket.id;
@@ -83,17 +127,33 @@ export default class SocketEvent {
     gamerObj.weapon.fire();
   }
 
+  onJoinRoom(data) {
+    const self = this;
+    self.room.otherJoined(data);
+  }
+
   onRemovePlayer(data) {
-    const removePlayer = this.gamerById(data.id);
+    const self = this;
+    const removePlayer = self.gamerById(data.id);
     if (!removePlayer) {
       return;
     }
     removePlayer.player.kill();
-    delete this.gamers[data.id];
+    delete self.gamers[data.id];
+  }
+
+  onLeaveRoom(data) {
+    const plainId = utils.plainId(data.id);
+    $(`.room_user#${plainId}`).remove();
+  }
+
+  onStartGame() {
+    new TankGame();
   }
 
   gamerById(id, silence = false) {
-    const gamerObj = this.gamers[id];
+    const self = this;
+    const gamerObj = self.gamers[id];
     if (gamerObj) {
       return gamerObj;
     }

@@ -60,6 +60,12 @@ module.exports = {
   },
   resolve: {
     extensions: ['', '.js'],
-    modulesDirectories: ['node_modules', path.join(__dirname, '/client/')],
+    modulesDirectories: [
+      'node_modules',
+      path.join(__dirname, '/client/'),
+      path.join(__dirname, '/utils/'),
+      path.join(__dirname, '/api/'),
+      path.join(__dirname, '/configs/'),
+    ],
   }
 };

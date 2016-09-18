@@ -3,7 +3,34 @@
   <head>
     <meta charset='UTF-8' />
     <title>坦克大战</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="renderer" content="webkit" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
   </head>
+
   <body>
+    <div class="room_container container-fluid">
+      <div class="title">
+        <span class="persons"></span><span class="mode"></span>
+      </div>
+      <div class="row user_container">
+      </div>
+      <div class="text-center">
+        <button class="btn btn-primary start_game">开始游戏</button>
+      </div>
+    </div>
+
+    <script type="text/tpl" id="user_tpl">
+      <div class="col-xs-4 col-md-2 room_user" id="<%= plainId %>">
+        <div class="thumbnail">
+          <img src="<%= avatar %>" alt="<%= name %>">
+          <div class="caption">
+            <div class="user_name"><%= name %></div>
+          </div>
+        </div>
+      </div>
+    </script>
   </body>
+
 </html>

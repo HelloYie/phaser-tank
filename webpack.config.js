@@ -56,7 +56,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        loader: 'style!css?modules&localIdentName=[name]---[local]---[hash:base64:5]'
+        loader: 'style!css'
       },
       {
         test: /\.(jpe?g|png|gif|bmp|ico)$/i,
@@ -66,6 +66,12 @@ module.exports = {
   },
   resolve: {
     extensions: ['', '.js'],
-    modulesDirectories: ['node_modules', path.join(__dirname, '/client/')],
+    modulesDirectories: [
+      'node_modules',
+      path.join(__dirname, '/client/'),
+      path.join(__dirname, '/utils/'),
+      path.join(__dirname, '/api/'),
+      path.join(__dirname, '/configs/'),
+    ],
   }
 };
