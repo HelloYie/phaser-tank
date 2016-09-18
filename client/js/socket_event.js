@@ -69,8 +69,8 @@ export default class SocketEvent {
     // 加入房间
     self.socket.emit('join room', {
       id: self.room.id,  // room id
-      name: '周大汪',
-      avatar: 'http://obdp0ndxs.bkt.clouddn.com/admin_charts.png',
+      name: self.room.name,
+      avatar: self.room.avatar,
     });
   }
 
