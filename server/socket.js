@@ -13,11 +13,12 @@ const uuid = require('uuid');
 
 class SocketHandler {
   constructor(server) {
-    this.players = {};
-    this.roomPlayers = {};
-    this.socket = io.listen(server);
-    this.socket.sockets.on('connection', (client) => {
-      this.onSocketConnection.call(this, client);
+    const self = this;
+    self.players = {};
+    self.roomPlayers = {};
+    self.socket = io.listen(server);
+    self.socket.sockets.on('connection', (client) => {
+      self.onSocketConnection.call(self, client);
     });
   }
 
@@ -27,7 +28,8 @@ class SocketHandler {
    * @return playerObj or false
    */
   playerById(id, silence) {
-    const playerObj = this.players[id];
+    const self = this;
+    const playerObj = self.players[id];
     if (playerObj) {
       return playerObj;
     }
@@ -42,18 +44,18 @@ class SocketHandler {
    * @this [Object] Socket 实例;
    */
   onClientDisconnect(client, data) {
-    const self = this;
-    util.log(`Player has disconnected: ${this.id}`);
-    const removePlayer = self.playerById(this.id);
+    const self = client.handler;
+    util.log(`Player has disconnected: ${client.id}`);
+    const removePlayer = self.playerById(client.id);
 
     if (!removePlayer) {
       return;
     }
 
-    delete self.roomPlayers[this.roomId][this.id];
-    delete self.players[this.id];
-    this.to(this.roomId).emit('remove player', { id: this.id });
-    this.leave(this.roomId);
+    delete self.roomPlayers[client.roomId][client.id];
+    delete self.players[client.id];
+    client.to(client.roomId).emit('remove player', { id: client.id });
+    client.leave(client.roomId);
   }
 
   /**
@@ -62,11 +64,10 @@ class SocketHandler {
    * @this [Object] Socket 实例
    */
   onNewPlayer(client, data) {
-    const self = this;
-    const client = this;
+    const self = client.handler;
     const newPlayer = self.playerById(client.id);
     newPlayer.setAttrs(data);
-    client.to(this.roomId).emit('new player', {
+    client.to(client.roomId).emit('new player', {
       id: newPlayer.id,
       x: newPlayer.x,
       y: newPlayer.y,
@@ -76,7 +77,7 @@ class SocketHandler {
     });
 
     let existingPlayer;
-    const roomPlayers = self.roomPlayers[this.roomId];
+    const roomPlayers = self.roomPlayers[client.roomId];
     Object.keys(roomPlayers).forEach((playerId) => {
       existingPlayer = roomPlayers[playerId];
       client.emit(
@@ -99,8 +100,8 @@ class SocketHandler {
    * @this [Object] Socket 实例
    */
   onMovePlayer(client, data) {
-    const self = this;
-    const movePlayer = self.playerById(this.id);
+    const self = client.handler;
+    const movePlayer = self.playerById(client.id);
 
     if (!movePlayer) {
       return;
@@ -111,7 +112,7 @@ class SocketHandler {
     movePlayer.setAngle(data.angle);
     movePlayer.setSpeed(data.speed);
 
-    this.to(this.roomId).emit('move player', {
+    client.to(client.roomId).emit('move player', {
       id: movePlayer.id,
       x: movePlayer.getX(),
       y: movePlayer.getY(),
@@ -126,18 +127,17 @@ class SocketHandler {
    * @this [Object] Socket 实例
    */
   onShot(client, data) {
-    const self = this;
-    this.to(this.roomId).emit(
+    const self = client.handler;
+    client.to(client.roomId).emit(
       'shot',
       {
-        id: this.id,
+        id: client.id,
       }
     );
   }
 
   onJoinRoom(client, data) {
-    const self = this;
-    const client = this;
+    const self = client.handler;
     const newPlayer = new Player({
       avatar: data.avatar,
       name: data.name,
@@ -180,7 +180,7 @@ class SocketHandler {
   }
 
   onStartGame(client, data) {
-    const self = this;
+    const self = client.handler;
     if (data.mode === 'hell'){
       // 地狱乱斗
       self.startHell(client);
@@ -226,6 +226,7 @@ class SocketHandler {
     };
 
     util.log(`New player has connected: ${client.id}`);
+    client.handler = self;
 
     // bild event with client
     Object.keys(events).forEach((event) => {
