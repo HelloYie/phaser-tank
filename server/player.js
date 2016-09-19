@@ -57,16 +57,9 @@ class Player {
   }
 
   setAttrs(attrs) {
-    this.x = attrs.x;
-    this.y = attrs.y;
-    this.angle = attrs.angle;
-    this.name = attrs.name;
-    this.speed = attrs.speed;
-    this.splayerId = attrs.splayerId;
-    this.id = attrs.id;
-    this.roomId = attrs.roomId;
-    this.avatar = attrs.avatar;
-    this.camp = attrs.camp;
+    Object.keys(attrs).forEach((key) => {
+      this[key] = attrs[key];
+    });
   }
 
 }

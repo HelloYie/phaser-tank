@@ -24,7 +24,7 @@ import stonePng from '../assets/tank/stone.png';
 import brickPng from '../assets/tank/brick.png';
 
 class TankGame {
-  constructor() {
+  constructor(camp) {
     const self = this;
     $('.room_container').remove();
     self.game = new Phaser.Game(
@@ -40,6 +40,7 @@ class TankGame {
       }
     );
     self.room = window.room;
+    self.camp = camp;
   }
 
   preload() {
@@ -74,11 +75,10 @@ class TankGame {
     self.land = new Map(self.game, 'earth', 'stone', 'brick');
 
     // 初始化玩家
-    self.player = new Player(self.game, self.room.name, 'red', 'tank', self.land, self.room.socket);
+    self.player = new Player(self.game, self.room.name, self.camp, 'tank', self.room.socket);
     self.room.socket.emit(
       'new player',
       {
-        id: self.room.socket.id,
         x: self.player.startX,
         y: self.player.startY,
         name: self.player.name,

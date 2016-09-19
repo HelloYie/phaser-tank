@@ -4,9 +4,11 @@
  * 处理 socket 事件
  */
 
+
 const util = require('util');
 const io = require('socket.io');
 const Player = require('./player');
+const uuid = require('uuid');
 
 
 class SocketHandler {
@@ -39,8 +41,8 @@ class SocketHandler {
    * @param self [Object] SocketHandler 实例
    * @this [Object] Socket 实例;
    */
-  onClientDisconnect(data) {
-    const self = this.handler;
+  onClientDisconnect(client, data) {
+    const self = this;
     util.log(`Player has disconnected: ${this.id}`);
     const removePlayer = self.playerById(this.id);
 
@@ -59,12 +61,11 @@ class SocketHandler {
    * @param data: [Object] 创建玩家后返回的数据
    * @this [Object] Socket 实例
    */
-  onNewPlayer(data) {
-    const self = this.handler;
+  onNewPlayer(client, data) {
+    const self = this;
     const client = this;
     const newPlayer = self.playerById(client.id);
     newPlayer.setAttrs(data);
-
     client.to(this.roomId).emit('new player', {
       id: newPlayer.id,
       x: newPlayer.x,
@@ -85,6 +86,7 @@ class SocketHandler {
           x: existingPlayer.x,
           y: existingPlayer.y,
           name: existingPlayer.name,
+          camp: newPlayer.camp,
           avatar: existingPlayer.avatar,
         }
       );
@@ -96,8 +98,8 @@ class SocketHandler {
    * @param data: [Object] 移动玩家后返回的数据
    * @this [Object] Socket 实例
    */
-  onMovePlayer(data) {
-    const self = this.handler;
+  onMovePlayer(client, data) {
+    const self = this;
     const movePlayer = self.playerById(this.id);
 
     if (!movePlayer) {
@@ -123,8 +125,8 @@ class SocketHandler {
    * @param data: [Object] 移动玩家后返回的数据
    * @this [Object] Socket 实例
    */
-  onShot(data) {
-    const self = this.handler;
+  onShot(client, data) {
+    const self = this;
     this.to(this.roomId).emit(
       'shot',
       {
@@ -133,8 +135,8 @@ class SocketHandler {
     );
   }
 
-  onJoinRoom(data) {
-    const self = this.handler;
+  onJoinRoom(client, data) {
+    const self = this;
     const client = this;
     const newPlayer = new Player({
       avatar: data.avatar,
@@ -177,13 +179,35 @@ class SocketHandler {
     self.roomPlayers[client.roomId][client.id] = newPlayer;
   }
 
-  onStartGame() {
-    const self = this.handler;
-    const client = this;
+  onStartGame(client, data) {
+    const self = this;
+    if (data.mode === 'hell'){
+      // 地狱乱斗
+      self.startHell(client);
+    } else if (data.mode === 'team_feight' ){
+      // 组队对战
+      self.startTeamFeight(client, data.persons);
+    }
+  }
+
+  startHell(client) {
+
     client.to(client.roomId).emit(
-      'start game'
+      'start game',
+      {
+        camp: uuid.v4(),
+      }
     );
-    client.emit('start game');
+    client.emit(
+      'start game',
+      {
+        camp: uuid.v4(),
+      }
+    );
+  }
+
+  startTeamFeight(persons) {
+    // TODO 匹配池中查询， 没有对手就丢进匹配池等待
   }
 
   /**
@@ -200,14 +224,13 @@ class SocketHandler {
       'join room': self.onJoinRoom,
       'start game': self.onStartGame,
     };
-    client.handler = self;
 
     util.log(`New player has connected: ${client.id}`);
 
     // bild event with client
     Object.keys(events).forEach((event) => {
       client.on(event, function(data){
-        events[event].call(client, data);
+        events[event](client, data);
       });
     });
   }
