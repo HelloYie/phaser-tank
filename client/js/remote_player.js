@@ -10,11 +10,12 @@ export default class RemotePlayer {
   /**
    * @param id [String] 玩家id
    */
-  constructor(id, game, startX, startY, name, camp) {
+  constructor(id, game, startX, startY, name, camp, avatar) {
     const x = startX;
     const y = startY;
     this.game = game;
     this.name = name;
+    this.avatar = avatar;
     this.health = 3;
     this.camp = camp;  // 阵营
     this.id = id;
