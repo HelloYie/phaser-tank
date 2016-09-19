@@ -27,7 +27,7 @@ class Room {
     const query_args = queryString.parse(location.search);
     // hell房间方便开发时调试
     self.id = query_args.room_id || 'hell';
-    self.name = query_args.name || define.username;
+    self.name = query_args.name || utils.randomUserName();
     self.avatar = query_args.avatar || define.avatar;
     self.sex = query_args.sex || 0;
     self.persons = query_args.persons || 'hell';
@@ -49,6 +49,26 @@ class Room {
         avatar: self.avatar,
       })
     );
+    wx.config({
+      debug: false,
+      appId: 'wx3ddbcc094e20fe19',
+      timestame: new Date().getTime(),
+      nonceStr: '',
+      signature: '',
+      jsApiList: [],
+
+    });
+    wx.onMenuShareTimeline({
+      title: '坦克大战${self.persons}${self.mode}', // 分享标题
+      link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx3ddbcc094e20fe19&redirect_uri=http://wx.burnish.cn/ui/tank.html?room_id=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect', // 分享链接
+      imgUrl: 'http://obdp0ndxs.bkt.clouddn.com/kzgame.png', // 分享图标
+      success() {
+          // 用户确认分享后执行的回调函数
+      },
+      cancel() {
+          // 用户取消分享后执行的回调函数
+      },
+    });
   }
 
   compileTpls() {

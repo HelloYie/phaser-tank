@@ -21,6 +21,7 @@ require.ensure([], () => {
 
 
   window.IO = require('./lib/socket.io-client');
+  window.wx = require('./lib/jweixin-1.1.0');
 
   window.room = new Room();
   new RoomEvents(window.room);
