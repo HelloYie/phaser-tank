@@ -6,7 +6,6 @@ import $ from 'jquery';
 
 import Player from './player';
 import Attack from './attack';
-import { names } from './constant';
 import Explosion from './explosion';
 import tanksJson from '../assets/tank/tanks.json';
 
@@ -71,8 +70,7 @@ class TankGame {
     self.land.fixedToCamera = true;
 
     // 初始化玩家
-    const name = names[Math.floor(Math.random() * names.length)];
-    self.player = new Player(self.game, name, 'red', 'tank', self.room.socket);
+    self.player = new Player(self.game, self.room.name, 'red', 'tank', self.room.socket);
     self.room.socket.emit(
       'new player',
       {
@@ -80,6 +78,7 @@ class TankGame {
         x: self.player.startX,
         y: self.player.startY,
         name: self.player.name,
+        avatar: self.room.avatar,
         camp: self.player.camp,
       }
     );

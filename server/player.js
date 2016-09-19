@@ -66,6 +66,7 @@ class Player {
     this.id = attrs.id;
     this.roomId = attrs.roomId;
     this.avatar = attrs.avatar;
+    this.camp = attrs.camp;
   }
 
 }
