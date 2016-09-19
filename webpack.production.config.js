@@ -51,7 +51,7 @@ module.exports = {
         loader: 'json'
       }, {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('style', 'css?modules&localIdentName=[name]---[local]---[hash:base64:5]')
+        loader: ExtractTextPlugin.extract('style', 'css')
       }, {
         test: /\.(jpe?g|png|gif|bmp|ico)$/i,
         loader: 'file?name=img/[name].[ext]',

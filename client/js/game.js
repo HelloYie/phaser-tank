@@ -4,8 +4,10 @@
 
 import $ from 'jquery';
 
+import Map from './map';
 import Player from './player';
 import Attack from './attack';
+import TouchControl from './touch_control';
 import Explosion from './explosion';
 import tanksJson from '../assets/tank/tanks.json';
 
@@ -18,6 +20,8 @@ import touchSegmentPng from '../assets/tank/touch_segment.png';
 import touchPng from '../assets/tank/touch.png';
 import attackPng from '../assets/tank/attack.png';
 import explosionPng from '../assets/tank/explosion.png';
+import stonePng from '../assets/tank/stone.png';
+import brickPng from '../assets/tank/brick.png';
 
 class TankGame {
   constructor() {
@@ -45,6 +49,8 @@ class TankGame {
     this.game.load.image('touch_segment', touchSegmentPng);
     this.game.load.image('touch', touchPng);
     this.game.load.image('attack', attackPng);
+    this.game.load.image('stone', stonePng);
+    this.game.load.image('brick', brickPng);
     this.game.load.atlas('tank', tankPng, null, tanksJson);
     this.game.load.atlas('enemy', enemyPng, null, tanksJson);
     this.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
@@ -53,24 +59,22 @@ class TankGame {
   create() {
     // 初始化游戏设置
     const self = this;
-    self.game.world.setBounds(0, 0, 2000, 2000);
-    self.game.camera.unfollow();
-    self.game.camera.deadzone = new Phaser.Rectangle(
-      self.game.width / 3,
-      self.game.height / 3,
-      self.game.width / 3,
-      self.game.height / 3
-    );
+    self.game.world.setBounds(0, 0, 1920, 1920);
+    // self.game.camera.deadzone = new Phaser.Rectangle(
+    //   self.game.width / 3,
+    //   self.game.height / 3,
+    //   self.game.width / 3,
+    //   self.game.height / 3
+    // );
     self.game.camera.focusOnXY(0, 0);
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
 
-    // 初始化陆地
-    self.land = self.game.add.tileSprite(0, 0, self.game.width, self.game.height, 'earth');
-    self.land.fixedToCamera = true;
+    // 初始化地图
+    self.land = new Map(self.game, 'earth', 'stone', 'brick');
 
     // 初始化玩家
-    self.player = new Player(self.game, self.room.name, 'red', 'tank', self.room.socket);
+    self.player = new Player(self.game, self.room.name, 'red', 'tank', self.land, self.room.socket);
     self.room.socket.emit(
       'new player',
       {
@@ -84,6 +88,10 @@ class TankGame {
     );
     self.sPlayer = self.player.sPlayer;
     self.sPlayer.bringToTop();
+    self.game.camera.follow(self.sPlayer);
+
+    // 初始化触摸移动类
+    self.touchControl = new TouchControl(this.game, this).touchControl;
 
     // 初始化爆炸类
     self.explosion = new Explosion(self.game, 'kaboom');
@@ -120,7 +128,8 @@ class TankGame {
       }
     });
     self.game.physics.arcade.collide(self.sPlayer, self.player.playerGroup);
-    self.player.move();
+    self.land.checkOverlap(self.sPlayer);
+    self.player.move(self.touchControl);
   }
 
   render() {

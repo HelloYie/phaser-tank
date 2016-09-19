@@ -5,7 +5,6 @@
  * @description:
  *
  */
-import TouchControl from './touch_control';
 
 export default class Player {
   /**
@@ -16,10 +15,11 @@ export default class Player {
    *
    */
 
-  constructor(game, name, camp, key, socket) {
+  constructor(game, name, camp, key, land, socket) {
     this.game = game;
     this.name = name;
     this.camp = camp; // 阵营
+    this.land = land;
     this.socket = socket;
     this.playerGroup = game.add.group();
     this.key = key;
@@ -70,11 +70,14 @@ export default class Player {
     return this.camp === playerObj.camp;
   }
 
-  move() {
-    const touchControl = new TouchControl(this.game, this).touchControl;
-    const touchCursors = touchControl.cursors;
-    const touchSpeed = touchControl.speed;
+  easeInSpeed(x) {
+    return (x * Math.abs(x)) / 2000;
+  }
 
+  move(touchControl) {
+    const touchSpeed = touchControl.speed;
+    const touchCursors = touchControl.cursors;
+    //
     if (touchCursors.left) {
       this.angle = 180;
       this.currentSpeed = Math.abs(touchSpeed.x);
@@ -89,11 +92,10 @@ export default class Player {
       this.currentSpeed = Math.abs(touchSpeed.y);
     }
 
+    this.sPlayer.angle = this.angle;
     if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
     }
-
-    this.sPlayer.angle = this.angle;
     this.game.physics.arcade.velocityFromAngle(
       this.angle,
       this.currentSpeed * 3,
@@ -102,7 +104,6 @@ export default class Player {
     if (this.currentSpeed === 0) {
       return;
     }
-
     if (this.currentSpeed > 0) {
       this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
     } else {
