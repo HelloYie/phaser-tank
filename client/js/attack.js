@@ -31,10 +31,12 @@ export default class Attack {
     this.weapon.trackSprite(this.player, 50, 0, true);
 
     // 攻击按钮
-    this.attackBtn = this.game.add.sprite(this.game.width - 200, this.game.height - 200, 'attack');
+    this.attackBtn = this.game.add.sprite(this.game.width - 50, this.game.height - 50, 'attack');
+    this.attackBtn.fixedToCamera = true;
     this.attackBtn.anchor.x = 0;
     this.attackBtn.anchor.y = 0;
     this.attackBtn.inputEnabled = true;
+    this.attackBtn.fixedToCamera = true;
     this.attackBtn.events.onInputDown.add(this.attack, this);
     return this;
   }

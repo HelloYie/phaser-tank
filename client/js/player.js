@@ -77,7 +77,6 @@ export default class Player {
   move(touchControl) {
     const touchSpeed = touchControl.speed;
     const touchCursors = touchControl.cursors;
-    //
     if (touchCursors.left) {
       this.angle = 180;
       this.currentSpeed = Math.abs(touchSpeed.x);
