@@ -16,7 +16,13 @@ class RoomEvents {
   }
 
   startGame() {
-    self.room.socket.emit('start game');
+    self.room.socket.emit(
+      'start game',
+      {
+        mode: self.room.mode,
+        persons: self.room.persons,
+      }
+    );
   }
 }
 

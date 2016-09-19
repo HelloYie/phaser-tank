@@ -74,12 +74,13 @@ export default class SocketEvent {
   }
 
   onGameStart() {
-    Object.keys(this.gamers).forEach((gamerId) => {
-      const gamerObj = this.gamers[gamerId];
+    const self = this;
+    Object.keys(self.gamers).forEach((gamerId) => {
+      const gamerObj = self.gamers[gamerId];
       gamerObj.player.kill();
     });
-    this.gamers = {};
-    this.player.id = this.socket.id;
+    self.gamers = {};
+    self.player.id = self.socket.id;
   }
 
   onSocketDisconnect() {
@@ -88,16 +89,21 @@ export default class SocketEvent {
 
   // 自己和别人加入游戏
   onNewPlayer(data) {
+    const self = this;
     console.log('New player connected:', data.id);
 
-    const duplicate = this.gamerById(data.id, true);
-    if (duplicate) {
+    const duplicate = self.gamerById(data.id, true);
+    if (!data.x || !data.y || !data.camp) {
+      // 用户数据无效
+      return;
+    }
+    if (duplicate || utils.plainId(data.id) === self.socket.id) {
       console.log('Duplicate player!');
       return;
     }
-    const gamer = new RemotePlayer(data.id, this.game, data.x, data.y, data.name, data.camp, data.avatar);
-    this.gamers[data.id] = gamer;
-    this.player.playerGroup.add(gamer.player);
+    const gamer = new RemotePlayer(data.id, self.game, data.x, data.y, data.name, data.camp, data.avatar);
+    self.gamers[data.id] = gamer;
+    self.player.playerGroup.add(gamer.player);
   }
 
   onMovePlayer(data) {
@@ -140,8 +146,8 @@ export default class SocketEvent {
     $(`.room_user#${plainId}`).remove();
   }
 
-  onStartGame() {
-    new TankGame();
+  onStartGame(data) {
+    new TankGame(data.camp);
   }
 
   gamerById(id, silence = false) {
