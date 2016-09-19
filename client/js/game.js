@@ -4,6 +4,7 @@
 
 import $ from 'jquery';
 
+import Map from './map';
 import Player from './player';
 import Attack from './attack';
 import Explosion from './explosion';
@@ -18,6 +19,8 @@ import touchSegmentPng from '../assets/tank/touch_segment.png';
 import touchPng from '../assets/tank/touch.png';
 import attackPng from '../assets/tank/attack.png';
 import explosionPng from '../assets/tank/explosion.png';
+import stonePng from '../assets/tank/stone.png';
+import brickPng from '../assets/tank/brick.png';
 
 class TankGame {
   constructor() {
@@ -45,6 +48,8 @@ class TankGame {
     this.game.load.image('touch_segment', touchSegmentPng);
     this.game.load.image('touch', touchPng);
     this.game.load.image('attack', attackPng);
+    this.game.load.image('stone', stonePng);
+    this.game.load.image('brick', brickPng);
     this.game.load.atlas('tank', tankPng, null, tanksJson);
     this.game.load.atlas('enemy', enemyPng, null, tanksJson);
     this.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
@@ -65,9 +70,8 @@ class TankGame {
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
 
-    // 初始化陆地
-    self.land = self.game.add.tileSprite(0, 0, self.game.width, self.game.height, 'earth');
-    self.land.fixedToCamera = true;
+    // 初始化地图
+    self.land = new Map(self.game, 'earth', 'stone', 'brick');
 
     // 初始化玩家
     self.player = new Player(self.game, self.room.name, 'red', 'tank', self.room.socket);
@@ -120,6 +124,7 @@ class TankGame {
       }
     });
     self.game.physics.arcade.collide(self.sPlayer, self.player.playerGroup);
+    self.land.checkOverlap(self.sPlayer);
     self.player.move();
   }
 

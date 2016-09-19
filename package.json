@@ -20,7 +20,7 @@
   "homepage": "",
   "scripts": {
     "test": "",
-    "start": "node server/server.js",
+    "start": "nodemon --watch server server/server.js",
     "debug": "node debug server/server.js",
     "node-debug": "node-debug server/server.js",
     "product": "NODE_ENV=production node server/server.js",
