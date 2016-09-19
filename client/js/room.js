@@ -24,14 +24,23 @@ class Room {
 
   constructor() {
     const self = this;
-    const query_args = queryString.parse(location.search);
+    const queryArgs = queryString.parse(location.search);
     // hell房间方便开发时调试
-    self.id = query_args.room_id || 'hell';
-    self.name = query_args.name || utils.randomUserName();
-    self.avatar = query_args.avatar || define.avatar;
-    self.sex = query_args.sex || 0;
-    self.persons = query_args.persons || 'hell';
-    self.mode = query_args.mode || 'hell';
+    self.id = queryArgs.roomId || 'hell';
+    self.name = queryArgs.name || utils.randomUserName();
+    self.avatar = queryArgs.avatar || define.avatar;
+    self.sex = queryArgs.sex || 0;
+    self.persons = queryArgs.persons || 'hell';
+    self.mode = queryArgs.mode || 'hell';
+    // TODO: 创建者将mode与persons同步到node服务器， 加入者无法修改
+    if (self.mode === 'hell') {
+      // hell 房间只有一个
+      self.id = 'hell';
+    }
+    self.signTimeStamp = queryArgs.signTimeStamp;
+    self.signNonceStr = queryArgs.signNonceStr;
+    self.signature = queryArgs.signature;
+    self.appId = queryArgs.appId;
     $('.persons').text(personDisplay[self.persons]);
     $('.mode').text(modeDisplay[self.mode]);
     self.socket = IO.connect();
@@ -51,16 +60,16 @@ class Room {
     );
     wx.config({
       debug: false,
-      appId: 'wx3ddbcc094e20fe19',
-      timestame: new Date().getTime(),
-      nonceStr: '',
-      signature: '',
-      jsApiList: [],
+      appId: self.appId,
+      timestame: self.signTimeStamp,
+      nonceStr: self.signNonceStr,
+      signature: self.signature,
+      jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'],
 
     });
     wx.onMenuShareTimeline({
       title: '坦克大战${self.persons}${self.mode}', // 分享标题
-      link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx3ddbcc094e20fe19&redirect_uri=http://wx.burnish.cn/ui/tank.html?room_id=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect', // 分享链接
+      link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=${self.appId}&redirect_uri=http://wx.burnish.cn/ui/tank.html?room_id=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect', // 分享链接
       imgUrl: 'http://obdp0ndxs.bkt.clouddn.com/kzgame.png', // 分享图标
       success() {
           // 用户确认分享后执行的回调函数
