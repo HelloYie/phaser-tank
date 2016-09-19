@@ -9,6 +9,7 @@
 import 'css/room.css';
 
 import $ from 'jquery';
+import wx from 'weixin-js-sdk';
 import _ from 'underscore';
 import queryString from 'query-string';
 
