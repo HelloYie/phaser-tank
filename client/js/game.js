@@ -73,6 +73,16 @@ class TankGame {
     // 初始化玩家
     const name = names[Math.floor(Math.random() * names.length)];
     self.player = new Player(self.game, name, 'red', 'tank', self.room.socket);
+    self.room.socket.emit(
+      'new player',
+      {
+        id: self.room.socket.id,
+        x: self.player.startX,
+        y: self.player.startY,
+        name: self.player.name,
+        camp: self.player.camp,
+      }
+    );
     self.sPlayer = self.player.sPlayer;
     self.sPlayer.bringToTop();
 

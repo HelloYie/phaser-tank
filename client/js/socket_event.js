@@ -102,7 +102,7 @@ export default class SocketEvent {
       console.log('Duplicate player!');
       return;
     }
-    const gamer = new RemotePlayer(data.id, this.game, data.x, data.y, data.name, 'blue');
+    const gamer = new RemotePlayer(data.id, this.game, data.x, data.y, data.name, data.camp);
     this.gamers[data.id] = gamer;
     this.player.playerGroup.add(gamer.player);
   }
