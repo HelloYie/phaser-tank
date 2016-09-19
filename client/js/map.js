@@ -15,8 +15,7 @@ export default class Map {
 
   init() {
     const self = this;
-    self.land = self.game.add.tileSprite(0, 0, self.game.width, self.game.height, self.key);
-    self.land.fixedToCamera = true;
+    self.land = self.game.add.tileSprite(0, 0, 1920, 1920, self.key);
     self.createStone();
     return self;
   }

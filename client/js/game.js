@@ -7,6 +7,7 @@ import $ from 'jquery';
 import Map from './map';
 import Player from './player';
 import Attack from './attack';
+import TouchControl from './touch_control';
 import Explosion from './explosion';
 import tanksJson from '../assets/tank/tanks.json';
 
@@ -58,14 +59,13 @@ class TankGame {
   create() {
     // 初始化游戏设置
     const self = this;
-    self.game.world.setBounds(0, 0, 2000, 2000);
-    self.game.camera.unfollow();
-    self.game.camera.deadzone = new Phaser.Rectangle(
-      self.game.width / 3,
-      self.game.height / 3,
-      self.game.width / 3,
-      self.game.height / 3
-    );
+    self.game.world.setBounds(0, 0, 1920, 1920);
+    // self.game.camera.deadzone = new Phaser.Rectangle(
+    //   self.game.width / 3,
+    //   self.game.height / 3,
+    //   self.game.width / 3,
+    //   self.game.height / 3
+    // );
     self.game.camera.focusOnXY(0, 0);
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
@@ -88,6 +88,10 @@ class TankGame {
     );
     self.sPlayer = self.player.sPlayer;
     self.sPlayer.bringToTop();
+    self.game.camera.follow(self.sPlayer);
+
+    // 初始化触摸移动类
+    self.touchControl = new TouchControl(this.game, this).touchControl;
 
     // 初始化爆炸类
     self.explosion = new Explosion(self.game, 'kaboom');
@@ -125,7 +129,7 @@ class TankGame {
     });
     self.game.physics.arcade.collide(self.sPlayer, self.player.playerGroup);
     self.land.checkOverlap(self.sPlayer);
-    self.player.move();
+    self.player.move(self.touchControl);
   }
 
   render() {

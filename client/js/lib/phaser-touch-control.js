@@ -2,22 +2,17 @@
 /**
   * Phaser Touch Control Plugin
   * It adds a movement control for mobile and tablets devices
-
 	The MIT License (MIT)
-
 	Copyright (c) 2014 Eugenio Fage
 	https://twitter.com/eugenioclrc
-
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 	copies of the Software, and to permit persons to whom the Software is
 	furnished to do so, subject to the following conditions:
-
 	The above copyright notice and this permission notice shall be included in all
 	copies or substantial portions of the Software.
-
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,9 +20,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-
 	Contact: https://github.com/eugenioclrc, @eugenioclrc
-
   */
 
 (function(window, Phaser) {
@@ -43,6 +36,7 @@
 		this.imageGroup = [];
 
 		this.imageGroup.push(this.game.add.sprite(0, 0, 'compass'));
+		this.imageGroup.push(this.game.add.sprite(0, 0, 'touch_segment'));
 		this.imageGroup.push(this.game.add.sprite(0, 0, 'touch_segment'));
 		this.imageGroup.push(this.game.add.sprite(0, 0, 'touch'));
 
@@ -60,9 +54,7 @@
 	Phaser.Plugin.TouchControl.prototype.settings = {
 		// max distance from itial touch
 		maxDistanceInPixels: 200,
-		singleDirection: false,
-		attackBtnHeight: 128,
-		attackBtnHeight: 128,
+		singleDirection: false
 	};
 
 
@@ -85,12 +77,7 @@
 	};
 
 	var initialPoint;
-	var createCompass = function(e) {
-		// 如果是点击发射按钮，则不需要精灵移动
-		if ((e.x >= this.game.width - 200  && e.x <= this.game.width - 72) &&
-		 (e.y >= this.game.height - 200 && e.y <= this.game.height - 72)) {
-			return;
-		}
+	var createCompass = function(){
 		this.imageGroup.forEach(function (e) {
 			e.visible=false;
 			e.bringToTop();
