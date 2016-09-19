@@ -60,7 +60,7 @@ class TankGame {
   create() {
     // 初始化游戏设置
     const self = this;
-    self.game.world.setBounds(0, 0, 1920, 1920);
+    self.game.world.setBounds(0, 0, 1000, 1000);
     // self.game.camera.deadzone = new Phaser.Rectangle(
     //   self.game.width / 3,
     //   self.game.height / 3,

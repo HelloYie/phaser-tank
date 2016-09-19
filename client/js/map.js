@@ -15,15 +15,17 @@ export default class Map {
 
   init() {
     const self = this;
-    self.land = self.game.add.tileSprite(0, 0, 1920, 1920, self.key);
+    self.land = self.game.add.tileSprite(0, 0, 1000, 1000, self.key);
     self.createStone();
     return self;
   }
 
   createStone() {
     const self = this;
-    self.stone = self.game.add.sprite(100, 100, self.stoneKey);
-    this.game.physics.enable(this.stone, Phaser.Physics.ARCADE);
+    self.stones = self.game.add.sprite(100, 100, self.stoneKey);
+    self.stone = self.game.add.sprite(20, 20, self.stoneKey);
+    self.stones.addChild(self.stone);
+    this.game.physics.enable(this.stones, Phaser.Physics.ARCADE);
     self.stone.body.immovable = true;
     return self;
   }
