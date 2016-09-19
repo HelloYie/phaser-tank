@@ -74,7 +74,7 @@ class TankGame {
     self.land = new Map(self.game, 'earth', 'stone', 'brick');
 
     // 初始化玩家
-    self.player = new Player(self.game, self.room.name, 'red', 'tank', self.room.socket);
+    self.player = new Player(self.game, self.room.name, 'red', 'tank', self.land, self.room.socket);
     self.room.socket.emit(
       'new player',
       {

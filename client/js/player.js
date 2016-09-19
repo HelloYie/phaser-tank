@@ -93,7 +93,7 @@ export default class Player {
     }
 
     this.sPlayer.angle = this.angle;
-    if (this.game.input.mousePointer.isUp) {
+    if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
     }
     this.game.physics.arcade.velocityFromAngle(
