@@ -26,7 +26,6 @@ export default class SocketEvent {
       'start game': self.onStartGame,
     };
     self.gameEvents = {
-      'game start': self.onGameStart,
       disconnect: self.onSocketDisconnect,
       'new player': self.onNewPlayer,
       'move player': self.onMovePlayer,
@@ -80,12 +79,6 @@ export default class SocketEvent {
       gamerObj.player.kill();
     });
     this.gamers = {};
-    this.socket.emit('new player', {
-      x: this.sPlayer.x,
-      y: this.sPlayer.y,
-      angle: this.sPlayer.angle,
-      id: this.sPlayer.id,
-    });
     this.player.id = this.socket.id;
   }
 
@@ -102,7 +95,7 @@ export default class SocketEvent {
       console.log('Duplicate player!');
       return;
     }
-    const gamer = new RemotePlayer(data.id, this.game, data.x, data.y, data.name, data.camp);
+    const gamer = new RemotePlayer(data.id, this.game, data.x, data.y, data.name, data.camp, data.avatar);
     this.gamers[data.id] = gamer;
     this.player.playerGroup.add(gamer.player);
   }

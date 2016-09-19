@@ -60,6 +60,7 @@ class Room {
     // 其他玩家加入房间
     const self = this;
     data.plainId = utils.plainId(data.id);
+    console.log(data);
     $('.user_container').append(
       self.user_tpl(data)
     );

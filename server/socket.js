@@ -67,9 +67,11 @@ class SocketHandler {
 
     client.to(this.roomId).emit('new player', {
       id: newPlayer.id,
-      x: newPlayer.getX(),
-      y: newPlayer.getY(),
-      name: newPlayer.getName(),
+      x: newPlayer.x,
+      y: newPlayer.y,
+      name: newPlayer.name,
+      camp: newPlayer.camp,
+      avatar: newPlayer.avatar,
     });
 
     let existingPlayer;
@@ -80,9 +82,10 @@ class SocketHandler {
         'new player',
         {
           id: existingPlayer.id,
-          x: existingPlayer.getX(),
-          y: existingPlayer.getY(),
-          name: existingPlayer.getName(),
+          x: existingPlayer.x,
+          y: existingPlayer.y,
+          name: existingPlayer.name,
+          avatar: existingPlayer.avatar,
         }
       );
     });
