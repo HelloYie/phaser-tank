@@ -10,6 +10,7 @@ import Attack from './attack';
 import TouchControl from './touch_control';
 import Explosion from './explosion';
 import tanksJson from '../assets/tank/tanks.json';
+import tileMapJson from '../assets/tank/map.json';
 
 import tankPng from '../assets/tank/tanks.png';
 import enemyPng from '../assets/tank/enemy-tanks.png';
@@ -22,6 +23,7 @@ import attackPng from '../assets/tank/attack.png';
 import explosionPng from '../assets/tank/explosion.png';
 import stonePng from '../assets/tank/stone.png';
 import brickPng from '../assets/tank/brick.png';
+import grossPng from '../assets/tank/gross.png';
 
 class TankGame {
   constructor(camp) {
@@ -52,15 +54,18 @@ class TankGame {
     this.game.load.image('attack', attackPng);
     this.game.load.image('stone', stonePng);
     this.game.load.image('brick', brickPng);
+    this.game.load.image('gross', grossPng);
+    this.game.load.image('gross', grossPng);
     this.game.load.atlas('tank', tankPng, null, tanksJson);
     this.game.load.atlas('enemy', enemyPng, null, tanksJson);
     this.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
+    this.game.load.tilemap('map', null, tileMapJson, Phaser.Tilemap.TILED_JSON);
   }
 
   create() {
     // 初始化游戏设置
     const self = this;
-    self.game.world.setBounds(0, 0, 1000, 1000);
+    self.game.world.setBounds(0, 0, 1200, 900);
     // self.game.camera.deadzone = new Phaser.Rectangle(
     //   self.game.width / 3,
     //   self.game.height / 3,
@@ -72,7 +77,7 @@ class TankGame {
     self.game.input.justPressedRate = 30;
 
     // 初始化地图
-    self.land = new Map(self.game, 'earth', 'stone', 'brick');
+    self.land = new Map(self.game, 'earth');
 
     // 初始化玩家
     self.player = new Player(self.game, self.room.name, self.camp, 'tank', self.land, self.room.socket);
@@ -128,7 +133,7 @@ class TankGame {
       }
     });
     self.game.physics.arcade.collide(self.sPlayer, self.player.playerGroup);
-    self.land.checkOverlap(self.sPlayer);
+    self.land.checkCollide(self.sPlayer);
     self.player.move(self.touchControl);
   }
 

@@ -44,6 +44,8 @@ export default class Player {
     this.sPlayer.body.collideWorldBounds = true;
     this.sPlayer.playerObj = this;
     this.sPlayer.name = this.name;
+    this.sPlayer.width = 36;
+    this.sPlayer.height = 28;
     this.playerGroup.add(this.sPlayer);
 
     this.setName();
@@ -54,14 +56,14 @@ export default class Player {
   // 设置玩家名称
   setName() {
     const playerName = this.game.add.text(
-      -30,
-      -23,
+      -32,
+      -25,
       this.name,
       {
-        font: '6mm',
+        font: '12px',
       });
     playerName.angle = 90;
-    playerName.fill = 'blue';
+    playerName.fill = '#fff';
     this.sPlayer.addChild(playerName);
   }
 

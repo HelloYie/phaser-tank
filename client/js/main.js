@@ -23,6 +23,7 @@ require.ensure([], () => {
   window.IO = require('./lib/socket.io-client');
 
   window.room = new Room();
+
   new RoomEvents(window.room);
 
   require.ensure([], () => {

@@ -25,11 +25,12 @@ export default class RemotePlayer {
     this.player = game.add.sprite(x, y, 'enemy', 'tank1');
     this.player.addChild(game.add.sprite(-15, -15, 'enemy', 'turret'));
     this.player.anchor.setTo(0.5, 0.5);
+    this.player.width = 36;
+    this.player.height = 28;
 
     this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
     this.player.body.immovable = true;
     this.player.body.collideWorldBounds = true;
-    // this.player.angle = game.rnd.angle();
     this.lastPosition = {
       x,
       y,
