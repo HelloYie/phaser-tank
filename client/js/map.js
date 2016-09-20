@@ -4,33 +4,31 @@
  */
 
 export default class Map {
-  constructor(game, key, stoneKey, brickKey) {
+  constructor(game, key) {
     const self = this;
     self.game = game;
     self.key = key;
-    self.stoneKey = stoneKey;
-    self.brickKey = brickKey;
+    self.mapCollideSprites = [];
     return self.init();
   }
 
   init() {
     const self = this;
-    self.land = self.game.add.tileSprite(0, 0, 1920, 1920, self.key);
-    self.createStone();
+    self.land = self.game.add.tileSprite(0, 0, 1200, 900, self.key);
+    self.map = self.game.add.tilemap('map');
+    self.map.addTilesetImage('brick', 'brick');
+    self.map.addTilesetImage('stone', 'stone');
+    self.map.addTilesetImage('gross', 'gross');
+    self.map.setCollisionBetween(1, 2);
+    self.layer = self.map.createLayer('map');
+    self.layer.resizeWorld();
+
     return self;
   }
 
-  createStone() {
+  checkCollide(player) {
     const self = this;
-    self.stone = self.game.add.sprite(100, 100, self.stoneKey);
-    this.game.physics.enable(this.stone, Phaser.Physics.ARCADE);
-    self.stone.body.immovable = true;
-    return self;
-  }
-
-  checkOverlap(player) {
-    const self = this;
-    self.game.physics.arcade.collide(player, self.stone);
+    self.game.physics.arcade.collide(player, self.layer);
     return self;
   }
 }
