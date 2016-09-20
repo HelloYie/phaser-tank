@@ -25,7 +25,7 @@ class Room {
 
   constructor() {
     const self = this;
-    const queryArgs = queryString.parse(location.search);
+    const queryArgs = queryString.parse(location.hash);
     // hell房间方便开发时调试
     self.id = queryArgs.roomId || 'hell';
     self.name = queryArgs.name || utils.randomUserName();
