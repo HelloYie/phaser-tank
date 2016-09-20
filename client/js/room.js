@@ -62,7 +62,7 @@ class Room {
     wx.config({
       debug: false,
       appId: self.appId,
-      timestame: self.signTimeStamp,
+      timestamp: self.signTimeStamp,
       nonceStr: self.signNonceStr,
       signature: self.signature,
       jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'],
