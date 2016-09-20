@@ -59,6 +59,7 @@ class Room {
         plainId: 'self',
         name: self.name,
         avatar: self.avatar,
+        sex: self.sex,
       })
     );
     wx.config({
