@@ -30,9 +30,17 @@ class Room {
     self.id = queryArgs.roomId || 'hell';
     self.name = queryArgs.name || utils.randomUserName();
     self.avatar = queryArgs.avatar || define.avatar;
-    self.sex = queryArgs.sex || 0;
+    self.sex = Number(queryArgs.sex || 0);
+    if (self.sex === 1) {
+      self.sex_display = '♂';
+    } else if (self.sex === 2) {
+      self.sex_display = '♀';
+    } else {
+      self.sex_display = '⚥';
+    }
     self.persons = queryArgs.persons || 'hell';
     self.mode = queryArgs.mode || 'hell';
+    self.name_with_sex = `${self.sex_display} ${self.name}`;
     // TODO: 创建者将mode与persons同步到node服务器， 加入者无法修改
     if (self.mode === 'hell') {
       // hell 房间只有一个

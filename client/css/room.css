@@ -12,6 +12,15 @@ html{
   font-size: 1rem;
   text-align: center;
 }
+.sex0{
+  color: green;
+}
+.sex1{
+  color: #46b8da;
+}
+.sex2{
+  color: #fe9dae;
+}
 
 @media (max-width: 768px){
   html{
