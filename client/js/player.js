@@ -15,13 +15,14 @@ export default class Player {
    *
    */
 
-  constructor(game, name, camp, key, land, socket) {
+  constructor(id, game, name, camp, key, land, socket) {
+    this.id = id;
     this.game = game;
     this.name = name;
     this.camp = camp; // 阵营
     this.land = land;
     this.socket = socket;
-    this.playerGroup = game.add.group();
+    // this.playerGroup = game.add.group();
     this.key = key;
     this.currentSpeed = 0;
     this.angle = 0;
@@ -31,22 +32,19 @@ export default class Player {
   }
 
   init() {
-    this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key, 'tank1');
+    this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key);
     this.sPlayer.anchor.setTo(0.5, 0.5);
+    this.sPlayer.animations.add('move');
+    this.sPlayer.animations.add('stop');
 
-    this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
-
-    const turret = this.game.add.sprite(0, 0, this.key, 'turret');
-    turret.anchor.setTo(0.3, 0.5);
-    this.sPlayer.addChild(turret);
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.body.maxVelocity.setTo(400, 400);
     this.sPlayer.body.collideWorldBounds = true;
     this.sPlayer.playerObj = this;
     this.sPlayer.name = this.name;
-    this.sPlayer.width = 36;
+    this.sPlayer.width = 35;
     this.sPlayer.height = 28;
-    this.playerGroup.add(this.sPlayer);
+    // this.playerGroup.add(this.sPlayer);
 
     this.setName();
 
@@ -56,8 +54,8 @@ export default class Player {
   // 设置玩家名称
   setName() {
     const playerName = this.game.add.text(
-      -32,
-      -25,
+      -20,
+      -20,
       this.name,
       {
         font: '12px',
@@ -106,7 +104,7 @@ export default class Player {
       return;
     }
     if (this.currentSpeed > 0) {
-      this.sPlayer.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
+      this.sPlayer.animations.play('move');
     } else {
       this.sPlayer.animations.play('stop');
     }

@@ -3,7 +3,6 @@
  * @summary:
  *   socket事件类： 处理游戏事件
  * @description:
- *
  */
 
 
@@ -11,8 +10,10 @@ import utils from 'base_utils';
 import RemotePlayer from './remote_player';
 import TankGame from './game';
 
-
 export default class SocketEvent {
+  /**
+   * @param gamers 其他玩家
+   */
   constructor(room, socket) {
     const self = this;
     self.socket = socket;
@@ -29,6 +30,7 @@ export default class SocketEvent {
       'new player': self.onNewPlayer,
       'move player': self.onMovePlayer,
       'remove player': self.onRemovePlayer,
+      'kill player': self.onRemovePlayer,
       shot: self.onShot,
     };
     return self.init();
@@ -76,8 +78,8 @@ export default class SocketEvent {
   onGameStart() {
     const self = this;
     Object.keys(self.gamers).forEach((gamerId) => {
-      const gamerObj = self.gamers[gamerId];
-      gamerObj.player.kill();
+      const gamer = self.gamers[gamerId];
+      gamer.player.kill();
     });
     self.gamers = {};
     self.player.id = self.socket.id;
@@ -93,17 +95,24 @@ export default class SocketEvent {
     console.log('New player connected:', data.id);
 
     const duplicate = self.gamerById(data.id, true);
+    // 用户数据无效
     if (!data.x || !data.y || !data.camp) {
-      // 用户数据无效
       return;
     }
     if (duplicate || utils.plainId(data.id) === self.socket.id) {
       console.log('Duplicate player!');
       return;
     }
-    const gamer = new RemotePlayer(data.id, self.game, data.x, data.y, data.name, data.camp, data.avatar);
-    self.gamers[data.id] = gamer;
-    self.player.playerGroup.add(gamer.player);
+    const enemy = new RemotePlayer(
+      data.id,
+      self.game,
+      data.x,
+      data.y,
+      data.name,
+      data.camp,
+      data.avatar
+    );
+    self.gamers[data.id] = enemy;
   }
 
   onMovePlayer(data) {
@@ -119,11 +128,11 @@ export default class SocketEvent {
   }
 
   onShot(data) {
-    const gamerObj = this.gamerById(data.id);
-    if (!gamerObj) {
+    const gamer = this.gamerById(data.id);
+    if (!gamer) {
       return;
     }
-    gamerObj.weapon.fire();
+    gamer.weapon.fire();
   }
 
   onJoinRoom(data) {
@@ -132,6 +141,7 @@ export default class SocketEvent {
   }
 
   onRemovePlayer(data) {
+    console.info('要打死', data);
     const self = this;
     const removePlayer = self.gamerById(data.id);
     if (!removePlayer) {
@@ -152,9 +162,9 @@ export default class SocketEvent {
 
   gamerById(id, silence = false) {
     const self = this;
-    const gamerObj = self.gamers[id];
-    if (gamerObj) {
-      return gamerObj;
+    const gamer = self.gamers[id];
+    if (gamer) {
+      return gamer;
     }
     if (!silence) {
       console.log('Player not found: ', id);

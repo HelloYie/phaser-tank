@@ -8,11 +8,10 @@ import Player from './player';
 import Attack from './attack';
 import TouchControl from './touch_control';
 import Explosion from './explosion';
-import tanksJson from '../assets/tank/tanks.json';
 import tileMapJson from '../assets/tank/map.json';
 
-import tankPng from '../assets/tank/tanks.png';
-import enemyPng from '../assets/tank/enemy-tanks.png';
+import tankPng from '../assets/tank/tank-1.png';
+import enemyPng from '../assets/tank/tank-2.png';
 import bulletPng from '../assets/tank/bullet.png';
 import earthPng from '../assets/tank/scorched_earth.png';
 import compassRosePng from '../assets/tank/compass_rose.png';
@@ -34,36 +33,41 @@ class TankGame {
       Phaser.AUTO,
       '',
       {
-        preload: self.preload.bind(self),
-        create: self.create.bind(self),
-        update: self.update.bind(self),
-        render: self.render.bind(self),
+        preload() {
+          self.preload(self);
+        },
+        create() {
+          self.create(self);
+        },
+        update() {
+          self.update(self);
+        },
+        render: self.render,
       }
     );
     self.room = window.room;
     self.camp = camp;
   }
 
-  preload() {
-    this.game.load.image('bullet', bulletPng);
-    this.game.load.image('earth', earthPng);
-    this.game.load.image('compass', compassRosePng);
-    this.game.load.image('touch_segment', touchSegmentPng);
-    this.game.load.image('touch', touchPng);
-    this.game.load.image('attack', attackPng);
-    this.game.load.image('stone', stonePng);
-    this.game.load.image('brick', brickPng);
-    this.game.load.image('gross', grossPng);
-    this.game.load.image('gross', grossPng);
-    this.game.load.atlas('tank', tankPng, null, tanksJson);
-    this.game.load.atlas('enemy', enemyPng, null, tanksJson);
-    this.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
-    this.game.load.tilemap('map', null, tileMapJson, Phaser.Tilemap.TILED_JSON);
+  preload(self) {
+    self.game.load.image('bullet', bulletPng);
+    self.game.load.image('earth', earthPng);
+    self.game.load.image('compass', compassRosePng);
+    self.game.load.image('touch_segment', touchSegmentPng);
+    self.game.load.image('touch', touchPng);
+    self.game.load.image('attack', attackPng);
+    self.game.load.image('stone', stonePng);
+    self.game.load.image('brick', brickPng);
+    self.game.load.image('gross', grossPng);
+    self.game.load.image('gross', grossPng);
+    self.game.load.spritesheet('tank', tankPng, 35, 28, 1);
+    self.game.load.spritesheet('enemy', enemyPng, 35, 28, 1);
+    self.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
+    self.game.load.tilemap('map', null, tileMapJson, Phaser.Tilemap.TILED_JSON);
   }
 
-  create() {
+  create(self) {
     // 初始化游戏设置
-    const self = this;
     self.game.world.setBounds(0, 0, 1200, 900);
     // self.game.camera.deadzone = new Phaser.Rectangle(
     //   self.game.width / 3,
@@ -79,7 +83,15 @@ class TankGame {
     self.land = new Map(self.game, 'earth');
 
     // 初始化玩家
-    self.player = new Player(self.game, self.room.name_with_sex, self.camp, 'tank', self.land, self.room.socket);
+    self.player = new Player(
+      self.room.socket.id,
+      self.game,
+      self.room.name_with_sex,
+      self.camp,
+      'tank',
+      self.land,
+      self.room.socket
+    );
     self.room.socket.emit(
       'new player',
       {
@@ -106,32 +118,51 @@ class TankGame {
     self.room.sEvent.initGame(self.game, self.player);
   }
 
-  update() {
-    const self = this;
-    self.game.physics.arcade.overlap(
-      self.player.playerGroup,
-      self.bullets,
-      self.attack.hitHandler,
-      null,
-      self
-    );
-    Object.keys(self.room.sEvent.gamers).forEach((gamerId) => {
-      const gamerObj = self.room.sEvent.gamers[gamerId];
-      if (gamerObj.player.alive) {
-        gamerObj.update();
-        self.game.physics.arcade.overlap(
-          self.player.playerGroup,
-          gamerObj.bullets,
-          self.attack.hitHandler,
-          null,
-          self
-        );
-      } else {
-        self.explosion.boom(gamerObj.player);
-        gamerObj.player.kill();
+  update(self) {
+    const hitMeHandler = (gamer, bullet) => {
+      gamer.kill();
+      bullet.kill();
+      self.explosion.boom(gamer);
+      self.room.socket.emit('kill player');
+    };
+    const hitEnemyHandler = (gamer, bullet) => {
+      const bulletOwner = bullet.data.bulletManager.trackedSprite;
+      // 如果不是队友，击毙
+      if (!bulletOwner.playerObj.isTeammates(gamer.playerObj)) {
+        self.explosion.boom(gamer);
+        gamer.kill();
       }
+      if (bulletOwner !== gamer) {
+        bullet.kill();
+      }
+      self.room.socket.emit('kill player', {
+        id: gamer.id,
+      });
+    };
+
+    Object.keys(self.room.sEvent.gamers).forEach((gamerId) => {
+      const gamer = self.room.sEvent.gamers[gamerId];
+      gamer.update();
+      // 其他人打到自己
+      self.game.physics.arcade.overlap(
+        self.sPlayer,
+        gamer.bullets,
+        hitMeHandler,
+        null,
+        null,
+        self
+      );
+      // 自己打到敌人
+      self.game.physics.arcade.overlap(
+        self.bullets,
+        gamer.player,
+        hitEnemyHandler,
+        null,
+        null,
+        self
+      );
+      self.game.physics.arcade.collide(self.sPlayer, gamer.player);
     });
-    self.game.physics.arcade.collide(self.sPlayer, self.player.playerGroup);
     self.land.checkCollide(self.sPlayer);
     self.player.move(self.touchControl);
   }

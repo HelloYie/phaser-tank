@@ -24,7 +24,6 @@ export default class Attack {
     this.weapon = this.game.add.weapon(5, this.key);
     this.bullets = this.weapon.bullets;
     this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-    this.weapon.bulletAngleOffset = 90;
     this.weapon.bulletSpeed = 400;
     this.weapon.fireRate = 500;
     this.weapon.bulletAngleOffset = 0;
@@ -46,19 +45,6 @@ export default class Attack {
     if (this.player.alive) {
       this.weapon.fire();
       this.socket.emit('shot');
-    }
-    return this;
-  }
-
- // 捕获攻击
-  hitHandler(gamer, bullet) {
-    const bulletOwner = bullet.data.bulletManager.trackedSprite;
-    if (!bulletOwner.playerObj.isTeammates(gamer.playerObj)) {
-      this.explosion.boom(gamer);
-      gamer.kill();
-    }
-    if (bulletOwner !== gamer) {
-      bullet.kill();
     }
     return this;
   }

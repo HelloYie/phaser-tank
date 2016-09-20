@@ -22,10 +22,9 @@ export default class RemotePlayer {
     this.weapon = game.add.weapon(30, 'bullet');
     this.alive = true;
 
-    this.player = game.add.sprite(x, y, 'enemy', 'tank1');
-    this.player.addChild(game.add.sprite(-15, -15, 'enemy', 'turret'));
+    this.player = game.add.sprite(x, y, 'enemy');
     this.player.anchor.setTo(0.5, 0.5);
-    this.player.width = 36;
+    this.player.width = 35;
     this.player.height = 28;
 
     this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
@@ -45,14 +44,14 @@ export default class RemotePlayer {
     this.bullets = this.weapon.bullets;
 
     const playerName = this.game.add.text(
-      -30,
-      -23,
+      -20,
+      -20,
       this.name,
       {
-        font: '6mm',
+        font: '12px',
       });
     playerName.angle = 90;
-    playerName.fill = 'blue';
+    playerName.fill = '#fff';
     this.player.addChild(playerName);
     this.player.playerObj = this;
   }
