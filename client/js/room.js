@@ -42,8 +42,10 @@ class Room {
     self.signNonceStr = queryArgs.signNonceStr;
     self.signature = queryArgs.signature;
     self.appId = queryArgs.appId;
-    $('.persons').text(personDisplay[self.persons]);
-    $('.mode').text(modeDisplay[self.mode]);
+    self.personsDisplay = personDisplay[self.persons];
+    self.modeDisplay = modeDisplay[self.mode];
+    $('.persons').text(self.personsDisplay);
+    $('.mode').text(self.modeDisplay);
     self.socket = IO.connect();
     self.sEvent = new SocketEvent(self, self.socket);
     self.compileTpls();
@@ -66,18 +68,19 @@ class Room {
       nonceStr: self.signNonceStr,
       signature: self.signature,
       jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'],
-
     });
-    wx.onMenuShareTimeline({
-      title: '坦克大战${self.persons}${self.mode}', // 分享标题
-      link: 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=${self.appId}&redirect_uri=http://wx.burnish.cn/ui/tank.html?room_id=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect', // 分享链接
-      imgUrl: 'http://obdp0ndxs.bkt.clouddn.com/kzgame.png', // 分享图标
-      success() {
-          // 用户确认分享后执行的回调函数
-      },
-      cancel() {
-          // 用户取消分享后执行的回调函数
-      },
+    wx.ready(function(){
+        wx.onMenuShareTimeline({
+          title: `坦克大战${self.personsDisplay}${self.modeDisplay}`, // 分享标题
+          link: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${self.appId}&redirect_uri=http://wx.burnish.cn/ui/tank.html?room_id=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect`, // 分享链接
+          imgUrl: 'http://obdp0ndxs.bkt.clouddn.com/kzgame.png', // 分享图标
+          success() {
+              // 用户确认分享后执行的回调函数
+          },
+          cancel() {
+              // 用户取消分享后执行的回调函数
+          },
+        });
     });
   }
 
