@@ -72,8 +72,7 @@ class Room {
         'onMenuShareAppMessage',
         'hideAllNonBaseMenuItem',
         'showMenuItems',
-        'hideMenuItems',
-    ],
+      ],
     });
     wx.ready(() => {
       self.defineShare();
@@ -83,16 +82,16 @@ class Room {
   defineShare() {
     const self = this;
     const title = `坦克大战${self.personsDisplay}${self.modeDisplay}`;
-    const link = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${self.appId}&redirect_uri=http://wx.burnish.cn/ui/tank.html?room_id=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+    const link = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${self.appId}&redirect_uri=http://wx.burnish.cn/ui/tank.html?roomId=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
     const imgUrl = 'http://obdp0ndxs.bkt.clouddn.com/kzgame.png';
     const desc = '快召游戏其乐无穷来啦';
     // 隐藏其他功能
     wx.hideAllNonBaseMenuItem();
     wx.showMenuItems({
-        menuList: [
-            'menuItem:share:appMessage',
-            'menuItem:share:timeline',
-        ]
+      menuList: [
+        'menuItem:share:appMessage',
+        'menuItem:share:timeline',
+      ],
     });
     wx.onMenuShareTimeline({
       title, // 分享标题
