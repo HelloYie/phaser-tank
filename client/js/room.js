@@ -69,19 +69,44 @@ class Room {
       signature: self.signature,
       jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'],
     });
-    wx.ready(function(){
-        wx.onMenuShareTimeline({
-          title: `坦克大战${self.personsDisplay}${self.modeDisplay}`, // 分享标题
-          link: `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${self.appId}&redirect_uri=http://wx.burnish.cn/ui/tank.html?room_id=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect`, // 分享链接
-          imgUrl: 'http://obdp0ndxs.bkt.clouddn.com/kzgame.png', // 分享图标
-          success() {
-              // 用户确认分享后执行的回调函数
-          },
-          cancel() {
-              // 用户取消分享后执行的回调函数
-          },
-        });
+    wx.ready(() => {
+      self.defineShare();
     });
+  }
+
+  defineShare() {
+    const self = this;
+    const title = `坦克大战${self.personsDisplay}${self.modeDisplay}`;
+    const link = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${self.appId}&redirect_uri=http://wx.burnish.cn/ui/tank.html?room_id=${self.id}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+    const imgUrl = 'http://obdp0ndxs.bkt.clouddn.com/kzgame.png';
+    const desc = '快召游戏其乐无穷来啦';
+    wx.onMenuShareTimeline({
+      title, // 分享标题
+      link, // 分享链接
+      imgUrl, // 分享图标
+      success() {
+          // 用户确认分享后执行的回调函数
+      },
+      cancel() {
+          // 用户取消分享后执行的回调函数
+      },
+    });
+
+    wx.onMenuShareAppMessage({
+      title, // 分享标题
+      desc, // 分享描述
+      link, // 分享链接
+      imgUrl, // 分享图标
+      success() {
+          // 用户确认分享后执行的回调函数
+      },
+      cancel() {
+          // 用户取消分享后执行的回调函数
+      },
+    });
+
+    // 隐藏其他功能
+    wx.hideAllNonBaseMenuItem();
   }
 
   compileTpls() {
