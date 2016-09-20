@@ -70,6 +70,7 @@ export default class SocketEvent {
       id: self.room.id,  // room id
       name: self.room.name,
       avatar: self.room.avatar,
+      sex: self.room.sex,
     });
   }
 

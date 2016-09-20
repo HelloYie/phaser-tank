@@ -159,6 +159,7 @@ class SocketHandler {
             id: existingPlayer.id,
             name: existingPlayer.name,
             avatar: existingPlayer.avatar,
+            sex: existingPlayer.sex,
           }
         );
       });
@@ -172,6 +173,7 @@ class SocketHandler {
         id: newPlayer.id,
         avatar: newPlayer.avatar,
         name: newPlayer.name,
+        sex: newPlayer.sex,
       }
     );
 
