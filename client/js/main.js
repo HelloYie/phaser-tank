@@ -25,6 +25,7 @@ require.ensure([], () => {
   const room = new Room();
 
   new RoomEvents(room);
+  room.progressGo('self', 20);
 
   require.ensure([], () => {
     // 游戏资源加载
@@ -32,10 +33,14 @@ require.ensure([], () => {
 
     window.p2 = require('./lib/p2.min');
 
+    room.progressGo('self', 50);
+
     require.ensure([], () => {
       window.Phaser = require('./lib/phaser-split.min');
 
       require('./lib/phaser-touch-control');
+
+      room.progressGo('self', 100);
     });
   });
 });

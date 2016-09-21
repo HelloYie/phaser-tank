@@ -13,6 +13,7 @@ class Player {
    */
   constructor(attrs) {
     this.speed = 0;
+    this.loadingProgress = 0;
     this.setAttrs(attrs);
   }
 
@@ -60,6 +61,10 @@ class Player {
     Object.keys(attrs).forEach((key) => {
       this[key] = attrs[key];
     });
+  }
+
+  ready(){
+    return this.loadingProgress >= 100;
   }
 
 }

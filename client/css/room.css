@@ -31,6 +31,13 @@ html{
 .alert .close{
   right: 0;
 }
+.user_name{
+  word-break: break-all;
+}
+.room_user .progress{
+  margin-bottom: 0;
+  height: 1rem;
+}
 
 @media (max-width: 768px){
   html{

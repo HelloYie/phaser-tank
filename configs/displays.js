@@ -4,9 +4,9 @@
 
 const personDisplay = {
   hell: '地狱',
-  '3v3': '3V3',
-  '5v5': '5V5',
-  '10v10': '10V10',
+  '3': '3V3',
+  '5': '5V5',
+  '10': '10V10',
 };
 
 const modeDisplay = {

@@ -25,6 +25,7 @@ export default class SocketEvent {
       connect: self.onSocketConnected,
       'join room': self.onJoinRoom,
       'remove player': self.onLeaveRoom,
+      'loading progress': self.onLoadingProgress,
       'start game': self.onStartGame,
     };
     self.gameEvents = {
@@ -96,7 +97,7 @@ export default class SocketEvent {
     if (!data.x || !data.y || !data.camp) {
       return;
     }
-    if (duplicate || utils.plainId(data.id) === self.socket.id) {
+    if (duplicate || utils.clientId(data.id) === self.socket.id) {
       console.log('Duplicate player!');
       return;
     }
@@ -140,6 +141,11 @@ export default class SocketEvent {
     self.room.otherJoined(data);
   }
 
+  onLoadingProgress(data) {
+    const self = this;
+    self.room.progressGo(data.id, data.progress);
+  }
+
   onRemovePlayer(data) {
     console.info('要打死', data);
     const self = this;
@@ -165,8 +171,8 @@ export default class SocketEvent {
   }
 
   onLeaveRoom(data) {
-    const plainId = utils.plainId(data.id);
-    $(`.room_user#${plainId}`).remove();
+    const clientId = utils.clientId(data.id);
+    $(`.room_user#${clientId}`).remove();
   }
 
   // 开始游戏
