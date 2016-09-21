@@ -1,8 +1,12 @@
 import { names } from 'constant';
 
 const utils = {
-  plainId(id) {
-    return id.slice(2);
+  clientId(id) {
+    // 客户端ID开头没有 /#
+    if (id.search('/#') === 0){
+      return id.slice(2);
+    }
+    return id;
   },
 
   createSocketId(id) {

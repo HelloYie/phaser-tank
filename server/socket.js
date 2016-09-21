@@ -9,6 +9,7 @@ const util = require('util');
 const io = require('socket.io');
 const Player = require('./player');
 const uuid = require('uuid');
+const utils = require('./utils');
 
 
 class SocketHandler {
@@ -170,7 +171,7 @@ class SocketHandler {
             name: existingPlayer.name,
             avatar: existingPlayer.avatar,
             sex: existingPlayer.sex,
-            loading_progress: existingPlayer.loading_progress,
+            loadingProgress: existingPlayer.loadingProgress,
           }
         );
       });
@@ -185,12 +186,26 @@ class SocketHandler {
         avatar: newPlayer.avatar,
         name: newPlayer.name,
         sex: newPlayer.sex,
-        loading_progress: newPlayer.loading_progress,
+        loadingProgress: newPlayer.loadingProgress,
       }
     );
 
     self.players[client.id] = newPlayer;
     self.roomPlayers[client.roomId][client.id] = newPlayer;
+  }
+
+  onLoadingProgress(client, data) {
+    const self = client.handler;
+    const serverId = utils.serverId(data.id);
+    const player = self.playerById(serverId);
+    player.loadingProgress = data.progress;
+    client.to(client.roomId).emit(
+      'loading progress',
+      {
+        id: data.id,
+        progress: data.progress,
+      }
+    );
   }
 
   onStartGame(client, data) {
@@ -237,6 +252,7 @@ class SocketHandler {
       'shot': self.onShot,
       'kill player': self.onKill,
       'join room': self.onJoinRoom,
+      'loading progress': self.onLoadingProgress,
       'start game': self.onStartGame,
     };
 

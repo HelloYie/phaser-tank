@@ -13,7 +13,7 @@ class Player {
    */
   constructor(attrs) {
     this.speed = 0;
-    this.loading_progress = 0;
+    this.loadingProgress = 0;
     this.setAttrs(attrs);
   }
 
@@ -64,7 +64,7 @@ class Player {
   }
 
   ready(){
-    return this.loading_progress >= 100;
+    return this.loadingProgress >= 100;
   }
 
 }

@@ -67,10 +67,11 @@ class Room {
     const self = this;
     $('.user_container').append(
       self.user_tpl({
-        plainId: 'self',
+        clientId: 'self',
         name: self.name,
         avatar: self.avatar,
         sex: self.sex,
+        loadingProgress: 0,
       })
     );
     wx.config({
@@ -154,11 +155,69 @@ class Room {
   otherJoined(data) {
     // 其他玩家加入房间
     const self = this;
-    data.plainId = utils.plainId(data.id);
-    console.log(data);
+    data.clientId = utils.clientId(data.id);
     $('.user_container').append(
       self.user_tpl(data)
     );
+  }
+
+  readyCheck() {
+    const self = this;
+    if ($('.progress:visible').length) {
+      return false;
+    }
+    if (self.persons === 'hell') {
+      $('.wait_game').hide();
+      $('.start_game').removeClass('hide');
+    }
+    return true;
+  }
+
+  progressGo(userId, progress) {
+    const self = this;
+    if (userId === 'self') {
+      // 同步进度给其他玩家
+      const socketId = self.socket.id;
+      if (socketId) {
+        self.socket.emit(
+          'loading progress',
+          {
+            id: self.socket.id,
+            progress,
+          }
+        );
+      }
+    }
+
+    const $progressBar = $(`#${userId} .progress-bar`);
+    $progressBar.css('width', `${progress}%`);
+    $progressBar.data('progress', progress);
+    if (progress === 100) {
+      setInterval(() => {
+        $progressBar.closest('.progress').hide();
+        self.readyCheck();
+      }, 1000);
+    } else {
+      // 进度条假蠕动
+      let index = 0;
+      const selfKillInterval = setInterval(
+        () => {
+          const realProgress = $progressBar.data('progress');
+          let displayProgress = parseInt($progressBar.css('width'), 10);
+          if (index > 100) {
+            console.log(userId, realProgress, displayProgress);
+          }
+          index += 1;
+          if (realProgress < displayProgress && realProgress < displayProgress + 29) {
+            displayProgress += 1;
+            $progressBar.css('width', `${displayProgress}%`);
+          } else {
+            clearInterval(selfKillInterval);
+          }
+        },
+        500
+      );
+    }
   }
 
 }
