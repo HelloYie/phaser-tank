@@ -8,7 +8,9 @@
 
 import utils from 'base_utils';
 import RemotePlayer from './remote_player';
+import Explosion from './explosion';
 import TankGame from './game';
+import Attack from './attack';
 
 export default class SocketEvent {
   /**
@@ -30,7 +32,7 @@ export default class SocketEvent {
       'new player': self.onNewPlayer,
       'move player': self.onMovePlayer,
       'remove player': self.onRemovePlayer,
-      'kill player': self.onRemovePlayer,
+      'kill player': self.onKillPlayer,
       shot: self.onShot,
     };
     Object.keys(self.roomEvents).forEach((event) => {
@@ -108,6 +110,7 @@ export default class SocketEvent {
       data.x,
       data.y,
       'bullet',
+      self.socket,
     );
     self.gamers[data.id] = enemy;
   }
@@ -148,13 +151,33 @@ export default class SocketEvent {
     delete self.gamers[data.id];
   }
 
+  onKillPlayer(data) {
+    const self = this;
+    const killedPlayer = self.gamerById(data.id);
+    if (!killedPlayer) {
+      return;
+    }
+    self.explosion.boom(killedPlayer.sPlayer);
+    setTimeout(() => {
+      killedPlayer.sPlayer.kill();
+      delete self.gamers[data.id];
+    }, 50);
+  }
+
   onLeaveRoom(data) {
     const plainId = utils.plainId(data.id);
     $(`.room_user#${plainId}`).remove();
   }
 
+  // 开始游戏
   onStartGame(data) {
-    new TankGame(data.camp, this.room);
+    const self = this;
+    new TankGame(data.camp, self.room, (o) => {
+      // 初始化爆炸类
+      self.explosion = new Explosion(o.game, 'kaboom');
+      // 初始化攻击类
+      new Attack(o.game, self.socket);
+    });
   }
 
   gamerById(id, silence = false) {

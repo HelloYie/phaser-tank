@@ -5,7 +5,7 @@
  */
 
 export default class BasePlayer {
-  constructor(id, game, key, name, camp, avatar, startX, startY, bulletKey) {
+  constructor(id, game, key, name, camp, avatar, startX, startY, bulletKey, socket) {
     this.id = id;
     this.game = game;
     this.name = name;
@@ -15,6 +15,7 @@ export default class BasePlayer {
     this.startX = startX;
     this.startY = startY;
     this.bulletKey = bulletKey;
+    this.socket = socket;
     this.alive = true;
 
     this.init();
@@ -23,12 +24,11 @@ export default class BasePlayer {
   init() {
     this.group = this.game.add.group();
     this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key);
+    this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.anchor.setTo(0.5, 0.5);
     this.sPlayer.animations.add('move');
     this.sPlayer.animations.add('stop');
 
-    this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
-    this.sPlayer.body.immovable = true;
     this.sPlayer.body.maxVelocity.setTo(400, 400);
     this.sPlayer.body.collideWorldBounds = true;
 
@@ -42,8 +42,6 @@ export default class BasePlayer {
     this.group.add(this.sPlayer);
     this.setName();
     this.setBullet();
-
-    return this;
   }
 
   setBullet() {
@@ -56,7 +54,6 @@ export default class BasePlayer {
     this.weapon.bulletAngleOffset = 0;
     this.weapon.trackSprite(this.sPlayer, 50, 0, true);
   }
-
   // 设置玩家名称
   setName() {
     const playerName = this.game.add.text(

@@ -10,7 +10,7 @@ export default class Explosion {
     this.game = game;
     this.key = key;
     this.explosions = this.game.add.group();
-    return this.init();
+    this.init();
   }
 
   init() {

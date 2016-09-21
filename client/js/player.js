@@ -10,8 +10,8 @@ import BasePlayer from './base_player';
 
 export default class Player extends BasePlayer {
   constructor(id, game, key, name, camp, avatar, startX, startY, bulletKey, socket) {
-    super(id, game, key, name, camp, avatar, startX, startY, bulletKey);
-    this.socket = socket;
+    super(id, game, key, name, camp, avatar, startX, startY, bulletKey, socket);
+    // this.sPlayer.body.immovable = true;
     this.currentSpeed = 0;
     this.angle = 0;
   }

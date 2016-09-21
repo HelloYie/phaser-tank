@@ -7,9 +7,7 @@ import _ from 'underscore';
 
 import Map from './map';
 import Player from './player';
-import Attack from './attack';
 import TouchControl from './touch_control';
-import Explosion from './explosion';
 import tileMapJson from '../assets/tank/map.json';
 
 import tankPng from '../assets/tank/tank-1.png';
@@ -26,7 +24,7 @@ import brickPng from '../assets/tank/brick.png';
 import grossPng from '../assets/tank/gross.png';
 
 class TankGame {
-  constructor(camp, room) {
+  constructor(camp, room, callback) {
     const self = this;
     $('.room_container').remove();
     self.room = room;
@@ -42,6 +40,7 @@ class TankGame {
         },
         create() {
           self.create(self);
+          callback(self);
         },
         update() {
           self.update(self);
@@ -71,12 +70,6 @@ class TankGame {
   create(self) {
     // 初始化游戏设置
     self.game.world.setBounds(0, 0, 1200, 900);
-    // self.game.camera.deadzone = new Phaser.Rectangle(
-    //   self.game.width / 3,
-    //   self.game.height / 3,
-    //   self.game.width / 3,
-    //   self.game.height / 3
-    // );
     self.game.camera.focusOnXY(0, 0);
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
@@ -95,7 +88,6 @@ class TankGame {
       Math.round((Math.random() * 1000) - 500),
       Math.round((Math.random() * 1000) - 500),
       'bullet',
-      // self.land,
       self.room.socket
     );
     self.room.socket.emit(
@@ -115,44 +107,19 @@ class TankGame {
     // 初始化触摸移动类
     self.touchControl = new TouchControl(this.game, this).touchControl;
 
-    // 初始化爆炸类
-    self.explosion = new Explosion(self.game, 'kaboom');
-
-    // 初始化子弹
-    new Attack(self.game, self.sPlayer, 'bullet', self.explosion, self.room.socket);
-    // self.bullets = self.attack.bullets;
     self.room.sEvent.initGame(self.game, self.player);
   }
 
   update(self) {
-    // const hitMeHandler = (gamer, bullet) => {
-    //   gamer.kill();
-    //   bullet.kill();
-    //   self.explosion.boom(gamer);
-    //   self.room.socket.emit('kill player');
-    // };
+    // 告诉服务器谁死了，并且子弹立即消失
     const hitHandler = (gamer, bullet) => {
-      console.info('hit.....');
-      const bulletOwner = bullet.data.bulletManager.trackedSprite;
-      // 如果不是队友，击毙
-      if (!bulletOwner.player.isTeammates(gamer.player)) {
-        self.explosion.boom(gamer);
-        gamer.kill();
-      }
-      if (bulletOwner !== gamer) {
-        bullet.kill();
-      }
+      bullet.kill();
       self.room.socket.emit('kill player', {
-        id: gamer.id,
+        id: gamer.player.id,
       });
     };
-    // console.info(self.room.sEvent.gamers);
-
-    // console.info(self.room.sEvent.enemy);
     _.each(self.room.sEvent.gamers, (gamer, k) => {
-      // const gamer = self.room.sEvent.gamers[gamerId];
-      // gamer.update();
-      // 自己打到敌人
+      // 检测子弹是否打到玩家
       _.each(self.room.sEvent.gamers, (oGamer, oKey) => {
         if (k !== oKey) {
           self.game.physics.arcade.overlap(
@@ -162,9 +129,9 @@ class TankGame {
             null,
             self
           );
+          self.game.physics.arcade.collide(gamer.sPlayer, oGamer.sPlayer);
         }
       });
-      self.game.physics.arcade.collide(self.sPlayer, gamer.player);
     });
     self.land.checkCollide(self.sPlayer);
     self.player.move(self.touchControl);

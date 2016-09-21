@@ -19,6 +19,7 @@ export default class RemotePlayer extends BasePlayer {
       startY,
       angle: this.sPlayer.angle,
     };
+    this.sPlayer.body.immovable = true;
   }
 
   update() {
