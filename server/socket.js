@@ -143,6 +143,7 @@ class SocketHandler {
       name: data.name,
       id: client.id,
       roomId: data.id,
+      sex: data.sex,
     });
     client.roomId = data.id;
     // 加入socket 房间
