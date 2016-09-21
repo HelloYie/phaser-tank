@@ -30,6 +30,7 @@ class SocketHandler {
    */
   playerById(id, silence) {
     const self = this;
+    id = utils.serverId(id);
     const playerObj = self.players[id];
     if (playerObj) {
       return playerObj;
@@ -72,6 +73,7 @@ class SocketHandler {
       id: newPlayer.id,
       x: newPlayer.x,
       y: newPlayer.y,
+      sex: newPlayer.sex,
       name: newPlayer.name,
       camp: newPlayer.camp,
       avatar: newPlayer.avatar,
@@ -148,6 +150,9 @@ class SocketHandler {
 
   onJoinRoom(client, data) {
     const self = client.handler;
+    if(self.playerById(data.id)){
+      return;
+    }
     const newPlayer = new Player({
       avatar: data.avatar,
       name: data.name,
@@ -196,8 +201,7 @@ class SocketHandler {
 
   onLoadingProgress(client, data) {
     const self = client.handler;
-    const serverId = utils.serverId(data.id);
-    const player = self.playerById(serverId);
+    const player = self.playerById(data.id);
     player.loadingProgress = data.progress;
     client.to(client.roomId).emit(
       'loading progress',

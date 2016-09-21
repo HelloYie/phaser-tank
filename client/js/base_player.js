@@ -5,11 +5,12 @@
  */
 
 export default class BasePlayer {
-  constructor(id, game, key, name, camp, avatar, startX, startY, bulletKey, socket) {
+  constructor(id, game, key, name, sex, camp, avatar, startX, startY, bulletKey, socket) {
     this.id = id;
     this.game = game;
     this.name = name;
     this.avatar = avatar;
+    this.sex = sex;
     this.camp = camp;
     this.key = key;
     this.startX = startX;

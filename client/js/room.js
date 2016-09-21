@@ -42,7 +42,6 @@ class Room {
     }
     self.persons = queryArgs.persons || 'hell';
     self.mode = queryArgs.mode || 'hell';
-    self.name_with_sex = `${self.sex_display} ${self.name}`;
     // TODO: 创建者将mode与persons同步到node服务器， 加入者无法修改
     if (self.mode === 'hell') {
       // hell 房间只有一个
@@ -61,6 +60,11 @@ class Room {
     self.compileTpls();
     self.init();
     self.tips();
+    // 1分钟之后可以忽略等待直接开始
+    self.waitTimeout = setTimeout(
+      self.allReady,
+      60 * 1000
+    );
   }
 
   init() {
@@ -167,10 +171,14 @@ class Room {
       return false;
     }
     if (self.persons === 'hell') {
-      $('.wait_game').hide();
-      $('.start_game').removeClass('hide');
+      self.allReady();
     }
     return true;
+  }
+
+  allReady() {
+    $('.wait_game').hide();
+    $('.start_game').removeClass('hide');
   }
 
   progressGo(userId, progress) {
@@ -208,7 +216,7 @@ class Room {
             console.log(userId, realProgress, displayProgress);
           }
           index += 1;
-          if (realProgress < displayProgress && realProgress < displayProgress + 29) {
+          if (realProgress < displayProgress && realProgress + 29 < displayProgress) {
             displayProgress += 1;
             $progressBar.css('width', `${displayProgress}%`);
           } else {

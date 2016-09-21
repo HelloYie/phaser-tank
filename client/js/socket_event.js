@@ -106,6 +106,7 @@ export default class SocketEvent {
       self.game,
       'enemy',
       data.name,
+      data.sex,
       data.camp,
       data.avatar,
       data.x,

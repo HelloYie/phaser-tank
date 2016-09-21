@@ -12,8 +12,8 @@ export default class RemotePlayer extends BasePlayer {
   /**
    * @param id [String] 玩家id
    */
-  constructor(id, game, key, name, camp, avatar, startX, startY, bulletKey) {
-    super(id, game, key, name, camp, avatar, startX, startY, bulletKey);
+  constructor(id, game, key, name, sex, camp, avatar, startX, startY, bulletKey) {
+    super(id, game, key, name, sex, camp, avatar, startX, startY, bulletKey);
     this.lastPosition = {
       startX,
       startY,
