@@ -35,22 +35,19 @@ class TankGame {
       Phaser.AUTO,
       '',
       {
-        preload() {
-          self.preload(self);
-        },
+        preload: self.preload.bind(self),
         create() {
           self.create(self);
           callback(self);
         },
-        update() {
-          self.update(self);
-        },
-        render: self.render,
+        update: self.update.bind(self),
+        render: self.render.bind(self),
       }
     );
   }
 
-  preload(self) {
+  preload() {
+    const self = this;
     self.game.load.image('bullet', bulletPng);
     self.game.load.image('earth', earthPng);
     self.game.load.image('compass', compassRosePng);
@@ -67,8 +64,9 @@ class TankGame {
     self.game.load.tilemap('map', null, tileMapJson, Phaser.Tilemap.TILED_JSON);
   }
 
-  create(self) {
+  create() {
     // 初始化游戏设置
+    const self = this;
     self.game.world.setBounds(0, 0, 1200, 900);
     self.game.camera.focusOnXY(0, 0);
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -110,7 +108,8 @@ class TankGame {
     self.room.sEvent.initGame(self.game, self.player);
   }
 
-  update(self) {
+  update() {
+    const self = this;
     // 告诉服务器谁死了，并且子弹立即消失
     const hitHandler = (gamer, bullet) => {
       bullet.kill();
