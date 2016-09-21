@@ -80,7 +80,8 @@ class TankGame {
       self.room.socket.id,
       self.game,
       'tank',
-      self.room.name_with_sex,
+      self.room.name,
+      self.room.sex,
       self.camp,
       '',
       Math.round((Math.random() * 1000) - 500),
@@ -96,6 +97,7 @@ class TankGame {
         name: self.player.name,
         avatar: self.room.avatar,
         camp: self.player.camp,
+        sex: self.player.sex,
       }
     );
     self.sPlayer = self.player.sPlayer;

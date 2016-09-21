@@ -5,10 +5,11 @@
  */
 
 export default class Player {
-  constructor(id, game, key, name, camp, avatar, startX, startY, bulletKey, socket) {
+  constructor(id, game, key, name, sex, camp, avatar, startX, startY, bulletKey, socket) {
     this.id = id;
     this.game = game;
     this.name = name;
+    this.sex = sex;
     this.avatar = avatar;
     this.camp = camp;
     this.key = key;
@@ -89,17 +90,17 @@ export default class Player {
     if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
     }
-    if (this.game.input.activePointer.isDown) {
-      this.socket.emit(
-        'move player',
-        {
-          angle: this.angle,
-          speed: this.currentSpeed,
-          x: this.sPlayer.x - touchSpeed.x,
-          y: this.sPlayer.y - touchSpeed.y,
-        }
-      );
-    }
+    // if (this.game.input.activePointer.isDown) {
+    this.socket.emit(
+      'move player',
+      {
+        angle: this.angle,
+        speed: Math.abs(this.currentSpeed),
+        // x: this.sPlayer.x - touchSpeed.x,
+        // y: this.sPlayer.y - touchSpeed.y,
+      }
+    );
+    // }
   }
 
   isTeammates(player) {

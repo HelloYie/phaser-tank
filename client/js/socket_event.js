@@ -82,7 +82,6 @@ export default class SocketEvent {
   onNewPlayer(data) {
     const self = this;
     console.log('New player connected:', data.id);
-
     const duplicate = self.gamerById(data.id, true);
     // 用户数据无效
     if (!data.x || !data.y || !data.camp) {
@@ -97,6 +96,7 @@ export default class SocketEvent {
       self.game,
       'enemy',
       data.name,
+      data.sex,
       data.camp,
       data.avatar,
       data.x,
@@ -115,9 +115,13 @@ export default class SocketEvent {
     }
     const movePlayer = player.sPlayer;
     movePlayer.angle = data.angle;
+    this.game.physics.arcade.velocityFromAngle(
+      data.angle,
+      data.speed * 3,
+      movePlayer.body.velocity
+    );
     if (data.speed !== 0) {
       movePlayer.animations.play('move');
-      self.game.physics.arcade.moveToXY(movePlayer, data.x, data.y, null, 34);
     } else {
       movePlayer.animations.play('stop');
     }
