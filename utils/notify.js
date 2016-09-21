@@ -1,5 +1,5 @@
 import 'notification-js/build/notification.min.css';
-import notification from  'notification-js';
+import notification from 'notification-js';
 
 const notify = {
   success(msg){

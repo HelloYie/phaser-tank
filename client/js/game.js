@@ -2,6 +2,8 @@
  * 游戏主入口
  */
 
+import $ from 'jquery';
+import _ from 'underscore';
 
 import Map from './map';
 import Player from './player';
@@ -24,9 +26,11 @@ import brickPng from '../assets/tank/brick.png';
 import grossPng from '../assets/tank/gross.png';
 
 class TankGame {
-  constructor(camp) {
+  constructor(camp, room) {
     const self = this;
     $('.room_container').remove();
+    self.room = room;
+    self.camp = camp;
     self.game = new Phaser.Game(
       '100',
       '100',
@@ -45,8 +49,6 @@ class TankGame {
         render: self.render,
       }
     );
-    self.room = window.room;
-    self.camp = camp;
   }
 
   preload(self) {
@@ -86,10 +88,14 @@ class TankGame {
     self.player = new Player(
       self.room.socket.id,
       self.game,
+      'tank',
       self.room.name_with_sex,
       self.camp,
-      'tank',
-      self.land,
+      '',
+      Math.round((Math.random() * 1000) - 500),
+      Math.round((Math.random() * 1000) - 500),
+      'bullet',
+      // self.land,
       self.room.socket
     );
     self.room.socket.emit(
@@ -113,22 +119,23 @@ class TankGame {
     self.explosion = new Explosion(self.game, 'kaboom');
 
     // 初始化子弹
-    self.attack = new Attack(self.game, self.sPlayer, 'bullet', self.explosion, self.room.socket);
-    self.bullets = self.attack.bullets;
+    new Attack(self.game, self.sPlayer, 'bullet', self.explosion, self.room.socket);
+    // self.bullets = self.attack.bullets;
     self.room.sEvent.initGame(self.game, self.player);
   }
 
   update(self) {
-    const hitMeHandler = (gamer, bullet) => {
-      gamer.kill();
-      bullet.kill();
-      self.explosion.boom(gamer);
-      self.room.socket.emit('kill player');
-    };
-    const hitEnemyHandler = (gamer, bullet) => {
+    // const hitMeHandler = (gamer, bullet) => {
+    //   gamer.kill();
+    //   bullet.kill();
+    //   self.explosion.boom(gamer);
+    //   self.room.socket.emit('kill player');
+    // };
+    const hitHandler = (gamer, bullet) => {
+      console.info('hit.....');
       const bulletOwner = bullet.data.bulletManager.trackedSprite;
       // 如果不是队友，击毙
-      if (!bulletOwner.playerObj.isTeammates(gamer.playerObj)) {
+      if (!bulletOwner.player.isTeammates(gamer.player)) {
         self.explosion.boom(gamer);
         gamer.kill();
       }
@@ -139,28 +146,24 @@ class TankGame {
         id: gamer.id,
       });
     };
+    // console.info(self.room.sEvent.gamers);
 
-    Object.keys(self.room.sEvent.gamers).forEach((gamerId) => {
-      const gamer = self.room.sEvent.gamers[gamerId];
-      gamer.update();
-      // 其他人打到自己
-      self.game.physics.arcade.overlap(
-        self.sPlayer,
-        gamer.bullets,
-        hitMeHandler,
-        null,
-        null,
-        self
-      );
+    // console.info(self.room.sEvent.enemy);
+    _.each(self.room.sEvent.gamers, (gamer, k) => {
+      // const gamer = self.room.sEvent.gamers[gamerId];
+      // gamer.update();
       // 自己打到敌人
-      self.game.physics.arcade.overlap(
-        self.bullets,
-        gamer.player,
-        hitEnemyHandler,
-        null,
-        null,
-        self
-      );
+      _.each(self.room.sEvent.gamers, (oGamer, oKey) => {
+        if (k !== oKey) {
+          self.game.physics.arcade.overlap(
+            gamer.group,
+            oGamer.bullets,
+            hitHandler,
+            null,
+            self
+          );
+        }
+      });
       self.game.physics.arcade.collide(self.sPlayer, gamer.player);
     });
     self.land.checkCollide(self.sPlayer);

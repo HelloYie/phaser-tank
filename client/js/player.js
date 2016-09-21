@@ -5,73 +5,15 @@
  * @description:
  *
  */
+import BasePlayer from './base_player';
 
-export default class Player {
-  /**
-   * game: Phaser.Game
-   * name: 玩家名称如: 张三
-   * group: 组: 'kzTeam'
-   * key: 载入的spriteSheet 名称
-   *
-   */
 
-  constructor(id, game, name, camp, key, land, socket) {
-    this.id = id;
-    this.game = game;
-    this.name = name;
-    this.camp = camp; // 阵营
-    this.land = land;
+export default class Player extends BasePlayer {
+  constructor(id, game, key, name, camp, avatar, startX, startY, bulletKey, socket) {
+    super(id, game, key, name, camp, avatar, startX, startY, bulletKey);
     this.socket = socket;
-    // this.playerGroup = game.add.group();
-    this.key = key;
     this.currentSpeed = 0;
     this.angle = 0;
-    this.startX = Math.round((Math.random() * 1000) - 500);
-    this.startY = Math.round((Math.random() * 1000) - 500);
-    return this.init();
-  }
-
-  init() {
-    this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key);
-    this.sPlayer.anchor.setTo(0.5, 0.5);
-    this.sPlayer.animations.add('move');
-    this.sPlayer.animations.add('stop');
-
-    this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
-    this.sPlayer.body.maxVelocity.setTo(400, 400);
-    this.sPlayer.body.collideWorldBounds = true;
-    this.sPlayer.playerObj = this;
-    this.sPlayer.name = this.name;
-    this.sPlayer.width = 35;
-    this.sPlayer.height = 28;
-    // this.playerGroup.add(this.sPlayer);
-
-    this.setName();
-
-    return this;
-  }
-
-  // 设置玩家名称
-  setName() {
-    const playerName = this.game.add.text(
-      -20,
-      -20,
-      this.name,
-      {
-        font: '12px',
-      });
-    playerName.angle = 90;
-    playerName.fill = '#fff';
-    this.sPlayer.addChild(playerName);
-  }
-
-  isTeammates(playerObj) {
-    // 判断是否是队友
-    return this.camp === playerObj.camp;
-  }
-
-  easeInSpeed(x) {
-    return (x * Math.abs(x)) / 2000;
   }
 
   move(touchControl) {

@@ -33,24 +33,19 @@ export default class SocketEvent {
       'kill player': self.onRemovePlayer,
       shot: self.onShot,
     };
-    return self.init();
-  }
-
-  init() {
-    const self = this;
-
     Object.keys(self.roomEvents).forEach((event) => {
       self.socket.on(event, self.roomEvents[event].bind(self));
     });
     return self;
   }
 
+  // 开始游戏时调用
   initGame(game, player) {
-    // 开始游戏时调用
     const self = this;
     self.game = game;
     self.player = player;
     self.sPlayer = player.sPlayer;
+    self.gamers[utils.createSocketId(self.player.id)] = self.player;
 
     // 解绑之前的所有事件
     Object.keys(self.roomEvents).forEach((event) => {
@@ -81,7 +76,7 @@ export default class SocketEvent {
       const gamer = self.gamers[gamerId];
       gamer.player.kill();
     });
-    self.gamers = {};
+    // self.gamers = {};
     self.player.id = self.socket.id;
   }
 
@@ -106,21 +101,23 @@ export default class SocketEvent {
     const enemy = new RemotePlayer(
       data.id,
       self.game,
-      data.x,
-      data.y,
+      'enemy',
       data.name,
       data.camp,
-      data.avatar
+      data.avatar,
+      data.x,
+      data.y,
+      'bullet',
     );
     self.gamers[data.id] = enemy;
   }
 
   onMovePlayer(data) {
-    const playerObj = this.gamerById(data.id);
-    if (!playerObj) {
+    const player = this.gamerById(data.id);
+    if (!player) {
       return;
     }
-    const movePlayer = playerObj.player;
+    const movePlayer = player.sPlayer;
     movePlayer.x = data.x;
     movePlayer.y = data.y;
     movePlayer.angle = data.angle;
@@ -157,7 +154,7 @@ export default class SocketEvent {
   }
 
   onStartGame(data) {
-    new TankGame(data.camp);
+    new TankGame(data.camp, this.room);
   }
 
   gamerById(id, silence = false) {

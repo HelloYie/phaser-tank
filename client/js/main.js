@@ -18,15 +18,13 @@ import { RoomEvents } from './events';
 // 主入口调用
 require.ensure([], () => {
   // 初始化房间
-
-
   window.IO = require('./lib/socket.io-client');
   window.$ = window.jQuery = require('jquery');
   require('./lib/bootstrap');
 
-  window.room = new Room();
+  const room = new Room();
 
-  new RoomEvents(window.room);
+  new RoomEvents(room);
 
   require.ensure([], () => {
     // 游戏资源加载
