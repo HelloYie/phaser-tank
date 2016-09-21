@@ -153,7 +153,7 @@ class SocketHandler {
 
   onJoinRoom(client, data) {
     const self = client.handler;
-    if (self.playerById(data.id)){
+    if(self.playerById(client.id)){
       return;
     }
     const newPlayer = new Player({

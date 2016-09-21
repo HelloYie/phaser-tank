@@ -163,6 +163,18 @@ class Room {
     $('.user_container').append(
       self.user_tpl(data)
     );
+    if (data.loadingProgress === 0) {
+      // 可能是异常链接, 进度条不会涨, 10s后无响应则移除之
+      const $user_container = $(`.user_container #${data.clientId}`);
+      setTimeout(
+        () => {
+          if (parseInt($user_container.find('.progress-bar').css('width'), 10) === 0) {
+            $user_container.remove();
+          }
+        },
+        1000 * 10
+      );
+    }
   }
 
   readyCheck() {
