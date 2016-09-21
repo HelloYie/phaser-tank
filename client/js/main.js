@@ -25,6 +25,7 @@ require.ensure([], () => {
   const room = new Room();
 
   new RoomEvents(room);
+  $('#self .progress-bar').css('width', '20%');
 
   require.ensure([], () => {
     // 游戏资源加载
@@ -32,10 +33,17 @@ require.ensure([], () => {
 
     window.p2 = require('./lib/p2.min');
 
+    $('#self .progress-bar').css('width', '40%');
+
     require.ensure([], () => {
       window.Phaser = require('./lib/phaser-split.min');
 
       require('./lib/phaser-touch-control');
+
+      $('#self .progress-bar').css('width', '100%');
+      setInterval(() => {
+        $('#self .progress').hide();
+      }, 1000);
     });
   });
 });
