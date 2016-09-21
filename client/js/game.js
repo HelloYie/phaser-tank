@@ -110,7 +110,7 @@ class TankGame {
 
   update() {
     const self = this;
-    // 告诉服务器谁死了，并且子弹立即消失
+    // 告诉服务器谁死了，并且子弹立即消失.
     const hitHandler = (gamer, bullet) => {
       bullet.kill();
       self.room.socket.emit('kill player', {

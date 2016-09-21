@@ -78,7 +78,7 @@ export default class SocketEvent {
       const gamer = self.gamers[gamerId];
       gamer.player.kill();
     });
-    // self.gamers = {};
+    self.gamers = {};
     self.player.id = self.socket.id;
   }
 
