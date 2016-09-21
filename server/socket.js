@@ -123,17 +123,26 @@ class SocketHandler {
 
   /**
    * @param self: [Object] SocketHandler 实例
-   * @param data: [Object] 移动玩家后返回的数据
    * @this [Object] Socket 实例
    */
-  onShot(client, data) {
-    const self = client.handler;
-    client.to(client.roomId).emit(
-      'shot',
+  onShot(client) {
+    client.to(client.roomId).emit('shot',
       {
         id: client.id,
       }
     );
+    client.emit('shot', {
+      id: client.id,
+    });
+  }
+
+  onKill(client, data) {
+    client.to(client.roomId).emit('kill player', {
+      id: data.id,
+    });
+    client.emit('kill player', {
+      id: data.id,
+    });
   }
 
   onJoinRoom(client, data) {
@@ -224,6 +233,7 @@ class SocketHandler {
       'new player': self.onNewPlayer,
       'move player': self.onMovePlayer,
       'shot': self.onShot,
+      'kill player': self.onKill,
       'join room': self.onJoinRoom,
       'start game': self.onStartGame,
     };

@@ -2,17 +2,16 @@
  * 游戏主入口
  */
 
+import $ from 'jquery';
+import _ from 'underscore';
 
 import Map from './map';
 import Player from './player';
-import Attack from './attack';
 import TouchControl from './touch_control';
-import Explosion from './explosion';
-import tanksJson from '../assets/tank/tanks.json';
 import tileMapJson from '../assets/tank/map.json';
 
-import tankPng from '../assets/tank/tanks.png';
-import enemyPng from '../assets/tank/enemy-tanks.png';
+import tankPng from '../assets/tank/tank-1.png';
+import enemyPng from '../assets/tank/tank-2.png';
 import bulletPng from '../assets/tank/bullet.png';
 import earthPng from '../assets/tank/scorched_earth.png';
 import compassRosePng from '../assets/tank/compass_rose.png';
@@ -25,9 +24,11 @@ import brickPng from '../assets/tank/brick.png';
 import grossPng from '../assets/tank/gross.png';
 
 class TankGame {
-  constructor(camp) {
+  constructor(camp, room, callback) {
     const self = this;
     $('.room_container').remove();
+    self.room = room;
+    self.camp = camp;
     self.game = new Phaser.Game(
       '100',
       '100',
@@ -35,42 +36,38 @@ class TankGame {
       '',
       {
         preload: self.preload.bind(self),
-        create: self.create.bind(self),
+        create() {
+          self.create(self);
+          callback(self);
+        },
         update: self.update.bind(self),
         render: self.render.bind(self),
       }
     );
-    self.room = window.room;
-    self.camp = camp;
   }
 
   preload() {
-    this.game.load.image('bullet', bulletPng);
-    this.game.load.image('earth', earthPng);
-    this.game.load.image('compass', compassRosePng);
-    this.game.load.image('touch_segment', touchSegmentPng);
-    this.game.load.image('touch', touchPng);
-    this.game.load.image('attack', attackPng);
-    this.game.load.image('stone', stonePng);
-    this.game.load.image('brick', brickPng);
-    this.game.load.image('gross', grossPng);
-    this.game.load.image('gross', grossPng);
-    this.game.load.atlas('tank', tankPng, null, tanksJson);
-    this.game.load.atlas('enemy', enemyPng, null, tanksJson);
-    this.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
-    this.game.load.tilemap('map', null, tileMapJson, Phaser.Tilemap.TILED_JSON);
+    const self = this;
+    self.game.load.image('bullet', bulletPng);
+    self.game.load.image('earth', earthPng);
+    self.game.load.image('compass', compassRosePng);
+    self.game.load.image('touch_segment', touchSegmentPng);
+    self.game.load.image('touch', touchPng);
+    self.game.load.image('attack', attackPng);
+    self.game.load.image('stone', stonePng);
+    self.game.load.image('brick', brickPng);
+    self.game.load.image('gross', grossPng);
+    self.game.load.image('gross', grossPng);
+    self.game.load.spritesheet('tank', tankPng, 35, 28, 1);
+    self.game.load.spritesheet('enemy', enemyPng, 35, 28, 1);
+    self.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
+    self.game.load.tilemap('map', null, tileMapJson, Phaser.Tilemap.TILED_JSON);
   }
 
   create() {
     // 初始化游戏设置
     const self = this;
     self.game.world.setBounds(0, 0, 1200, 900);
-    // self.game.camera.deadzone = new Phaser.Rectangle(
-    //   self.game.width / 3,
-    //   self.game.height / 3,
-    //   self.game.width / 3,
-    //   self.game.height / 3
-    // );
     self.game.camera.focusOnXY(0, 0);
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
@@ -79,7 +76,18 @@ class TankGame {
     self.land = new Map(self.game, 'earth');
 
     // 初始化玩家
-    self.player = new Player(self.game, self.room.name_with_sex, self.camp, 'tank', self.land, self.room.socket);
+    self.player = new Player(
+      self.room.socket.id,
+      self.game,
+      'tank',
+      self.room.name_with_sex,
+      self.camp,
+      '',
+      Math.round((Math.random() * 1000) - 500),
+      Math.round((Math.random() * 1000) - 500),
+      'bullet',
+      self.room.socket
+    );
     self.room.socket.emit(
       'new player',
       {
@@ -97,41 +105,33 @@ class TankGame {
     // 初始化触摸移动类
     self.touchControl = new TouchControl(this.game, this).touchControl;
 
-    // 初始化爆炸类
-    self.explosion = new Explosion(self.game, 'kaboom');
-
-    // 初始化子弹
-    self.attack = new Attack(self.game, self.sPlayer, 'bullet', self.explosion, self.room.socket);
-    self.bullets = self.attack.bullets;
     self.room.sEvent.initGame(self.game, self.player);
   }
 
   update() {
     const self = this;
-    self.game.physics.arcade.overlap(
-      self.player.playerGroup,
-      self.bullets,
-      self.attack.hitHandler,
-      null,
-      self
-    );
-    Object.keys(self.room.sEvent.gamers).forEach((gamerId) => {
-      const gamerObj = self.room.sEvent.gamers[gamerId];
-      if (gamerObj.player.alive) {
-        gamerObj.update();
-        self.game.physics.arcade.overlap(
-          self.player.playerGroup,
-          gamerObj.bullets,
-          self.attack.hitHandler,
-          null,
-          self
-        );
-      } else {
-        self.explosion.boom(gamerObj.player);
-        gamerObj.player.kill();
-      }
+    // 告诉服务器谁死了，并且子弹立即消失
+    const hitHandler = (gamer, bullet) => {
+      bullet.kill();
+      self.room.socket.emit('kill player', {
+        id: gamer.player.id,
+      });
+    };
+    _.each(self.room.sEvent.gamers, (gamer, k) => {
+      // 检测子弹是否打到玩家
+      _.each(self.room.sEvent.gamers, (oGamer, oKey) => {
+        if (k !== oKey) {
+          self.game.physics.arcade.overlap(
+            gamer.group,
+            oGamer.bullets,
+            hitHandler,
+            null,
+            self
+          );
+          self.game.physics.arcade.collide(gamer.sPlayer, oGamer.sPlayer);
+        }
+      });
     });
-    self.game.physics.arcade.collide(self.sPlayer, self.player.playerGroup);
     self.land.checkCollide(self.sPlayer);
     self.player.move(self.touchControl);
   }
