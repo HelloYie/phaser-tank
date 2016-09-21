@@ -21,6 +21,8 @@ require.ensure([], () => {
 
 
   window.IO = require('./lib/socket.io-client');
+  window.$ = window.jQuery = require('jquery');
+  require('./lib/bootstrap');
 
   window.room = new Room();
 

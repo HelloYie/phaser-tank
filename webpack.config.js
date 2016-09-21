@@ -61,8 +61,12 @@ module.exports = {
       {
         test: /\.(jpe?g|png|gif|bmp|ico)$/i,
         loader: 'file?name=img/[name].[ext]',
-      }
-    ]
+      },
+      {
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        loader: 'file?name=public/fonts/[name].[ext]'
+      },
+    ],
   },
   resolve: {
     extensions: ['', '.js'],

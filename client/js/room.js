@@ -8,14 +8,16 @@
 
 import 'css/room.css';
 
-import $ from 'jquery';
 import wx from 'weixin-js-sdk';
 import _ from 'underscore';
 import queryString from 'query-string';
 
 import utils from 'base_utils';
 import SocketEvent from './socket_event';
-import { define } from 'defines';
+import {
+  define,
+  tips,
+} from 'defines';
 import {
   personDisplay,
   modeDisplay,
@@ -58,6 +60,7 @@ class Room {
     self.sEvent = new SocketEvent(self, self.socket);
     self.compileTpls();
     self.init();
+    self.tips();
   }
 
   init() {
@@ -86,6 +89,21 @@ class Room {
     wx.ready(() => {
       self.defineShare();
     });
+  }
+
+  tips() {
+    let index = 1;
+    $('.tip').text(tips[0]);
+    const tipInterval = setInterval(
+      () => {
+        $('.tip').text(tips[index]);
+        index += 1;
+        if (index > tips.length) {
+          clearInterval(tipInterval);
+        }
+      },
+      5000
+    );
   }
 
   defineShare() {

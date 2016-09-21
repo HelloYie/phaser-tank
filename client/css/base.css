@@ -1,5 +1,7 @@
 .text-center{
   text-align: center;
 }
-.icon{
+.vertical-middle{
+  vertical-align: middle;
 }
+

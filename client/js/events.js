@@ -2,8 +2,6 @@
  * jquery事件绑定类
  */
 
-import $ from 'jquery';
-
 
 class RoomEvents {
   constructor(room) {

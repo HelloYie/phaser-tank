@@ -6,7 +6,6 @@
  *
  */
 
-import $ from 'jquery';
 
 import utils from 'base_utils';
 import RemotePlayer from './remote_player';

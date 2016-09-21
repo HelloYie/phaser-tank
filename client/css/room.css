@@ -21,6 +21,16 @@ html{
 .sex2{
   color: #fe9dae;
 }
+.tip{
+  font-size: 0.8rem;
+  margin-left: 0.3rem;
+}
+.alert{
+  padding: 8px;
+}
+.alert .close{
+  right: 0;
+}
 
 @media (max-width: 768px){
   html{

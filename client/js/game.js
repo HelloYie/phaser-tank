@@ -2,7 +2,6 @@
  * 游戏主入口
  */
 
-import $ from 'jquery';
 
 import Map from './map';
 import Player from './player';
