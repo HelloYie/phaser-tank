@@ -73,16 +73,6 @@ export default class SocketEvent {
     });
   }
 
-  onGameStart() {
-    const self = this;
-    Object.keys(self.gamers).forEach((gamerId) => {
-      const gamer = self.gamers[gamerId];
-      gamer.player.kill();
-    });
-    self.gamers = {};
-    self.player.id = self.socket.id;
-  }
-
   onSocketDisconnect() {
     console.log('Disconnected from socket server');
   }
