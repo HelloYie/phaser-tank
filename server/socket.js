@@ -113,13 +113,15 @@ class SocketHandler {
     movePlayer.setAngle(data.angle);
     movePlayer.setSpeed(data.speed);
 
-    client.to(client.roomId).emit('move player', {
+    const moveInfo = {
       id: movePlayer.id,
-      x: movePlayer.getX(),
-      y: movePlayer.getY(),
       angle: movePlayer.getAngle(),
       speed: movePlayer.getSpeed(),
-    });
+      x: movePlayer.getX(),
+      y: movePlayer.getY(),
+    };
+    client.to(client.roomId).emit('move player', moveInfo);
+    client.emit('move player', moveInfo);
   }
 
   /**
@@ -161,7 +163,7 @@ class SocketHandler {
 
     let existingPlayer;
     const roomPlayers = self.roomPlayers[client.roomId];
-    if(roomPlayers) {
+    if (roomPlayers) {
       Object.keys(roomPlayers).forEach((playerId) => {
         existingPlayer = roomPlayers[playerId];
         client.emit(
