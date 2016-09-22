@@ -136,7 +136,6 @@ class TankGame {
     });
     self.map.checkCollide(self.sPlayer);
     self.player.move(self.touchControl);
-    // movePlayer.set(movePlayer.sPlayer.x, movePlayer.sPlayer.y);
   }
 
   render() {

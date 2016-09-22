@@ -126,11 +126,7 @@ export default class SocketEvent {
       movePlayer.x = data.x;
       movePlayer.y = data.y;
     }
-    if (data.speed !== 0) {
-      movePlayer.animations.play('move');
-    } else {
-      movePlayer.animations.play('stop');
-    }
+    movePlayer.animations.play('move');
   }
 
   onShot(data) {
@@ -168,10 +164,16 @@ export default class SocketEvent {
     if (!killedPlayer) {
       return;
     }
-    self.explosion.boom(killedPlayer.sPlayer);
+    let health = killedPlayer.health;
+    health--;
     setTimeout(() => {
-      killedPlayer.sPlayer.kill();
-      delete self.gamers[data.id];
+      if (health < 1) {
+        self.explosion.boom(killedPlayer.sPlayer);
+        killedPlayer.sPlayer.kill();
+        delete self.gamers[data.id];
+      } else {
+        killedPlayer.setHealth(health);
+      }
     }, 50);
   }
 
