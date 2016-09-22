@@ -10,7 +10,6 @@ export default class Map {
     const self = this;
     self.game = game;
     self.key = key;
-    self.mapSprites = [];
     self.init();
   }
 
@@ -36,7 +35,6 @@ export default class Map {
       const mapSprite = self.fsGroup.create(col * 40, row * 30, key);
       self.game.physics.enable(mapSprite, Phaser.Physics.ARCADE);
       mapSprite.body.immovable = true;
-      self.mapSprites.push(self.mapSprites);
     });
     return self;
   }
