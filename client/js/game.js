@@ -114,13 +114,15 @@ class TankGame {
     const self = this;
     // 告诉服务器谁死了，并且子弹立即消失.
     const hitHandler = (gamer, bullet) => {
+      console.info(gamer, bullet);
       bullet.kill();
       self.room.socket.emit('kill player', {
         id: gamer.player.id,
+        health: gamer.player.health,
       });
     };
     _.each(self.room.sEvent.gamers, (gamer, k) => {
-      // 检测子弹是否打到玩家
+      // 检测子弹是否打到玩家.
       _.each(self.room.sEvent.gamers, (oGamer, oKey) => {
         if (k !== oKey) {
           self.game.physics.arcade.overlap(

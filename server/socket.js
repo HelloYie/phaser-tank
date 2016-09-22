@@ -171,9 +171,11 @@ class SocketHandler {
   onKill(client, data) {
     client.to(client.roomId).emit('kill player', {
       id: data.id,
+      health: data.health,
     });
     client.emit('kill player', {
       id: data.id,
+      health: data.health,
     });
   }
 

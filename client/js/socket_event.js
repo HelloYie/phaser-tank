@@ -164,8 +164,8 @@ export default class SocketEvent {
     if (!killedPlayer) {
       return;
     }
-    let health = killedPlayer.health;
-    health--;
+    let health = data.health;
+    health--; //
     setTimeout(() => {
       if (health < 1) {
         self.explosion.boom(killedPlayer.sPlayer);
