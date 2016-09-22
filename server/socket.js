@@ -120,8 +120,8 @@ class SocketHandler {
       id: movePlayer.id,
       angle: movePlayer.getAngle(),
       speed: movePlayer.getSpeed(),
-      // x: movePlayer.getX(),
-      // y: movePlayer.getY(),
+      x: movePlayer.getX(),
+      y: movePlayer.getY(),
     };
     client.to(client.roomId).emit('move player', moveInfo);
     client.emit('move player', moveInfo);

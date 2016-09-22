@@ -90,17 +90,15 @@ export default class Player {
     if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
     }
-    // if (this.game.input.activePointer.isDown) {
     this.socket.emit(
       'move player',
       {
         angle: this.angle,
         speed: Math.abs(this.currentSpeed),
-        // x: this.sPlayer.x - touchSpeed.x,
-        // y: this.sPlayer.y - touchSpeed.y,
+        x: this.sPlayer.x,
+        y: this.sPlayer.y,
       }
     );
-    // }
   }
 
   isTeammates(player) {

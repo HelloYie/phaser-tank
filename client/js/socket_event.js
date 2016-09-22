@@ -115,11 +115,17 @@ export default class SocketEvent {
     }
     const movePlayer = player.sPlayer;
     movePlayer.angle = data.angle;
-    this.game.physics.arcade.velocityFromAngle(
-      data.angle,
-      data.speed * 3,
-      movePlayer.body.velocity
-    );
+    // 自己移动和别人移动
+    if (utils.clientId(data.id) === self.socket.id) {
+      this.game.physics.arcade.velocityFromAngle(
+        data.angle,
+        data.speed * 3,
+        movePlayer.body.velocity
+      );
+    } else {
+      movePlayer.x = data.x;
+      movePlayer.y = data.y;
+    }
     if (data.speed !== 0) {
       movePlayer.animations.play('move');
     } else {
