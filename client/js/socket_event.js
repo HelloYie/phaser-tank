@@ -26,6 +26,7 @@ export default class SocketEvent {
       'join room': self.onJoinRoom,
       'remove player': self.onLeaveRoom,
       'loading progress': self.onLoadingProgress,
+      matching: self.onMatching,
       'start game': self.onStartGame,
     };
     self.gameEvents = {
@@ -85,6 +86,7 @@ export default class SocketEvent {
     const duplicate = self.gamerById(data.id, true);
     // 用户数据无效
     if (!data.x || !data.y || !data.camp) {
+      console.log('not ready player!');
       return;
     }
     if (duplicate || utils.clientId(data.id) === self.socket.id) {
@@ -147,6 +149,11 @@ export default class SocketEvent {
     self.room.progressGo(data.id, data.progress);
   }
 
+  onMatching() {
+    const self = this;
+    self.room.matching();
+  }
+
   onRemovePlayer(data) {
     console.info('要打死', data);
     const self = this;
@@ -185,6 +192,7 @@ export default class SocketEvent {
   // 开始游戏
   onStartGame(data) {
     const self = this;
+    self.room.id = data.roomId;
     new TankGame(data.camp, self.room, (o) => {
       // 初始化爆炸类
       self.explosion = new Explosion(o.game, 'kaboom');
