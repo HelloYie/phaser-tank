@@ -44,6 +44,7 @@ export default class Player {
     this.group.add(this.sPlayer);
     this.setName();
     this.setBullet();
+    console.info(this.sPlayer.x);
   }
 
   setBullet() {
@@ -71,6 +72,7 @@ export default class Player {
   }
 
   move(touchControl) {
+    this.stopped = false;
     const touchSpeed = touchControl.speed;
     const touchCursors = touchControl.cursors;
     if (touchCursors.left) {
@@ -90,15 +92,20 @@ export default class Player {
     if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
     }
-    this.socket.emit(
-      'move player',
-      {
-        angle: this.angle,
-        speed: Math.abs(this.currentSpeed),
-        x: this.sPlayer.x,
-        y: this.sPlayer.y,
-      }
-    );
+    if (this.game.input.activePointer.isDown) {
+      this.socket.emit(
+        'move player',
+        {
+          angle: this.angle,
+          speed: Math.abs(this.currentSpeed),
+          x: this.sPlayer.x,
+          y: this.sPlayer.y,
+        }
+      );
+    } else {
+      this.sPlayer.body.velocity.setTo(0, 0);
+    }
+    return this;
   }
 
   isTeammates(player) {

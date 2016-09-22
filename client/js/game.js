@@ -73,7 +73,7 @@ class TankGame {
     self.game.input.justPressedRate = 30;
 
     // 初始化地图
-    self.land = new Map(self.game, 'earth');
+    self.map = new Map(self.game, 'earth');
 
     // 初始化玩家
     self.player = new Player(
@@ -134,8 +134,9 @@ class TankGame {
         }
       });
     });
-    self.land.checkCollide(self.sPlayer);
+    self.map.checkCollide(self.sPlayer);
     self.player.move(self.touchControl);
+    // movePlayer.set(movePlayer.sPlayer.x, movePlayer.sPlayer.y);
   }
 
   render() {
