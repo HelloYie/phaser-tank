@@ -4,6 +4,9 @@
  *   玩家基类
  */
 
+import HealthBar from './health_bar';
+
+
 export default class Player {
   constructor(id, game, key, name, sex, camp, avatar, startX, startY, bulletKey, socket) {
     this.id = id;
@@ -20,6 +23,7 @@ export default class Player {
     this.alive = true;
     this.currentSpeed = 0;
     this.angle = 0;
+    this.health = 5;
     this.init();
   }
 
@@ -43,12 +47,23 @@ export default class Player {
 
     this.group.add(this.sPlayer);
     this.setName();
+    this.setHealthBar();
     this.setBullet();
-    console.info(this.sPlayer.x);
   }
 
+  setHealthBar() {
+    this.healthBar = new HealthBar(this.game, {
+      x: -23,
+      y: 0,
+      width: 28,
+      height: 5,
+    });
+    this.sPlayer.addChild(this.healthBar.bgSprite);
+    this.healthBar.bgSprite.angle = 90;
+  }
+
+  // 初始化子弹
   setBullet() {
-    // 初始化子弹数据.
     this.weapon = this.game.add.weapon(5, this.bulletKey);
     this.bullets = this.weapon.bullets;
     this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
@@ -57,18 +72,29 @@ export default class Player {
     this.weapon.bulletAngleOffset = 0;
     this.weapon.trackSprite(this.sPlayer, 50, 0, true);
   }
+
   // 设置玩家名称
   setName() {
     const playerName = this.game.add.text(
-      -20,
-      -20,
-      this.name,
+      -40,
+      0,
+      this.name.length > 3 ? `${this.name.substr(0, 3)}...` : this.name,
       {
         font: '12px',
+        align: 'center',
+        wordWrap: true,
+        wordWrapWidth: 30,
+        fill: '#fff',
       });
     playerName.angle = 90;
-    playerName.fill = '#fff';
+    playerName.anchor.set(0.5);
     this.sPlayer.addChild(playerName);
+  }
+
+  setHealth(health) {
+    const percent = (health / 5) * 100;
+    this.health = health;
+    this.healthBar.setPercent(percent);
   }
 
   move(touchControl) {
@@ -102,8 +128,10 @@ export default class Player {
           y: this.sPlayer.y,
         }
       );
+      this.stopped = false;
     } else {
       this.sPlayer.body.velocity.setTo(0, 0);
+      this.sPlayer.animations.play('stop');
     }
     return this;
   }
