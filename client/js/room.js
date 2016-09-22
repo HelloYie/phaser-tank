@@ -60,11 +60,13 @@ class Room {
     self.compileTpls();
     self.init();
     self.tips();
-    // 1分钟之后可以忽略等待直接开始
-    self.waitTimeout = setTimeout(
-      self.allReady,
-      60 * 1000
-    );
+    if (self.mode === 'hell') {
+      // 地狱模式1分钟之后可以忽略等待直接开始
+      self.waitTimeout = setTimeout(
+        self.allReady,
+        60 * 1000
+      );
+    }
   }
 
   init() {
@@ -163,6 +165,18 @@ class Room {
     $('.user_container').append(
       self.user_tpl(data)
     );
+    if (data.loadingProgress === 0) {
+      // 可能是异常链接, 进度条不会涨, 10s后无响应则移除之
+      const $user_container = $(`.user_container #${data.clientId}`);
+      setTimeout(
+        () => {
+          if (parseInt($user_container.find('.progress-bar').css('width'), 10) === 0) {
+            $user_container.remove();
+          }
+        },
+        1000 * 10
+      );
+    }
   }
 
   readyCheck() {
@@ -172,8 +186,12 @@ class Room {
     }
     if (self.persons === 'hell') {
       self.allReady();
+      return true;
+    } else if ($('.room_user').length >= Number(self.persons)) {
+      self.allReady();
+      return true;
     }
-    return true;
+    return false;
   }
 
   allReady() {

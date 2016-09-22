@@ -10,16 +10,47 @@ const io = require('socket.io');
 const Player = require('./player');
 const uuid = require('uuid');
 const utils = require('./utils');
+const TeamFeightPool = require('./team_feight_pool')
+const Rooms = require('./rooms')
 
 
 class SocketHandler {
   constructor(server) {
     const self = this;
-    self.players = {};
-    self.roomPlayers = {};
+    self.players = new Map();
+    self.rooms = new Rooms(self);
     self.socket = io.listen(server);
     self.socket.sockets.on('connection', (client) => {
       self.onSocketConnection.call(self, client);
+    });
+    self.teamFeightPool = new TeamFeightPool(self);
+  }
+
+  /**
+   * @summary 捕获 socket 事件
+   * @param client: Socket 消息接收端
+   */
+  onSocketConnection(client) {
+    const self = this;
+    const events = {
+      'disconnect': self.onClientDisconnect,
+      'new player': self.onNewPlayer,
+      'move player': self.onMovePlayer,
+      'shot': self.onShot,
+      'kill player': self.onKill,
+      'join room': self.onJoinRoom,
+      'loading progress': self.onLoadingProgress,
+      'start game': self.onStartGame,
+    };
+
+    util.log(`New player has connected: ${client.id}`);
+    client.handler = self;
+
+    // bild event with client
+    Object.keys(events).forEach((event) => {
+      client.on(event, function(data){
+        events[event](client, data);
+      });
     });
   }
 
@@ -30,8 +61,7 @@ class SocketHandler {
    */
   playerById(id, silence) {
     const self = this;
-    id = utils.serverId(id);
-    const playerObj = self.players[id];
+    const playerObj = self.players.get(utils.serverId(id));
     if (playerObj) {
       return playerObj;
     }
@@ -54,8 +84,8 @@ class SocketHandler {
       return;
     }
 
-    delete self.roomPlayers[client.roomId][client.id];
-    delete self.players[client.id];
+    self.rooms.removePlayer(client.roomId, client.id);
+    self.players.delete(client.id);
     client.to(client.roomId).emit('remove player', { id: client.id });
     client.leave(client.roomId);
   }
@@ -79,23 +109,20 @@ class SocketHandler {
       avatar: newPlayer.avatar,
     });
 
-    let existingPlayer;
-    const roomPlayers = self.roomPlayers[client.roomId];
-    console.info(newPlayer, roomPlayers);
-    Object.keys(roomPlayers).forEach((playerId) => {
-      existingPlayer = roomPlayers[playerId];
+    const roomPlayers = self.rooms.roomPlayers(client.roomId);
+    for(let player of roomPlayers) {
       client.emit(
         'new player',
         {
-          id: existingPlayer.id,
-          x: existingPlayer.x,
-          y: existingPlayer.y,
-          name: existingPlayer.name,
-          camp: newPlayer.camp,
-          avatar: existingPlayer.avatar,
+          id: player.id,
+          x: player.x,
+          y: player.y,
+          name: player.name,
+          camp: player.camp,
+          avatar: player.avatar,
         }
       );
-    });
+    }
   }
 
   /**
@@ -153,7 +180,7 @@ class SocketHandler {
 
   onJoinRoom(client, data) {
     const self = client.handler;
-    if (self.playerById(data.id)){
+    if(self.playerById(client.id)){
       return;
     }
     const newPlayer = new Player({
@@ -167,24 +194,22 @@ class SocketHandler {
     // 加入socket 房间
     client.join(client.roomId);
 
-    let existingPlayer;
-    const roomPlayers = self.roomPlayers[client.roomId];
-    if (roomPlayers) {
-      Object.keys(roomPlayers).forEach((playerId) => {
-        existingPlayer = roomPlayers[playerId];
+    const room = self.rooms.getRoom(client.roomId);
+    if(room) {
+      for(let player of room.values()) {
         client.emit(
           'join room',
           {
-            id: existingPlayer.id,
-            name: existingPlayer.name,
-            avatar: existingPlayer.avatar,
-            sex: existingPlayer.sex,
-            loadingProgress: existingPlayer.loadingProgress,
+            id: player.id,
+            name: player.name,
+            avatar: player.avatar,
+            sex: player.sex,
+            loadingProgress: player.loadingProgress,
           }
         );
-      });
+      }
     } else {
-      self.roomPlayers[client.roomId] = {};
+      self.rooms.addRoom(client.roomId);
     }
 
     client.to(client.roomId).emit(
@@ -198,8 +223,8 @@ class SocketHandler {
       }
     );
 
-    self.players[client.id] = newPlayer;
-    self.roomPlayers[client.roomId][client.id] = newPlayer;
+    self.players.set(client.id, newPlayer);
+    self.rooms.addPlayer(client.roomId, newPlayer);
   }
 
   onLoadingProgress(client, data) {
@@ -242,36 +267,10 @@ class SocketHandler {
     );
   }
 
-  startTeamFeight(persons) {
+  startTeamFeight(client, persons) {
     // TODO 匹配池中查询， 没有对手就丢进匹配池等待
-  }
-
-  /**
-   * @summary 捕获 socket 事件
-   * @param client: Socket 消息接收端
-   */
-  onSocketConnection(client) {
     const self = this;
-    const events = {
-      'disconnect': self.onClientDisconnect,
-      'new player': self.onNewPlayer,
-      'move player': self.onMovePlayer,
-      'shot': self.onShot,
-      'kill player': self.onKill,
-      'join room': self.onJoinRoom,
-      'loading progress': self.onLoadingProgress,
-      'start game': self.onStartGame,
-    };
-
-    util.log(`New player has connected: ${client.id}`);
-    client.handler = self;
-
-    // bild event with client
-    Object.keys(events).forEach((event) => {
-      client.on(event, function(data){
-        events[event](client, data);
-      });
-    });
+    self.teamFeightPool.match(client.roomId, persons);
   }
 }
 
