@@ -53,7 +53,7 @@ export default class SocketEvent {
 
     // 解绑之前的所有事件
     Object.keys(self.roomEvents).forEach((event) => {
-      self.socket.removeListener(event, self.roomEvents[event]);
+      self.socket.removeAllListeners(event);
     });
 
     Object.keys(self.gameEvents).forEach((event) => {

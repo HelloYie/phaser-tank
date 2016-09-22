@@ -85,7 +85,6 @@ class SocketHandler {
     }
 
     self.rooms.removePlayer(client.roomId, client.id);
-    self.players.delete(client.id);
     client.to(client.roomId).emit('remove player', { id: client.id });
     client.leave(client.roomId);
   }
@@ -180,9 +179,6 @@ class SocketHandler {
 
   onJoinRoom(client, data) {
     const self = client.handler;
-    if(self.playerById(client.id)){
-      return;
-    }
     const newPlayer = new Player({
       avatar: data.avatar,
       name: data.name,
