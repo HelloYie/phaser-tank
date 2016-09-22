@@ -60,11 +60,13 @@ class Room {
     self.compileTpls();
     self.init();
     self.tips();
-    // 1分钟之后可以忽略等待直接开始
-    self.waitTimeout = setTimeout(
-      self.allReady,
-      60 * 1000
-    );
+    if (self.mode === 'hell') {
+      // 地狱模式1分钟之后可以忽略等待直接开始
+      self.waitTimeout = setTimeout(
+        self.allReady,
+        60 * 1000
+      );
+    }
   }
 
   init() {
@@ -184,8 +186,12 @@ class Room {
     }
     if (self.persons === 'hell') {
       self.allReady();
+      return true;
+    } else if ($('.room_user').length >= Number(self.persons)) {
+      self.allReady();
+      return true;
     }
-    return true;
+    return false;
   }
 
   allReady() {
