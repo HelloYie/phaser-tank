@@ -7,7 +7,7 @@
 
 
 import utils from 'base_utils';
-import RemotePlayer from './remote_player';
+import Player from './player';
 import Explosion from './explosion';
 import TankGame from './game';
 import Attack from './attack';
@@ -48,7 +48,8 @@ export default class SocketEvent {
     self.game = game;
     self.player = player;
     self.sPlayer = player.sPlayer;
-    self.gamers[utils.createSocketId(self.player.id)] = self.player;
+    // 自己加入游戏
+    self.gamers[self.player.id] = self.player;
 
     // 解绑之前的所有事件
     Object.keys(self.roomEvents).forEach((event) => {
@@ -73,25 +74,14 @@ export default class SocketEvent {
     });
   }
 
-  onGameStart() {
-    const self = this;
-    Object.keys(self.gamers).forEach((gamerId) => {
-      const gamer = self.gamers[gamerId];
-      gamer.player.kill();
-    });
-    self.gamers = {};
-    self.player.id = self.socket.id;
-  }
-
   onSocketDisconnect() {
     console.log('Disconnected from socket server');
   }
 
-  // 自己和别人加入游戏
+  // 别人加入游戏
   onNewPlayer(data) {
     const self = this;
     console.log('New player connected:', data.id);
-
     const duplicate = self.gamerById(data.id, true);
     // 用户数据无效
     if (!data.x || !data.y || !data.camp) {
@@ -101,7 +91,7 @@ export default class SocketEvent {
       console.log('Duplicate player!');
       return;
     }
-    const enemy = new RemotePlayer(
+    const other = new Player(
       data.id,
       self.game,
       'enemy',
@@ -114,19 +104,27 @@ export default class SocketEvent {
       'bullet',
       self.socket,
     );
-    self.gamers[data.id] = enemy;
+    self.gamers[utils.clientId(data.id)] = other;
   }
 
   onMovePlayer(data) {
-    const player = this.gamerById(data.id);
+    const self = this;
+    const player = self.gamerById(data.id);
     if (!player) {
       return;
     }
     const movePlayer = player.sPlayer;
-    movePlayer.x = data.x;
-    movePlayer.y = data.y;
     movePlayer.angle = data.angle;
-    movePlayer.animations.play('move');
+    this.game.physics.arcade.velocityFromAngle(
+      data.angle,
+      data.speed * 3,
+      movePlayer.body.velocity
+    );
+    if (data.speed !== 0) {
+      movePlayer.animations.play('move');
+    } else {
+      movePlayer.animations.play('stop');
+    }
   }
 
   onShot(data) {
@@ -189,7 +187,7 @@ export default class SocketEvent {
 
   gamerById(id, silence = false) {
     const self = this;
-    const gamer = self.gamers[id];
+    const gamer = self.gamers[utils.clientId(id)];
     if (gamer) {
       return gamer;
     }

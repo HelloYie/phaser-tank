@@ -81,6 +81,7 @@ class SocketHandler {
 
     let existingPlayer;
     const roomPlayers = self.roomPlayers[client.roomId];
+    console.info(newPlayer, roomPlayers);
     Object.keys(roomPlayers).forEach((playerId) => {
       existingPlayer = roomPlayers[playerId];
       client.emit(
@@ -115,13 +116,15 @@ class SocketHandler {
     movePlayer.setAngle(data.angle);
     movePlayer.setSpeed(data.speed);
 
-    client.to(client.roomId).emit('move player', {
+    const moveInfo = {
       id: movePlayer.id,
-      x: movePlayer.getX(),
-      y: movePlayer.getY(),
       angle: movePlayer.getAngle(),
       speed: movePlayer.getSpeed(),
-    });
+      // x: movePlayer.getX(),
+      // y: movePlayer.getY(),
+    };
+    client.to(client.roomId).emit('move player', moveInfo);
+    client.emit('move player', moveInfo);
   }
 
   /**
@@ -150,7 +153,7 @@ class SocketHandler {
 
   onJoinRoom(client, data) {
     const self = client.handler;
-    if(self.playerById(data.id)){
+    if (self.playerById(data.id)){
       return;
     }
     const newPlayer = new Player({
@@ -166,7 +169,7 @@ class SocketHandler {
 
     let existingPlayer;
     const roomPlayers = self.roomPlayers[client.roomId];
-    if(roomPlayers) {
+    if (roomPlayers) {
       Object.keys(roomPlayers).forEach((playerId) => {
         existingPlayer = roomPlayers[playerId];
         client.emit(
