@@ -42,7 +42,6 @@ class Room {
     }
     self.persons = queryArgs.persons || 'hell';
     self.mode = queryArgs.mode || 'hell';
-    // TODO: 创建者将mode与persons同步到node服务器， 加入者无法修改
     if (self.mode === 'hell') {
       // hell 房间只有一个
       self.id = 'hell';
@@ -244,6 +243,10 @@ class Room {
         500
       );
     }
+  }
+
+  matching() {
+    $('.start_game').text('匹配中，请耐心等待...').prop('disabled', true);
   }
 
 }

@@ -10,7 +10,7 @@ const io = require('socket.io');
 const Player = require('./player');
 const uuid = require('uuid');
 const utils = require('./utils');
-const TeamFeightPool = require('./team_feight_pool')
+const TeamFightPool = require('./team_fight_pool')
 const Rooms = require('./rooms')
 
 
@@ -23,7 +23,7 @@ class SocketHandler {
     self.socket.sockets.on('connection', (client) => {
       self.onSocketConnection.call(self, client);
     });
-    self.teamFeightPool = new TeamFeightPool(self);
+    self.teamFightPool = new TeamFightPool(self);
   }
 
   /**
@@ -78,15 +78,9 @@ class SocketHandler {
   onClientDisconnect(client, data) {
     const self = client.handler;
     util.log(`Player has disconnected: ${client.id}`);
-    const removePlayer = self.playerById(client.id);
 
-    if (!removePlayer) {
-      return;
-    }
-
-    self.rooms.removePlayer(client.roomId, client.id);
     client.to(client.roomId).emit('remove player', { id: client.id });
-    client.leave(client.roomId);
+    self.rooms.deletePlayer(client.roomId, client.id);
   }
 
   /**
@@ -110,17 +104,20 @@ class SocketHandler {
 
     const roomPlayers = self.rooms.roomPlayers(client.roomId);
     for(let player of roomPlayers) {
-      client.emit(
-        'new player',
-        {
-          id: player.id,
-          x: player.x,
-          y: player.y,
-          name: player.name,
-          camp: player.camp,
-          avatar: player.avatar,
-        }
-      );
+      if(player.x && player.y && player.camp && player.id != client.id){
+        // 只同步已加入且非自己的玩家
+        client.emit(
+          'new player',
+          {
+            id: player.id,
+            x: player.x,
+            y: player.y,
+            name: player.name,
+            camp: player.camp,
+            avatar: player.avatar,
+          }
+        );
+      }
     }
   }
 
@@ -149,8 +146,7 @@ class SocketHandler {
       x: movePlayer.getX(),
       y: movePlayer.getY(),
     };
-    client.to(client.roomId).emit('move player', moveInfo);
-    client.emit('move player', moveInfo);
+    self.socket.sockets.to(client.roomId).emit('move player', moveInfo);
   }
 
   /**
@@ -158,25 +154,24 @@ class SocketHandler {
    * @this [Object] Socket 实例
    */
   onShot(client) {
-    client.to(client.roomId).emit('shot',
+    const self = client.handler;
+    self.socket.sockets.to(client.roomId).emit(
+      'shot',
       {
         id: client.id,
       }
     );
-    client.emit('shot', {
-      id: client.id,
-    });
   }
 
   onKill(client, data) {
-    client.to(client.roomId).emit('kill player', {
-      id: data.id,
-      health: data.health,
-    });
-    client.emit('kill player', {
-      id: data.id,
-      health: data.health,
-    });
+    const self = client.handler;
+    self.socket.sockets.to(client.roomId).emit(
+      'kill player',
+      {
+        id: data.id,
+        health: data.health,
+      }
+    );
   }
 
   onJoinRoom(client, data) {
@@ -187,10 +182,9 @@ class SocketHandler {
       id: client.id,
       roomId: data.id,
       sex: data.sex,
+      client: client,
     });
     client.roomId = data.id;
-    // 加入socket 房间
-    client.join(client.roomId);
 
     const room = self.rooms.getRoom(client.roomId);
     if(room) {
@@ -209,6 +203,7 @@ class SocketHandler {
     } else {
       self.rooms.addRoom(client.roomId);
     }
+    self.rooms.addPlayer(client.roomId, newPlayer);
 
     client.to(client.roomId).emit(
       'join room',
@@ -222,7 +217,6 @@ class SocketHandler {
     );
 
     self.players.set(client.id, newPlayer);
-    self.rooms.addPlayer(client.roomId, newPlayer);
   }
 
   onLoadingProgress(client, data) {
@@ -243,32 +237,29 @@ class SocketHandler {
     if (data.mode === 'hell'){
       // 地狱乱斗
       self.startHell(client);
-    } else if (data.mode === 'team_feight' ){
+    } else if (data.mode === 'team_fight' ){
       // 组队对战
-      self.startTeamFeight(client, data.persons);
+      self.startTeamFight(client, data.persons);
     }
   }
 
   startHell(client) {
-
-    client.to(client.roomId).emit(
-      'start game',
-      {
+    const self = this;
+    const start_data = {
         camp: uuid.v4(),
-      }
-    );
-    client.emit(
+        roomId: 'hell',
+    };
+    self.socket.sockets.to(client.roomId).emit(
       'start game',
-      {
-        camp: uuid.v4(),
-      }
+      start_data
     );
   }
 
-  startTeamFeight(client, persons) {
-    // TODO 匹配池中查询， 没有对手就丢进匹配池等待
+  startTeamFight(client, persons) {
+    // 匹配池中查询， 没有对手就丢进匹配池等待
     const self = this;
-    self.teamFeightPool.match(client.roomId, persons);
+    client.to(client.roomId).emit('matching');
+    self.teamFightPool.match(client.roomId, persons);
   }
 }
 

@@ -20,20 +20,35 @@ class Rooms {
       room = self.addRoom(roomId);
     }
     room.set(player.id, player);
+    player.client.join(roomId);
     return room;
   }
 
-  removePlayer(roomId, clientId) {
+  deletePlayer(roomId, clientId) {
     const self = this;
     const room = self.getRoom(roomId);
+    const player = self.getPlayer(roomId, clientId);
     if (!room){
       return false;
     }
     room.delete(clientId);
+    self.socketHandler.players.delete(clientId);
     if (room.size === 0) {
-      self.removeRoom(roomId);
+      self.deleteRoom(roomId);
+    }
+    if (player) {
+      player.client.leave(roomId);
     }
     return true;
+  }
+
+  getPlayer(roomId, clientId){
+    const self = this;
+    const room = self.getRoom(roomId);
+    if (!room) {
+      return undefined;
+    }
+    return room.get(clientId);
   }
 
   getRoom(roomId) {
@@ -41,7 +56,7 @@ class Rooms {
     return self.rooms.get(roomId);
   }
 
-  removeRoom(roomId) {
+  deleteRoom(roomId) {
     const self = this;
     self.rooms.delete(roomId);
   }

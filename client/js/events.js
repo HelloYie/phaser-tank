@@ -15,6 +15,7 @@ class RoomEvents {
 
   startGame() {
     const self = this;
+    self.room.matching();
     self.room.socket.emit(
       'start game',
       {
