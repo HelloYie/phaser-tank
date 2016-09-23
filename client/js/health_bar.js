@@ -102,7 +102,7 @@ export default class HealthBar {
   }
 
   kill() {
-    this.bgSprite.kill();
-    this.barSprite.kill();
+    this.bgSprite.destroy();
+    this.barSprite.destroy();
   }
 }

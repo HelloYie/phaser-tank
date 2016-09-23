@@ -24,6 +24,7 @@ export default class Player {
     this.currentSpeed = 0;
     this.angle = 0;
     this.health = 5;
+    this.stopped = false;
     this.init();
   }
 
@@ -120,6 +121,7 @@ export default class Player {
       this.currentSpeed = 0;
     }
     if (this.game.input.activePointer.isDown) {
+      this.stopped = false;
       this.socket.emit(
         'move player',
         {
@@ -129,9 +131,17 @@ export default class Player {
           y: this.sPlayer.y,
         }
       );
-    } else {
-      this.sPlayer.body.velocity.setTo(0, 0);
-      this.sPlayer.animations.play('stop');
+    } else if (!this.stopped) {
+      this.socket.emit(
+        'move player',
+        {
+          angle: this.angle,
+          speed: 0,
+          x: this.sPlayer.x,
+          y: this.sPlayer.y,
+        }
+      );
+      this.stopped = true;
     }
     return this;
   }

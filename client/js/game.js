@@ -81,10 +81,10 @@ class TankGame {
     self.land = self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     // 初始化坦克爆炸类
     self.explosion = new Explosion(self.game);
-    // 初始化砖头爆炸类
-    self.map = new Map(self.game, self.explosion);
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
+    // 初始化砖头爆炸类
+    self.map = new Map(self.game, self.explosion);
 
     // 初始化玩家
     self.player = new Player(
@@ -112,10 +112,9 @@ class TankGame {
       }
     );
     self.sPlayer = self.player.sPlayer;
-    self.sPlayer.bringToTop();
     self.game.camera.follow(self.sPlayer);
     self.room.player = self.player;
-
+    self.game.world.bringToTop(self.map.crossGroup);
     self.room.sEvent.initGame(self.game, self.player);
   }
 
@@ -124,7 +123,7 @@ class TankGame {
     // 告诉服务器谁死了，并且子弹立即消失.
     const hitHandler = (gamer, bullet) => {
       const killer = bullet.parent.owner;
-      bullet.kill();
+      bullet.destroy();
       if (killer.isTeammates(gamer)) {
         // 击中队友
       } else {
