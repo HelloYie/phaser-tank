@@ -70,7 +70,7 @@ class TankGame {
   create() {
     // 初始化游戏设置
     const self = this;
-    self.game.world.setBounds(0, 0, 1200, 900);
+    self.game.world.setBounds(0, 0, 600, 600);
     self.game.camera.focusOnXY(0, 0);
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
@@ -78,7 +78,7 @@ class TankGame {
     // 初始化触摸移动类
     self.touchControl = new TouchControl(this.game, this);
     // 初始化陆地
-    self.land = self.game.add.tileSprite(0, 0, 1200, 900, 'earth');
+    self.land = self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     // 初始化坦克爆炸类
     self.explosion = new Explosion(self.game);
     // 初始化砖头爆炸类

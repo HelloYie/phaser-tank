@@ -69,8 +69,8 @@ export default class Player {
     this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
     this.weapon.bulletSpeed = 400;
     this.weapon.fireRate = 500;
-    this.weapon.bulletAngleOffset = 0;
-    this.weapon.trackSprite(this.sPlayer, 50, 0, true);
+    this.weapon.bulletAngleOffset = 90;
+    this.weapon.trackSprite(this.sPlayer, 0, 0, true);
   }
 
   // 设置玩家名称
@@ -98,7 +98,6 @@ export default class Player {
   }
 
   move(touchControl) {
-    this.stopped = false;
     const touchSpeed = touchControl.speed;
     const touchCursors = touchControl.cursors;
     if (touchCursors.left) {
@@ -128,7 +127,6 @@ export default class Player {
           y: this.sPlayer.y,
         }
       );
-      this.stopped = false;
     } else {
       this.sPlayer.body.velocity.setTo(0, 0);
       this.sPlayer.animations.play('stop');

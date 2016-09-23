@@ -34,7 +34,9 @@ export default class Map {
         key = 'gross';
         physicsGroup = self.crossGroup;
       }
-      const mapSprite = physicsGroup.create(col * 40, row * 30, key);
+      const mapSprite = physicsGroup.create(col * 20, row * 15, key);
+      mapSprite.width = 20;
+      mapSprite.height = 15;
       self.game.physics.enable(mapSprite, Phaser.Physics.ARCADE);
       mapSprite.body.immovable = true;
     });
