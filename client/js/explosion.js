@@ -18,7 +18,7 @@ export default class Explosion {
   boom(player, key) {
     const explosionAni = this.game.add.sprite(0, 0, key);
     explosionAni.anchor.setTo(0.5, 0.5);
-    self.ani = explosionAni.animations.add('kaboom');
+    explosionAni.animations.add('kaboom');
     explosionAni.reset(player.x, player.y);
     explosionAni.play('kaboom', 20, false, true);
     return this;
