@@ -23,6 +23,7 @@ export default class SocketEvent {
     self.room = room;
     self.roomEvents = {
       connect: self.onSocketConnected,
+      reconnect_failed: self.onSocketDisconnect,
       'join room': self.onJoinRoom,
       'remove player': self.onLeaveRoom,
       'loading progress': self.onLoadingProgress,
@@ -31,6 +32,7 @@ export default class SocketEvent {
     };
     self.gameEvents = {
       disconnect: self.onSocketDisconnect,
+      connect_error: self.onSocketDisconnect,
       'new player': self.onNewPlayer,
       'move player': self.onMovePlayer,
       'remove player': self.onRemovePlayer,
@@ -76,7 +78,9 @@ export default class SocketEvent {
   }
 
   onSocketDisconnect() {
+    const self = this;
     console.log('Disconnected from socket server');
+    self.room.disconnect();
   }
 
   // 别人加入游戏
@@ -155,13 +159,13 @@ export default class SocketEvent {
   }
 
   onRemovePlayer(data) {
-    console.info('要打死', data);
     const self = this;
     const removePlayer = self.gamerById(data.id);
     if (!removePlayer) {
+      console.info('no player to remove', data);
       return;
     }
-    removePlayer.player.kill();
+    removePlayer.sPlayer.kill();
     delete self.gamers[data.id];
   }
 

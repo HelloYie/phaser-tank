@@ -19,7 +19,13 @@ class SocketHandler {
     const self = this;
     self.players = new Map();
     self.rooms = new Rooms(self);
-    self.socket = io.listen(server);
+    self.socket = io.listen(
+      server,
+      {
+        pingInterval: 3000,
+        pingTimeout: 1000 * 10,
+      }
+    );
     self.socket.sockets.on('connection', (client) => {
       self.onSocketConnection.call(self, client);
     });

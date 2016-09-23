@@ -18,7 +18,18 @@ import { RoomEvents } from './events';
 // 主入口调用
 require.ensure([], () => {
   // 初始化房间
-  window.IO = require('./lib/socket.io-client');
+  window.IO = require('./lib/socket.io-client')(
+    '/',
+    {
+      forceNew: false,
+      'force new connect': false,
+      multiplex: true,  // 上面都是为了不开新链接
+      reconnectionAttempts: 1,  // 尝试重连1次(开启固定ID后尝试4次)
+      reconnectionDelay: 1000,  // 延时1s重连
+      reconnectionDelayMax: 2000, // 最多延时2s
+      timeout: 1000,
+    }
+  );
   window.$ = window.jQuery = require('jquery');
   require('./lib/bootstrap');
 

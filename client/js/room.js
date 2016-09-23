@@ -155,6 +155,8 @@ class Room {
   compileTpls() {
     const self = this;
     self.user_tpl = _.template($('#user_tpl').html());
+    self.disconnect_tpl = _.template($('#disconnect_tpl').html());
+    self.lg_modal = $('#lg_modal');
   }
 
   otherJoined(data) {
@@ -247,6 +249,15 @@ class Room {
 
   matching() {
     $('.start_game').text('匹配中，请耐心等待...').prop('disabled', true);
+  }
+
+  disconnect() {
+    const self = this;
+    self.lg_modal.find('.modal-content').html(self.disconnect_tpl());
+    self.lg_modal.modal({
+      backdrop: 'static',
+      keyboard: false,
+    });
   }
 
 }

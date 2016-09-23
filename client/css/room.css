@@ -38,6 +38,23 @@ html{
   margin-bottom: 0;
   height: 1rem;
 }
+.info-title{
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+.infos p{
+  margin-bottom: 5px;
+}
+.infos{
+  margin-bottom: 20px;
+}
+.rcode_desc{
+  font-size: 0.8rem;
+}
+
+.modal-lg .modal-title{
+  font-size: 2rem;
+}
 
 @media (max-width: 768px){
   html{
