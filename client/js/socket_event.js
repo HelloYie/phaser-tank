@@ -123,11 +123,17 @@ export default class SocketEvent {
     }
     const movePlayer = player.sPlayer;
     movePlayer.angle = data.angle;
-    this.game.physics.arcade.velocityFromAngle(
-      data.angle,
-      data.speed * 3,
-      movePlayer.body.velocity
-    );
+    // TODO: 此处可以都用物理引擎, 但是会移动不同步，需要校准，故暂时不改
+    if (utils.clientId(data.id) === this.socket.id) {
+      this.game.physics.arcade.velocityFromAngle(
+        data.angle,
+        data.speed * 3,
+        movePlayer.body.velocity
+      );
+    } else {
+      movePlayer.x = data.x;
+      movePlayer.y = data.y;
+    }
     if (data.speed === 0) {
       movePlayer.animations.play('stop');
     } else {

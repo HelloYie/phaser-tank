@@ -51,10 +51,10 @@ export default class Map {
       sPlayer.player.bullets,
       (sprite, bullet) => {
         if (sprite.key === 'stone') {
-          bullet.destroy();
+          bullet.kill();
         } else if (sprite.key === 'brick') {
           self.explosion.boom(sprite, 'brickKaboom');
-          bullet.destroy();
+          bullet.kill();
           sprite.destroy();
         }
       },

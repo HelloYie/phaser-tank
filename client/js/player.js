@@ -25,10 +25,13 @@ export default class Player {
     this.angle = 0;
     this.health = 5;
     this.stopped = false;
-    this.init();
+    this.setBullet();
+    this.setSplayer();
+    this.setName();
+    this.setHealthBar();
   }
 
-  init() {
+  setSplayer() {
     this.group = this.game.add.group();
     this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key);
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
@@ -47,9 +50,7 @@ export default class Player {
     this.sPlayer.group = this.group;
 
     this.group.add(this.sPlayer);
-    this.setName();
-    this.setHealthBar();
-    this.setBullet();
+    this.weapon.trackSprite(this.sPlayer, 0, 0, true);
   }
 
   setHealthBar() {
@@ -73,7 +74,6 @@ export default class Player {
     self.weapon.bulletSpeed = 400;
     self.weapon.fireRate = 500;
     self.weapon.bulletAngleOffset = 90;
-    self.weapon.trackSprite(self.sPlayer, 0, 0, true);
   }
 
   // 设置玩家名称
@@ -120,27 +120,18 @@ export default class Player {
     if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
     }
+    const moveInfo = {
+      angle: this.angle,
+      speed: Math.abs(this.currentSpeed),
+      x: this.sPlayer.x,
+      y: this.sPlayer.y,
+    };
     if (this.game.input.activePointer.isDown) {
+      this.socket.emit('move player', moveInfo);
       this.stopped = false;
-      this.socket.emit(
-        'move player',
-        {
-          angle: this.angle,
-          speed: Math.abs(this.currentSpeed),
-          x: this.sPlayer.x,
-          y: this.sPlayer.y,
-        }
-      );
     } else if (!this.stopped) {
-      this.socket.emit(
-        'move player',
-        {
-          angle: this.angle,
-          speed: 0,
-          x: this.sPlayer.x,
-          y: this.sPlayer.y,
-        }
-      );
+      moveInfo.speed = 0;
+      this.socket.emit('move player', moveInfo);
       this.stopped = true;
     }
     return this;

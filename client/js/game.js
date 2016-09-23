@@ -123,7 +123,7 @@ class TankGame {
     // 告诉服务器谁死了，并且子弹立即消失.
     const hitHandler = (gamer, bullet) => {
       const killer = bullet.parent.owner;
-      bullet.destroy();
+      bullet.kill();
       if (killer.isTeammates(gamer)) {
         // 击中队友
       } else {
