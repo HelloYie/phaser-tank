@@ -25,7 +25,6 @@ export default class Attack {
     this.attackBtn.inputEnabled = true;
     this.attackBtn.fixedToCamera = true;
     this.attackBtn.events.onInputDown.add(() => {
-      // this.weapon.fire();
       this.socket.emit('shot');
     }, this);
     return this;

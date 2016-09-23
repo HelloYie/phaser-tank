@@ -6,20 +6,8 @@
  */
 
 export default class Explosion {
-  constructor(game, key) {
+  constructor(game) {
     this.game = game;
-    this.key = key;
-    this.explosions = this.game.add.group();
-    this.init();
-  }
-
-  init() {
-    for (let i = 0; i < 10; i++) {
-      const explosionAnimation = this.explosions.create(0, 0, this.key, [0], false);
-      explosionAnimation.anchor.setTo(0.5, 0.5);
-      explosionAnimation.animations.add('kaboom');
-    }
-    return this;
   }
 
   /**
@@ -27,13 +15,12 @@ export default class Explosion {
    * @param y [Number] 爆炸的 y 坐标
    * @return Explosion
    */
-  boom(player) {
-    const explosionAnimation = this.explosions.getFirstExists(false);
-    if (!player.boomed && explosionAnimation) {
-      explosionAnimation.reset(player.x, player.y);
-      explosionAnimation.play('kaboom', 30, false, true);
-      player.boomed = true;
-    }
+  boom(player, key) {
+    const explosionAnimation = this.game.add.sprite(0, 0, key);
+    explosionAnimation.anchor.setTo(0.5, 0.5);
+    explosionAnimation.animations.add('kaboom');
+    explosionAnimation.reset(player.x, player.y);
+    explosionAnimation.play('kaboom', 20, false, true);
     return this;
   }
 }
