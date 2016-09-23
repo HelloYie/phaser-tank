@@ -19,6 +19,7 @@ export default class SocketEvent {
     const self = this;
     self.socket = socket;
     self.gamers = {};
+    self.kills = new Map();  // 击杀统计
     self.room = room;
     self.roomEvents = {
       connect: self.onSocketConnected,
@@ -166,11 +167,15 @@ export default class SocketEvent {
     }
     removePlayer.sPlayer.kill();
     delete self.gamers[data.id];
+    self.room.checkGameEnd();
   }
 
   onKillPlayer(data) {
     const self = this;
-    const killedPlayer = self.gamerById(data.id);
+    const killedId = utils.clientId(data.id);
+    const killedPlayer = self.gamerById(killedId);
+    const killerId = utils.clientId(data.killerId);
+    const killer = self.gamerById(killerId);
     if (!killedPlayer) {
       return;
     }
@@ -180,7 +185,22 @@ export default class SocketEvent {
       if (health < 1) {
         self.explosion.boom(killedPlayer.sPlayer, 'kaboom');
         killedPlayer.sPlayer.kill();
-        delete self.gamers[data.id];
+        delete self.gamers[killedId];
+        if (self.kills.has(killerId)) {
+          self.kills.get(killerId).players.add(killedPlayer);
+        } else {
+          self.kills.set(
+            killerId,
+            {
+              name: killer.name,
+              sex: killer.sex,
+              avatar: killer.avatar,
+              camp: killer.camp,
+              players: new Set([killedPlayer]),
+            }
+          );
+        }
+        self.room.checkGameEnd();
       } else {
         killedPlayer.setHealth(health);
       }
@@ -196,6 +216,7 @@ export default class SocketEvent {
   onStartGame(data) {
     const self = this;
     self.room.id = data.roomId;
+    self.room.camp = data.camp;
     new TankGame(data.camp, self.room, (o) => {
       self.explosion = o.explosion;
     });

@@ -71,7 +71,7 @@ class Room {
   init() {
     const self = this;
     $('.user_container').append(
-      self.user_tpl({
+      self.userTpl({
         clientId: 'self',
         name: self.name,
         avatar: self.avatar,
@@ -154,9 +154,10 @@ class Room {
 
   compileTpls() {
     const self = this;
-    self.user_tpl = _.template($('#user_tpl').html());
-    self.disconnect_tpl = _.template($('#disconnect_tpl').html());
-    self.lg_modal = $('#lg_modal');
+    self.userTpl = _.template($('#userTpl').html());
+    self.disconnectTpl = _.template($('#disconnectTpl').html());
+    self.endTpl = _.template($('#endTpl').html());
+    self.lgModal = $('#lgModal');
   }
 
   otherJoined(data) {
@@ -164,7 +165,7 @@ class Room {
     const self = this;
     data.clientId = utils.clientId(data.id);
     $('.user_container').append(
-      self.user_tpl(data)
+      self.userTpl(data)
     );
     if (data.loadingProgress === 0) {
       // 可能是异常链接, 进度条不会涨, 10s后无响应则移除之
@@ -226,15 +227,14 @@ class Room {
       }, 1000);
     } else {
       // 进度条假蠕动
-      let index = 0;
       const selfKillInterval = setInterval(
         () => {
           const realProgress = $progressBar.data('progress');
           let displayProgress = parseInt($progressBar.css('width'), 10);
-          if (index > 100) {
-            console.log(userId, realProgress, displayProgress);
+          if (displayProgress > 100) {
+            // 有时候clear不掉， 不过没关系
+            return;
           }
-          index += 1;
           if (realProgress < displayProgress && realProgress + 29 < displayProgress) {
             displayProgress += 1;
             $progressBar.css('width', `${displayProgress}%`);
@@ -253,12 +253,86 @@ class Room {
 
   disconnect() {
     const self = this;
-    self.lg_modal.find('.modal-content').html(self.disconnect_tpl());
-    self.lg_modal.modal({
+    self.lgModal.find('.modal-content').html(self.disconnectTpl());
+    self.lgModal.modal({
       backdrop: 'static',
       keyboard: false,
     });
   }
 
+  gameEnd(result) {
+    const self = this;
+    const kills = self.sEvent.kills;
+    const tplData = {
+      result,
+      otherKills: [],
+    };
+    // 自己始终显示在最上面
+    const selfKill = kills.get(self.socket.id);
+    if (selfKill) {
+      tplData.selfKill = selfKill;
+      kills.delete(self.socket.id);
+    } else {
+      tplData.selfKill = {
+        avatar: self.avatar,
+        name: self.name,
+        sex: self.sex,
+        camp: self.camp,
+        players: [],
+      };
+    }
+
+    // tplData.otherKills = Array.from(kills.values());
+    for (const kill of kills.values()) {
+      kill.players = [...kill.players];
+      tplData.otherKills.push(kill);
+    }
+
+    tplData.otherKills.sort((a, b) => {
+      if (a.players.length < b.players.length) {
+        return 1;
+      } else if (a.players.length > b.players.length) {
+        return -1;
+      }
+      return 0;
+    });
+    tplData.otherKills = tplData.otherKills.slice(0, 5);
+    self.lgModal.find('.modal-content').html(self.endTpl(tplData));
+    self.lgModal.modal({
+      backdrop: 'static',
+      keyboard: false,
+    });
+  }
+
+  checkGameEnd() {
+    const self = this;
+    const gamers = self.sEvent.gamers;
+    if (self.mode === 'hell') {
+      if (!self.sEvent.gamerById(self.socket.id)) {
+        // 自己死了就结束
+        self.gameEnd('地狱没有输赢');
+      }
+    } else {
+      // 对手或自己死绝时结束
+      let has_enemy = false;
+      let has_friend = false;
+      Object.keys(gamers).forEach((gamerId) => {
+        if (has_friend && has_enemy) {
+          return false;
+        }
+        if (gamers[gamerId].isTeammates(self.player)) {
+          has_friend = true;
+        } else {
+          has_enemy = true;
+        }
+        return true;
+      });
+      if (!has_enemy) {
+        self.gamEnd('你赢了');
+      } else if (!has_friend) {
+        self.gamEnd('你输了');
+      }
+    }
+  }
 }
 export default Room;

@@ -64,13 +64,15 @@ export default class Player {
 
   // 初始化子弹
   setBullet() {
-    this.weapon = this.game.add.weapon(5, this.bulletKey);
-    this.bullets = this.weapon.bullets;
-    this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-    this.weapon.bulletSpeed = 400;
-    this.weapon.fireRate = 500;
-    this.weapon.bulletAngleOffset = 90;
-    this.weapon.trackSprite(this.sPlayer, 0, 0, true);
+    const self = this;
+    self.weapon = self.game.add.weapon(5, self.bulletKey);
+    self.bullets = self.weapon.bullets;
+    self.bullets.owner = self;
+    self.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+    self.weapon.bulletSpeed = 400;
+    self.weapon.fireRate = 500;
+    self.weapon.bulletAngleOffset = 90;
+    self.weapon.trackSprite(self.sPlayer, 0, 0, true);
   }
 
   // 设置玩家名称

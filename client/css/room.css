@@ -55,6 +55,10 @@ html{
 .modal-lg .modal-title{
   font-size: 2rem;
 }
+.ranks{
+  margin-bottom: 20px;
+  border-bottom: 1px dashed #e5e5e5;
+}
 
 @media (max-width: 768px){
   html{
