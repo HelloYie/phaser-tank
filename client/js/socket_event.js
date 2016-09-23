@@ -124,7 +124,7 @@ export default class SocketEvent {
     const movePlayer = player.sPlayer;
     movePlayer.angle = data.angle;
     // TODO: 此处可以都用物理引擎, 但是会移动不同步，需要校准，故暂时不改
-    if (utils.clientId(data.id) === this.socket.id) {
+    if (utils.clientId(data.id) === self.socket.id) {
       this.game.physics.arcade.velocityFromAngle(
         data.angle,
         data.speed * 3,
