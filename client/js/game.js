@@ -8,7 +8,8 @@ import _ from 'underscore';
 import Map from './map';
 import Player from './player';
 import TouchControl from './touch_control';
-import tileMapJson from '../assets/tank/map.json';
+import Attack from './attack';
+import Explosion from './explosion';
 
 import tankPng from '../assets/tank/tank-1.png';
 import enemyPng from '../assets/tank/tank-2.png';
@@ -19,6 +20,7 @@ import touchSegmentPng from '../assets/tank/touch_segment.png';
 import touchPng from '../assets/tank/touch.png';
 import attackPng from '../assets/tank/attack.png';
 import explosionPng from '../assets/tank/explosion.png';
+import explosionBrickPng from '../assets/tank/brick-explosion.png';
 import stonePng from '../assets/tank/stone.png';
 import brickPng from '../assets/tank/brick.png';
 import grossPng from '../assets/tank/gross.png';
@@ -29,6 +31,7 @@ class TankGame {
     $('.room_container').remove();
     self.room = room;
     self.camp = camp;
+    self.callback = callback;
     self.game = new Phaser.Game(
       '100',
       '100',
@@ -61,7 +64,7 @@ class TankGame {
     self.game.load.spritesheet('tank', tankPng, 35, 28, 1);
     self.game.load.spritesheet('enemy', enemyPng, 35, 28, 1);
     self.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
-    self.game.load.tilemap('map', null, tileMapJson, Phaser.Tilemap.TILED_JSON);
+    self.game.load.spritesheet('brickKaboom', explosionBrickPng, 24, 24, 7);
   }
 
   create() {
@@ -72,8 +75,16 @@ class TankGame {
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
 
-    // 初始化地图
-    self.map = new Map(self.game, 'earth');
+    // 初始化触摸移动类
+    self.touchControl = new TouchControl(this.game, this);
+    // 初始化陆地
+    self.land = self.game.add.tileSprite(0, 0, 1200, 900, 'earth');
+    // 初始化坦克爆炸类
+    self.explosion = new Explosion(self.game);
+    // 初始化砖头爆炸类
+    self.map = new Map(self.game, self.explosion);
+    // 初始化攻击类
+    new Attack(self.game, self.room.socket);
 
     // 初始化玩家
     self.player = new Player(
@@ -104,9 +115,6 @@ class TankGame {
     self.sPlayer.bringToTop();
     self.game.camera.follow(self.sPlayer);
 
-    // 初始化触摸移动类
-    self.touchControl = new TouchControl(this.game, this).touchControl;
-
     self.room.sEvent.initGame(self.game, self.player);
   }
 
@@ -114,7 +122,6 @@ class TankGame {
     const self = this;
     // 告诉服务器谁死了，并且子弹立即消失.
     const hitHandler = (gamer, bullet) => {
-      console.info(gamer, bullet);
       bullet.kill();
       self.room.socket.emit('kill player', {
         id: gamer.player.id,

@@ -8,9 +8,8 @@
 
 import utils from 'base_utils';
 import Player from './player';
-import Explosion from './explosion';
 import TankGame from './game';
-import Attack from './attack';
+
 
 export default class SocketEvent {
   /**
@@ -176,10 +175,10 @@ export default class SocketEvent {
       return;
     }
     let health = data.health;
-    health--; //
+    health--;
     setTimeout(() => {
       if (health < 1) {
-        self.explosion.boom(killedPlayer.sPlayer);
+        self.explosion.boom(killedPlayer.sPlayer, 'kaboom');
         killedPlayer.sPlayer.kill();
         delete self.gamers[data.id];
       } else {
@@ -198,10 +197,7 @@ export default class SocketEvent {
     const self = this;
     self.room.id = data.roomId;
     new TankGame(data.camp, self.room, (o) => {
-      // 初始化爆炸类
-      self.explosion = new Explosion(o.game, 'kaboom');
-      // 初始化攻击类
-      new Attack(o.game, self.socket);
+      self.explosion = o.explosion;
     });
   }
 
