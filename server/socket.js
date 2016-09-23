@@ -22,8 +22,8 @@ class SocketHandler {
     self.socket = io.listen(
       server,
       {
-        pingInterval: 3000,
-        pingTimeout: 1000 * 10,
+        pingInterval: 2000,
+        pingTimeout: 1000 * 6.1,
       }
     );
     self.socket.sockets.on('connection', (client) => {
@@ -176,6 +176,7 @@ class SocketHandler {
       {
         id: data.id,
         health: data.health,
+        killerId: data.killerId,
       }
     );
   }

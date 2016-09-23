@@ -94,7 +94,7 @@ class TankGame {
       self.room.name,
       self.room.sex,
       self.camp,
-      '',
+      self.room.avatar,
       Math.round((Math.random() * 1000) - 500),
       Math.round((Math.random() * 1000) - 500),
       'bullet',
@@ -114,6 +114,7 @@ class TankGame {
     self.sPlayer = self.player.sPlayer;
     self.sPlayer.bringToTop();
     self.game.camera.follow(self.sPlayer);
+    self.room.player = self.player;
 
     self.room.sEvent.initGame(self.game, self.player);
   }
@@ -122,11 +123,17 @@ class TankGame {
     const self = this;
     // 告诉服务器谁死了，并且子弹立即消失.
     const hitHandler = (gamer, bullet) => {
+      const killer = bullet.parent.owner;
       bullet.kill();
-      self.room.socket.emit('kill player', {
-        id: gamer.player.id,
-        health: gamer.player.health,
-      });
+      if (killer.isTeammates(gamer)) {
+        // 击中队友
+      } else {
+        self.room.socket.emit('kill player', {
+          id: gamer.player.id,
+          health: gamer.player.health,
+          killerId: killer.id,
+        });
+      }
     };
     _.each(self.room.sEvent.gamers, (gamer, k) => {
       // 检测子弹是否打到玩家.

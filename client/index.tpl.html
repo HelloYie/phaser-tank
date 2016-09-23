@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="lg_modal">
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="lgModal">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
         </div>
@@ -41,7 +41,7 @@
     </div>
 
 
-    <script type="text/tpl" id="user_tpl">
+    <script type="text/tpl" id="userTpl">
       <div class="col-xs-4 col-md-2 room_user" id="<%= clientId %>">
         <div class="thumbnail">
             <% if(loadingProgress < 100){ %>
@@ -69,7 +69,7 @@
       </div>
     </script>
 
-    <script type="text/tpl" id="disconnect_tpl">
+    <script type="text/tpl" id="disconnectTpl">
       <div class="modal-header">
         <h1 class="modal-title text-center">您已同游戏服务器断开</h1>
       </div>
@@ -97,6 +97,82 @@
               <div class="caption">
                 <div class="text-center rcode_desc">
                   长按识别二维码关注
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-0 col-md-2 text-center">
+          </div>
+          <div class="col-xs-6 col-md-4 text-center">
+            <div class="thumbnail">
+              <img src="http://obdp0ndxs.bkt.clouddn.com/wxpay.png" alt="打赏快召游戏">
+              <div class="caption">
+                <div class="text-center rcode_desc">
+                  长按识别二维码打赏
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-0 col-md-1 text-center">
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/tpl" id="endTpl">
+      <div class="modal-header">
+        <h1 class="modal-title text-center">
+          游戏结束 <%= result %>
+        </h1>
+      </div>
+      <div class="modal-body">
+        <div class="ranks">
+          <div class="result_line row">
+            <div class="col-xs-1">
+              <div class="thumbnail">
+                <img src="<%= selfKill.avatar %>" alt="<%= selfKill.name %>">
+              </div>
+            </div>
+            <div class="col-xs-11">
+              <div class="col-xs-1">KILL</div>
+              <% for (var index=0; index < selfKill.players.length; index += 1) { %>
+                <div class="col-xs-1">
+                  <div class="thumbnail">
+                    <img src="<%= selfKill.players[index].avatar %>" alt="<%= selfKill.players[index].name %>">
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+          <% for (var index = 0; index < otherKills.length; index += 1) { %>
+            <div class="result_line row">
+              <div class="col-xs-1">
+                <div class="thumbnail">
+                  <img src="<%= otherKills[index].avatar %>" alt="<%= otherKills[index].name %>">
+                </div>
+              </div>
+              <div class="col-xs-11">
+                <div class="col-xs-1">KILL</div>
+                <% for (var index2 = 0; index2 < otherKills[index].players.length; index2 += 1) { %>
+                  <div class="col-xs-1">
+                    <div class="thumbnail">
+                      <img src="<%= otherKills[index].players[index2].avatar %>" alt="<%= otherKills[index].players[index2].avatar %>">
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+        <div class="row rcode-row">
+          <div class="col-xs-0 col-md-1 text-center">
+          </div>
+          <div class="col-xs-6 col-md-4 text-center">
+            <div class="thumbnail">
+              <img src="http://obdp0ndxs.bkt.clouddn.com/gzh.png" alt="再来一局">
+              <div class="caption">
+                <div class="text-center rcode_desc">
+                  长按识别二维码再来一局
                 </div>
               </div>
             </div>
