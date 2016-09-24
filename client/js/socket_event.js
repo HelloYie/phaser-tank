@@ -110,6 +110,8 @@ export default class SocketEvent {
       'bullet',
       self.socket,
     );
+    other.sPlayer.body.immovable = true;
+    self.game.world.bringToTop(self.map.crossGroup);
     self.gamers[utils.clientId(data.id)] = other;
   }
 
@@ -121,7 +123,7 @@ export default class SocketEvent {
     }
     const movePlayer = player.sPlayer;
     movePlayer.angle = data.angle;
-    // 自己移动和别人移动
+    // TODO: 此处可以都用物理引擎, 但是会移动不同步，需要校准，故暂时不改
     if (utils.clientId(data.id) === self.socket.id) {
       this.game.physics.arcade.velocityFromAngle(
         data.angle,
@@ -132,7 +134,11 @@ export default class SocketEvent {
       movePlayer.x = data.x;
       movePlayer.y = data.y;
     }
-    movePlayer.animations.play('move');
+    if (data.speed === 0) {
+      movePlayer.animations.play('stop');
+    } else {
+      movePlayer.animations.play('move');
+    }
   }
 
   onShot(data) {
@@ -165,7 +171,7 @@ export default class SocketEvent {
       console.info('no player to remove', data);
       return;
     }
-    removePlayer.sPlayer.kill();
+    removePlayer.sPlayer.destroy();
     delete self.gamers[data.id];
     self.room.checkGameEnd();
   }
@@ -184,7 +190,7 @@ export default class SocketEvent {
     setTimeout(() => {
       if (health < 1) {
         self.explosion.boom(killedPlayer.sPlayer, 'kaboom');
-        killedPlayer.sPlayer.kill();
+        killedPlayer.sPlayer.destory();
         delete self.gamers[killedId];
         if (self.kills.has(killerId)) {
           self.kills.get(killerId).players.add(killedPlayer);
@@ -219,6 +225,7 @@ export default class SocketEvent {
     self.room.camp = data.camp;
     new TankGame(data.camp, self.room, (o) => {
       self.explosion = o.explosion;
+      self.map = o.map;
     });
   }
 

@@ -16,11 +16,11 @@ export default class Explosion {
    * @return Explosion
    */
   boom(player, key) {
-    const explosionAnimation = this.game.add.sprite(0, 0, key);
-    explosionAnimation.anchor.setTo(0.5, 0.5);
-    explosionAnimation.animations.add('kaboom');
-    explosionAnimation.reset(player.x, player.y);
-    explosionAnimation.play('kaboom', 20, false, true);
+    const explosionAni = this.game.add.sprite(0, 0, key);
+    explosionAni.anchor.setTo(0.5, 0.5);
+    explosionAni.animations.add('kaboom');
+    explosionAni.reset(player.x, player.y);
+    explosionAni.play('kaboom', 20, false, true);
     return this;
   }
 }

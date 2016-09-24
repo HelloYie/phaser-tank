@@ -55,7 +55,7 @@ export default class Map {
         } else if (sprite.key === 'brick') {
           self.explosion.boom(sprite, 'brickKaboom');
           bullet.kill();
-          sprite.kill();
+          sprite.destroy();
         }
       },
       null,
