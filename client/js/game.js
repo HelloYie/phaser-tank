@@ -5,7 +5,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 
-import Map from './map';
+import GameMap from './map';
 import Player from './player';
 import TouchControl from './touch_control';
 import Attack from './attack';
@@ -84,7 +84,7 @@ class TankGame {
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
     // 初始化砖头爆炸类
-    self.map = new Map(self.game, self.explosion);
+    self.map = new GameMap(self.game, self.explosion);
 
     // 初始化玩家
     self.player = new Player(
