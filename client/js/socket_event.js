@@ -19,7 +19,7 @@ export default class SocketEvent {
     const self = this;
     self.socket = socket;
     self.gamers = {};
-    self.kills = new Map();  // 击杀统计
+    self.kills = {};  // 击杀统计
     self.room = room;
     self.roomEvents = {
       connect: self.onSocketConnected,
@@ -190,21 +190,18 @@ export default class SocketEvent {
     setTimeout(() => {
       if (health < 1) {
         self.explosion.boom(killedPlayer.sPlayer, 'kaboom');
-        killedPlayer.sPlayer.destory();
+        killedPlayer.sPlayer.destroy();
         delete self.gamers[killedId];
-        if (self.kills.has(killerId)) {
-          self.kills.get(killerId).players.add(killedPlayer);
+        if (self.kills[killerId] && self.kills[killerId].players.indexOf(killedPlayer) === -1) {
+          self.kills[killerId].players.push(killedPlayer);
         } else {
-          self.kills.set(
-            killerId,
-            {
-              name: killer.name,
-              sex: killer.sex,
-              avatar: killer.avatar,
-              camp: killer.camp,
-              players: new Set([killedPlayer]),
-            }
-          );
+          self.kills[killerId] = {
+            name: killer.name,
+            sex: killer.sex,
+            avatar: killer.avatar,
+            camp: killer.camp,
+            players: [killedPlayer],
+          };
         }
         self.room.checkGameEnd();
       } else {
