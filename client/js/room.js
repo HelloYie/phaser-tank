@@ -1,9 +1,9 @@
 /**
  *
  * @summ
- *  主类： 游戏主入口
+ *  游戏房间
  * @desc
- *  负责绘制整个游戏, 并监听socket
+ *  房间相关内容， 一般用作游戏入口
  */
 
 import 'css/room.css';
@@ -268,10 +268,10 @@ class Room {
       otherKills: [],
     };
     // 自己始终显示在最上面
-    const selfKill = kills.get(self.socket.id);
+    const selfKill = kills[self.socket.id];
     if (selfKill) {
       tplData.selfKill = selfKill;
-      kills.delete(self.socket.id);
+      delete kills[self.socket.id];
     } else {
       tplData.selfKill = {
         avatar: self.avatar,
@@ -282,11 +282,10 @@ class Room {
       };
     }
 
-    // tplData.otherKills = Array.from(kills.values());
-    for (const kill of kills.values()) {
-      kill.players = [...kill.players];
-      tplData.otherKills.push(kill);
-    }
+    _.each(kills, (killObj) => {
+      killObj.players = [...killObj.players];
+      tplData.otherKills.push(killObj);
+    });
 
     tplData.otherKills.sort((a, b) => {
       if (a.players.length < b.players.length) {

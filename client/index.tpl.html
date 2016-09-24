@@ -128,17 +128,17 @@
       <div class="modal-body">
         <div class="ranks">
           <div class="result_line row">
-            <div class="col-xs-1">
+            <div class="col-xs-2 col-md-1 rank_block">
               <div class="thumbnail">
-                <img src="<%= selfKill.avatar %>" alt="<%= selfKill.name %>">
+                <img src="<%= selfKill.avatar %>" alt="<%= selfKill.name %>" >
               </div>
             </div>
-            <div class="col-xs-11">
-              <div class="col-xs-1">KILL</div>
+            <div class="col-xs-1 col-md-1 text-center rank_block">击杀</div>
+            <div class="col-xs-9 col-md-10 rank_block">
               <% for (var index=0; index < selfKill.players.length; index += 1) { %>
-                <div class="col-xs-1">
+                <div class="col-xs-2 col-md-1 rank_block">
                   <div class="thumbnail">
-                    <img src="<%= selfKill.players[index].avatar %>" alt="<%= selfKill.players[index].name %>">
+                    <img src="<%= selfKill.players[index].avatar %>" alt="<%= selfKill.players[index].name %>" >
                   </div>
                 </div>
               <% } %>
@@ -146,17 +146,17 @@
           </div>
           <% for (var index = 0; index < otherKills.length; index += 1) { %>
             <div class="result_line row">
-              <div class="col-xs-1">
+              <div class="col-xs-2 col-md-1 rank_block">
                 <div class="thumbnail">
-                  <img src="<%= otherKills[index].avatar %>" alt="<%= otherKills[index].name %>">
+                  <img src="<%= otherKills[index].avatar %>" alt="<%= otherKills[index].name %>" >
                 </div>
               </div>
-              <div class="col-xs-11">
-                <div class="col-xs-1">KILL</div>
-                <% for (var index2 = 0; index2 < otherKills[index].players.length; index2 += 1) { %>
-                  <div class="col-xs-1">
+              <div class="col-xs-1 col-md-1 rank_block">击杀</div>
+              <div class="col-xs-9 col-md-10 rank_block">
+                <% for (var index2 = 0; index2 < otherKills[index].players.length; index2 += 0.1) { %>
+                  <div class="col-xs-2 col-md-1 rank_block">
                     <div class="thumbnail">
-                      <img src="<%= otherKills[index].players[index2].avatar %>" alt="<%= otherKills[index].players[index2].avatar %>">
+                      <img src="<%= otherKills[index].players[0].avatar %>" alt="<%= otherKills[index].players[0].avatar %>">
                     </div>
                   </div>
                 <% } %>

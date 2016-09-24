@@ -59,6 +59,15 @@ html{
   margin-bottom: 20px;
   border-bottom: 1px dashed #e5e5e5;
 }
+.ranks .thumbnail{
+  padding: 0;
+}
+.ranks .rank_block{
+  padding: 0 2px;
+}
+.ranks .result_line{
+  margin-left: 0;
+}
 
 @media (max-width: 768px){
   html{
