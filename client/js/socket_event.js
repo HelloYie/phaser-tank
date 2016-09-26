@@ -71,8 +71,9 @@ export default class SocketEvent {
     const self = this;
     console.log('New player connected:', data.id);
     const duplicate = self.gamerById(data.id, true);
+    console.info(data);
     // 用户数据无效
-    if (!data.x || !data.y || !data.camp) {
+    if (!data.x || !data.y || (!data.camp && data.camp !== 0)) {
       console.log('not ready player!');
       return;
     }
