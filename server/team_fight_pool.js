@@ -76,7 +76,7 @@ class TeamFightPool {
       // 开始战斗
       room = self.rooms.getRoom(roomId);
       start_data = {
-        camp: roomId,
+        camp: roomIds.indexOf(roomId),
         roomId: fightRoomId,
       };
       self.socketHandler.socket.sockets.to(roomId).emit(
