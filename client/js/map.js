@@ -6,10 +6,12 @@
 import tileMapJson from '../assets/tank/map.json';
 
 export default class Map {
-  constructor(game, explosion) {
+  constructor(game, explosion, socket) {
     const self = this;
     self.game = game;
     self.explosion = explosion;
+    self.socket = socket;
+    self.mapSprites = [];
     self.init();
   }
 
@@ -39,6 +41,8 @@ export default class Map {
       mapSprite.height = 15;
       self.game.physics.enable(mapSprite, Phaser.Physics.ARCADE);
       mapSprite.body.immovable = true;
+      mapSprite.id = index;
+      self.mapSprites[index] = mapSprite;
     });
     return self;
   }
@@ -53,9 +57,10 @@ export default class Map {
         if (sprite.key === 'stone') {
           bullet.kill();
         } else if (sprite.key === 'brick') {
-          self.explosion.boom(sprite, 'brickKaboom');
           bullet.kill();
-          sprite.destroy();
+          self.socket.emit('kill brick', {
+            id: sprite.id,
+          });
         }
       },
       null,

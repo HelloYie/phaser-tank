@@ -22,7 +22,7 @@ export default class Player {
     this.socket = socket;
     this.alive = true;
     this.currentSpeed = 0;
-    this.angle = 0;
+    this.angle = String(camp) === '1' ? 90 : -90;
     this.health = 5;
     this.stopped = false;
     this.setBullet();
@@ -44,6 +44,7 @@ export default class Player {
 
     this.sPlayer.width = 35;
     this.sPlayer.height = 28;
+    this.sPlayer.angle = this.angle;
 
     this.sPlayer.name = this.name;
     this.sPlayer.player = this;
