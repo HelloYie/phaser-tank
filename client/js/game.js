@@ -3,7 +3,7 @@
  */
 
 import $ from 'jquery';
-import _ from 'underscore';
+// import _ from 'underscore';
 
 import GameMap from './map';
 import Player from './player';
@@ -129,7 +129,7 @@ class TankGame {
       self.room.socket
     );
     // 初始化敌人的 boss
-    self.enemyBoss = new Boss(
+    self.enemiesBoss = new Boss(
       self.game,
       isTopCamp ? 'bossBottom' : 'bossTop',
       isTopCamp ? 0 : 1,
@@ -145,37 +145,11 @@ class TankGame {
 
   update() {
     const self = this;
-    // 告诉服务器谁死了，并且子弹立即消失.
-    const hitHandler = (gamer, bullet) => {
-      const killer = bullet.parent.owner;
-      bullet.kill();
-      if (killer.isTeammates(gamer)) {
-        // 击中队友
-      } else {
-        self.room.socket.emit('kill player', {
-          id: gamer.player.id,
-          health: gamer.player.health,
-          killerId: killer.id,
-        });
-      }
-    };
-    _.each(self.room.sEvent.gamers, (gamer, k) => {
-      // 检测子弹是否打到玩家.
-      _.each(self.room.sEvent.gamers, (oGamer, oKey) => {
-        if (k !== oKey) {
-          self.game.physics.arcade.overlap(
-            gamer.group,
-            oGamer.bullets,
-            hitHandler,
-            null,
-            self
-          );
-          self.game.physics.arcade.collide(gamer.sPlayer, oGamer.sPlayer);
-        }
-      });
-    });
+    const enemiesGroup = self.room.sEvent.enemiesGroup;
     self.gameMap.checkCollide(self.sPlayer);
-    self.enemyBoss.checkCollide(self.sPlayer);
+    self.enemiesBoss.checkCollide(self.sPlayer);
+    self.player.checkCollide(enemiesGroup);
+    self.player.checkBulletOverlap(enemiesGroup);
     self.player.move(self.touchControl);
   }
 

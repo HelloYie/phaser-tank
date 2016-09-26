@@ -95,6 +95,9 @@ export default class SocketEvent {
       self.socket,
     );
     other.sPlayer.body.immovable = true;
+    if (other.camp !== self.player.camp) {
+      self.enemiesGroup.add(other.sPlayer);
+    }
     self.game.world.bringToTop(self.gameMap.crossGroup);
     self.gamers[utils.clientId(data.id)] = other;
   }
@@ -206,7 +209,7 @@ export default class SocketEvent {
   onKillBoss(data) {
     const self = this;
     const killedBoss = _.filter(
-      [self.boss, self.enemyBoss],
+      [self.boss, self.enemiesBoss],
       (bs) => String(bs.camp) === String(data.camp)
     )[0];
     setTimeout(() => {
@@ -231,7 +234,9 @@ export default class SocketEvent {
       self.explosion = o.explosion;
       self.gameMap = o.gameMap;
       self.boss = o.boss;
-      self.enemyBoss = o.enemyBoss;
+      self.enemiesBoss = o.enemiesBoss;
+      // enemiesGroup
+      self.enemiesGroup = self.game.add.group();
       self.gamers[self.player.id] = self.player;
 
       // 解绑之前的所有事件
