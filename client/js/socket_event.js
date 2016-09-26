@@ -6,6 +6,7 @@
  */
 
 
+import _ from 'underscore';
 import utils from 'base_utils';
 import Player from './player';
 import TankGame from './game';
@@ -37,30 +38,12 @@ export default class SocketEvent {
       'move player': self.onMovePlayer,
       'remove player': self.onRemovePlayer,
       'kill player': self.onKillPlayer,
+      'kill brick': self.onKillBrick,
+      'kill boss': self.onKillBoss,
       shot: self.onShot,
     };
     Object.keys(self.roomEvents).forEach((event) => {
       self.socket.on(event, self.roomEvents[event].bind(self));
-    });
-    return self;
-  }
-
-  // 开始游戏时调用
-  initGame(game, player) {
-    const self = this;
-    self.game = game;
-    self.player = player;
-    self.sPlayer = player.sPlayer;
-    // 自己加入游戏
-    self.gamers[self.player.id] = self.player;
-
-    // 解绑之前的所有事件
-    Object.keys(self.roomEvents).forEach((event) => {
-      self.socket.removeAllListeners(event);
-    });
-
-    Object.keys(self.gameEvents).forEach((event) => {
-      self.socket.on(event, self.gameEvents[event].bind(self));
     });
     return self;
   }
@@ -98,7 +81,7 @@ export default class SocketEvent {
       return;
     }
     const other = new Player(
-      data.id,
+      utils.clientId(data.id),
       self.game,
       'enemy',
       data.name,
@@ -111,33 +94,33 @@ export default class SocketEvent {
       self.socket,
     );
     other.sPlayer.body.immovable = true;
-    self.game.world.bringToTop(self.map.crossGroup);
+    self.game.world.bringToTop(self.gameMap.crossGroup);
     self.gamers[utils.clientId(data.id)] = other;
   }
 
   onMovePlayer(data) {
     const self = this;
-    const player = self.gamerById(data.id);
-    if (!player) {
+    const movePlayer = self.gamerById(data.id);
+    if (!movePlayer) {
       return;
     }
-    const movePlayer = player.sPlayer;
-    movePlayer.angle = data.angle;
+    const movesPlayer = movePlayer.sPlayer;
+    movesPlayer.angle = data.angle;
     // TODO: 此处可以都用物理引擎, 但是会移动不同步，需要校准，故暂时不改
     if (utils.clientId(data.id) === self.socket.id) {
       this.game.physics.arcade.velocityFromAngle(
         data.angle,
         data.speed * 3,
-        movePlayer.body.velocity
+        movesPlayer.body.velocity
       );
     } else {
-      movePlayer.x = data.x;
-      movePlayer.y = data.y;
+      movesPlayer.x = data.x;
+      movesPlayer.y = data.y;
     }
     if (data.speed === 0) {
-      movePlayer.animations.play('stop');
+      movesPlayer.animations.play('stop');
     } else {
-      movePlayer.animations.play('move');
+      movesPlayer.animations.play('move');
     }
   }
 
@@ -210,6 +193,27 @@ export default class SocketEvent {
     }, 50);
   }
 
+  onKillBrick(data) {
+    const self = this;
+    const killedBrick = self.gameMap.mapSprites[data.id];
+    setTimeout(() => {
+      self.explosion.boom(killedBrick, 'brickKaboom');
+      killedBrick.kill();
+    }, 50);
+  }
+
+  onKillBoss(data) {
+    const self = this;
+    const killedBoss = _.filter(
+      [self.boss, self.enemyBoss],
+      (bs) => String(bs.camp) === String(data.camp)
+    )[0];
+    setTimeout(() => {
+      killedBoss.sBoss.destroy();
+      self.explosion.boom(killedBoss.sBoss, 'kaboom');
+    }, 50);
+  }
+
   onLeaveRoom(data) {
     const clientId = utils.clientId(data.id);
     $(`.room_user#${clientId}`).remove();
@@ -220,9 +224,23 @@ export default class SocketEvent {
     const self = this;
     self.room.id = data.roomId;
     self.room.camp = data.camp;
-    new TankGame(data.camp, self.room, (o) => {
+    new TankGame(self.room, (o) => {
+      self.game = o.game;
+      self.player = o.player;
       self.explosion = o.explosion;
-      self.map = o.map;
+      self.gameMap = o.gameMap;
+      self.boss = o.boss;
+      self.enemyBoss = o.enemyBoss;
+      self.gamers[self.player.id] = self.player;
+
+      // 解绑之前的所有事件
+      Object.keys(self.roomEvents).forEach((event) => {
+        self.socket.removeAllListeners(event);
+      });
+
+      Object.keys(self.gameEvents).forEach((event) => {
+        self.socket.on(event, self.gameEvents[event].bind(self));
+      });
     });
   }
 

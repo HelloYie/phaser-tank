@@ -11,15 +11,15 @@ export default class Explosion {
   }
 
   /**
-   * @param x [Number] 爆炸的 x 坐标
-   * @param y [Number] 爆炸的 y 坐标
+   * @param sprit [Sprite] 爆炸精灵
+   * @param key [String] 爆炸 key
    * @return Explosion
    */
-  boom(player, key) {
+  boom(sprite, key) {
     const explosionAni = this.game.add.sprite(0, 0, key);
     explosionAni.anchor.setTo(0.5, 0.5);
     explosionAni.animations.add('kaboom');
-    explosionAni.reset(player.x, player.y);
+    explosionAni.reset(sprite.centerX, sprite.centerY);
     explosionAni.play('kaboom', 20, false, true);
     return this;
   }

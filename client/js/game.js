@@ -10,6 +10,7 @@ import Player from './player';
 import TouchControl from './touch_control';
 import Attack from './attack';
 import Explosion from './explosion';
+import Boss from './boss';
 
 import tankPng from '../assets/tank/tank-1.png';
 import enemyPng from '../assets/tank/tank-2.png';
@@ -24,13 +25,15 @@ import explosionBrickPng from '../assets/tank/brick-explosion.png';
 import stonePng from '../assets/tank/stone.png';
 import brickPng from '../assets/tank/brick.png';
 import grossPng from '../assets/tank/gross.png';
+import bossTopPng from '../assets/tank/boss-top.png';
+import bossBottomPng from '../assets/tank/boss-bottom.png';
+
 
 class TankGame {
-  constructor(camp, room, callback) {
+  constructor(room, callback) {
     const self = this;
     $('.room_container').remove();
     self.room = room;
-    self.camp = camp;
     self.callback = callback;
     self.game = new Phaser.Game(
       '100',
@@ -61,6 +64,8 @@ class TankGame {
     self.game.load.image('brick', brickPng);
     self.game.load.image('gross', grossPng);
     self.game.load.image('gross', grossPng);
+    self.game.load.image('bossTop', bossTopPng);
+    self.game.load.image('bossBottom', bossBottomPng);
     self.game.load.spritesheet('tank', tankPng, 35, 28, 1);
     self.game.load.spritesheet('enemy', enemyPng, 35, 28, 1);
     self.game.load.spritesheet('kaboom', explosionPng, 64, 64, 23);
@@ -84,19 +89,20 @@ class TankGame {
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
     // 初始化砖头爆炸类
-    self.map = new GameMap(self.game, self.explosion);
+    self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
 
-    // 初始化玩家
+    const isTopCamp = String(self.room.camp) === '1';
+    // 初始化玩家, 0 在下， 1在上，boss 同理
     self.player = new Player(
       self.room.socket.id,
       self.game,
       'tank',
       self.room.name,
       self.room.sex,
-      self.camp,
+      self.room.camp,
       self.room.avatar,
-      Math.round((Math.random() * 1000) - 500),
-      Math.round((Math.random() * 1000) - 500),
+      self.game.world.centerX + 100,
+      isTopCamp ? 50 : self.game.world.height - 14,
       'bullet',
       self.room.socket
     );
@@ -106,16 +112,35 @@ class TankGame {
         x: self.player.startX,
         y: self.player.startY,
         name: self.player.name,
-        avatar: self.room.avatar,
+        avatar: self.player.avatar,
         camp: self.player.camp,
         sex: self.player.sex,
       }
     );
     self.sPlayer = self.player.sPlayer;
+    // 初始化自己的 boss
+    self.boss = new Boss(
+      self.game,
+      isTopCamp ? 'bossTop' : 'bossBottom',
+      self.room.camp,
+      self.game.world.centerX,
+      isTopCamp ? 20 : self.game.world.height - 20,
+      self.explosion,
+      self.room.socket
+    );
+    // 初始化敌人的 boss
+    self.enemyBoss = new Boss(
+      self.game,
+      isTopCamp ? 'bossBottom' : 'bossTop',
+      isTopCamp ? 0 : 1,
+      self.game.world.centerX,
+      isTopCamp ? self.game.world.height - 20 : 20,
+      self.explosion,
+      self.room.socket
+    );
     self.game.camera.follow(self.sPlayer);
     self.room.player = self.player;
-    self.game.world.bringToTop(self.map.crossGroup);
-    self.room.sEvent.initGame(self.game, self.player);
+    self.game.world.bringToTop(self.gameMap.crossGroup);
   }
 
   update() {
@@ -149,7 +174,8 @@ class TankGame {
         }
       });
     });
-    self.map.checkCollide(self.sPlayer);
+    self.gameMap.checkCollide(self.sPlayer);
+    self.enemyBoss.checkCollide(self.sPlayer);
     self.player.move(self.touchControl);
   }
 

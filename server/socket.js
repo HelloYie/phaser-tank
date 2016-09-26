@@ -44,6 +44,8 @@ class SocketHandler {
       'move player': self.onMovePlayer,
       'shot': self.onShot,
       'kill player': self.onKill,
+      'kill brick': self.onKillBrick,
+      'kill boss': self.onKillBoss,
       'join room': self.onJoinRoom,
       'loading progress': self.onLoadingProgress,
       'start game': self.onStartGame,
@@ -177,6 +179,26 @@ class SocketHandler {
         id: data.id,
         health: data.health,
         killerId: data.killerId,
+      }
+    );
+  }
+
+  onKillBrick(client, data) {
+    const self = client.handler;
+    self.socket.sockets.to(client.roomId).emit(
+      'kill brick',
+      {
+        id: data.id,
+      }
+    );
+  }
+
+  onKillBoss(client, data) {
+    const self = client.handler;
+    self.socket.sockets.to(client.roomId).emit(
+      'kill boss',
+      {
+        camp: data.camp,
       }
     );
   }
