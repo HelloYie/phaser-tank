@@ -141,4 +141,38 @@ export default class Player {
   isTeammates(player) {
     return this.camp === player.camp;
   }
+
+  hitPlayerHandler(gamer, bullet) {
+    const self = this;
+    const killer = bullet.parent.owner;
+    bullet.kill();
+    if (killer.isTeammates(gamer)) {
+      // 击中队友
+    } else {
+      self.socket.emit('kill player', {
+        id: gamer.player.id,
+        health: gamer.player.health,
+        killerId: killer.id,
+      });
+    }
+  }
+
+  checkCollide(enemiesGroup) {
+    const self = this;
+    self.game.physics.arcade.collide(
+      self.group,
+      enemiesGroup,
+    );
+  }
+
+  checkBulletOverlap(enemiesGroup) {
+    const self = this;
+    self.game.physics.arcade.overlap(
+      enemiesGroup,
+      self.bullets,
+      self.hitPlayerHandler,
+      null,
+      self
+    );
+  }
 }
