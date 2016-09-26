@@ -9,7 +9,6 @@
 import 'css/room.css';
 
 import wx from 'weixin-js-sdk';
-import _ from 'underscore';
 import queryString from 'query-string';
 
 import utils from 'base_utils';

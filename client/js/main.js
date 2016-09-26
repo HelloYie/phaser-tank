@@ -31,12 +31,18 @@ require.ensure([], () => {
     }
   );
   window.$ = window.jQuery = require('jquery');
+  window._ = require('underscore');
   require('./lib/bootstrap');
 
   const room = new Room();
 
   new RoomEvents(room);
-  room.progressGo('self', 20);
+  _.delay(
+    () => {
+      room.progressGo('self', 20);
+    },
+    1000
+  );
 
   require.ensure([], () => {
     // 游戏资源加载
@@ -44,14 +50,25 @@ require.ensure([], () => {
 
     window.p2 = require('./lib/p2.min');
 
-    room.progressGo('self', 50);
+    _.delay(
+      () => {
+        room.progressGo('self', 50);
+      },
+      1000
+    );
 
     require.ensure([], () => {
       window.Phaser = require('./lib/phaser-split.min');
 
       require('./lib/phaser-touch-control');
 
-      room.progressGo('self', 100);
+      _.delay(
+        () => {
+          room.progressGo('self', 100);
+        },
+        1000
+      );
+
     });
   });
 });
