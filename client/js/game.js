@@ -2,8 +2,6 @@
  * 游戏主入口
  */
 
-import $ from 'jquery';
-// import _ from 'underscore';
 
 import GameMap from './map';
 import Player from './player';

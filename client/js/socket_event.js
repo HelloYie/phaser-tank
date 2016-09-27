@@ -6,7 +6,6 @@
  */
 
 
-import _ from 'underscore';
 import utils from 'base_utils';
 import Player from './player';
 import TankGame from './game';

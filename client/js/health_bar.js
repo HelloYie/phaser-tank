@@ -2,7 +2,6 @@
  * @summary
  *  血条
  */
-import _ from 'underscore';
 
 export default class HealthBar {
   constructor(game, providedConfig) {
