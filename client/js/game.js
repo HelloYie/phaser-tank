@@ -21,12 +21,4 @@ export default class TankGame {
     self.game.state.add('play', play);
     self.game.state.start('preload');
   }
-
-  setRoom(room) {
-    this.room = room;
-  }
-
-  setCallback(callback) {
-    this.callback = callback;
-  }
 }
