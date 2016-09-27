@@ -2,9 +2,6 @@
  * 游戏主入口
  */
 
-import $ from 'jquery';
-// import _ from 'underscore';
-
 import GameMap from './map';
 import Player from './player';
 import TouchControl from './touch_control';
@@ -84,15 +81,14 @@ class TankGame {
     self.touchControl = new TouchControl(this.game, this);
     // 初始化陆地
     self.land = self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
-    // 初始化坦克爆炸类
+    // 初始化爆炸类
     self.explosion = new Explosion(self.game);
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
-    // 初始化砖头爆炸类
+    // 初始化地图类
     self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
-
-    const isTopCamp = String(self.room.camp) === '1';
-    // 初始化玩家, 0 在下， 1在上，boss 同理
+    // 初始化玩家, 哪个队先进来，那个队就在下面.
+    const isTopCamp = self.room.camp === '1';
     self.player = new Player(
       self.room.socket.id,
       self.game,
@@ -132,7 +128,7 @@ class TankGame {
     self.enemiesBoss = new Boss(
       self.game,
       isTopCamp ? 'bossBottom' : 'bossTop',
-      isTopCamp ? 0 : 1,
+      isTopCamp ? '2' : '1',
       self.game.world.centerX,
       isTopCamp ? self.game.world.height - 20 : 20,
       self.explosion,
@@ -146,10 +142,9 @@ class TankGame {
   update() {
     const self = this;
     const enemiesGroup = self.room.sEvent.enemiesGroup;
-    self.gameMap.checkCollide(self.sPlayer);
-    self.enemiesBoss.checkCollide(self.sPlayer);
-    self.player.checkCollide(enemiesGroup);
-    self.player.checkBulletOverlap(enemiesGroup);
+    self.gameMap.checkCollideOverlap(self.sPlayer);
+    self.enemiesBoss.checkCollideOverlap(self.sPlayer);
+    self.player.checkCollideOverlap(enemiesGroup);
     self.player.move(self.touchControl);
   }
 

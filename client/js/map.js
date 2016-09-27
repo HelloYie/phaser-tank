@@ -47,7 +47,7 @@ export default class Map {
     return self;
   }
 
-  checkCollide(sPlayer) {
+  checkCollideOverlap(sPlayer) {
     const self = this;
     self.game.physics.arcade.collide(sPlayer, self.collideGroup);
     self.game.physics.arcade.overlap(

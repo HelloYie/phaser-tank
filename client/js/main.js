@@ -37,37 +37,20 @@ require.ensure([], () => {
   const room = new Room();
 
   new RoomEvents(room);
-  _.delay(
-    () => {
-      room.progressGo('self', 20);
-    },
-    1000
-  );
+  _.delay(() => room.progressGo('self', 20), 1000);
 
   require.ensure([], () => {
     // 游戏资源加载
     window.PIXI = require('./lib/pixi.min');
 
-    window.p2 = require('./lib/p2.min');
-
-    _.delay(
-      () => {
-        room.progressGo('self', 50);
-      },
-      1000
-    );
+    _.delay(() => room.progressGo('self', 50), 1000);
 
     require.ensure([], () => {
-      window.Phaser = require('./lib/phaser-split.min');
+      window.Phaser = require('./lib/phaser-arcade-physics.min');
 
       require('./lib/phaser-touch-control');
 
-      _.delay(
-        () => {
-          room.progressGo('self', 100);
-        },
-        1000
-      );
+      _.delay(() => room.progressGo('self', 100), 1000);
     });
   });
 });

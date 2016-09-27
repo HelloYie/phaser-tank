@@ -276,7 +276,7 @@ class Room {
         avatar: self.avatar,
         name: self.name,
         sex: self.sex,
-        camp: self.camp,
+        camp: String(self.camp),
         players: [],
       };
     }

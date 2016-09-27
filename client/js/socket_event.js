@@ -5,8 +5,6 @@
  * @description:
  */
 
-
-import _ from 'underscore';
 import utils from 'base_utils';
 import Player from './player';
 import TankGame from './game';
@@ -71,9 +69,8 @@ export default class SocketEvent {
     const self = this;
     console.log('New player connected:', data.id);
     const duplicate = self.gamerById(data.id, true);
-    console.info(data);
     // 用户数据无效
-    if (!data.x || !data.y || (!data.camp && data.camp !== 0)) {
+    if (!data.x || !data.y || !data.camp) {
       console.log('not ready player!');
       return;
     }
@@ -194,7 +191,7 @@ export default class SocketEvent {
       } else {
         killedPlayer.setHealth(health);
       }
-    }, 50);
+    }, 100);
   }
 
   onKillBrick(data) {
@@ -203,19 +200,21 @@ export default class SocketEvent {
     setTimeout(() => {
       self.explosion.boom(killedBrick, 'brickKaboom');
       killedBrick.kill();
-    }, 50);
+    }, 100);
   }
 
   onKillBoss(data) {
     const self = this;
     const killedBoss = _.filter(
       [self.boss, self.enemiesBoss],
-      (bs) => String(bs.camp) === String(data.camp)
+      (bs) => {
+        return bs.camp === String(data.camp);
+      }
     )[0];
     setTimeout(() => {
       killedBoss.sBoss.destroy();
       self.explosion.boom(killedBoss.sBoss, 'kaboom');
-    }, 50);
+    }, 100);
   }
 
   onLeaveRoom(data) {
@@ -228,6 +227,7 @@ export default class SocketEvent {
     const self = this;
     self.room.id = data.roomId;
     self.room.camp = data.camp;
+    console.info(data.camp);
     new TankGame(self.room, (o) => {
       self.game = o.game;
       self.player = o.player;

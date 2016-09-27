@@ -14,7 +14,7 @@ export default class Player {
     this.name = name;
     this.sex = sex;
     this.avatar = avatar;
-    this.camp = camp;
+    this.camp = String(camp);
     this.key = key;
     this.startX = startX;
     this.startY = startY;
@@ -22,7 +22,7 @@ export default class Player {
     this.socket = socket;
     this.alive = true;
     this.currentSpeed = 0;
-    this.angle = String(camp) === '1' ? 90 : -90;
+    this.angle = this.camp === '1' ? 90 : -90;
     this.health = 5;
     this.stopped = false;
     this.setBullet();
@@ -157,16 +157,12 @@ export default class Player {
     }
   }
 
-  checkCollide(enemiesGroup) {
+  checkCollideOverlap(enemiesGroup) {
     const self = this;
     self.game.physics.arcade.collide(
       self.group,
       enemiesGroup,
     );
-  }
-
-  checkBulletOverlap(enemiesGroup) {
-    const self = this;
     self.game.physics.arcade.overlap(
       enemiesGroup,
       self.bullets,
