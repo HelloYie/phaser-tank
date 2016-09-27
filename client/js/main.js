@@ -13,6 +13,7 @@ import 'css/game.css';
 
 import Room from './room';
 import { RoomEvents } from './events';
+import { ImagePreLoader } from './images';
 
 
 // 主入口调用
@@ -50,7 +51,9 @@ require.ensure([], () => {
 
       require('./lib/phaser-touch-control');
 
-      _.delay(() => room.progressGo('self', 100), 1000);
+      new ImagePreLoader(() => {
+        _.delay(() => room.progressGo('self', 100), 1000);
+      });
     });
   });
 });

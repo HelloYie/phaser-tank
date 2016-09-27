@@ -227,7 +227,6 @@ export default class SocketEvent {
     const self = this;
     self.room.id = data.roomId;
     self.room.camp = data.camp;
-    console.info(data.camp);
     new TankGame(self.room, (o) => {
       self.game = o.game;
       self.player = o.player;
