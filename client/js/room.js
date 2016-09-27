@@ -276,7 +276,7 @@ class Room {
         avatar: self.avatar,
         name: self.name,
         sex: self.sex,
-        camp: self.camp,
+        camp: String(self.camp),
         players: [],
       };
     }
@@ -326,9 +326,9 @@ class Room {
         return true;
       });
       if (!has_enemy) {
-        self.gamEnd('你赢了');
+        self.gameEnd('你赢了');
       } else if (!has_friend) {
-        self.gamEnd('你输了');
+        self.gameEnd('你输了');
       }
     }
   }

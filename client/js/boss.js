@@ -5,7 +5,7 @@
 export default class Boss {
   constructor(game, key, camp, x, y, explosion, socket) {
     this.game = game;
-    this.camp = camp;
+    this.camp = String(camp);
     this.key = key;
     this.x = x || this.game.world.centerX;
     this.y = y;
@@ -25,7 +25,7 @@ export default class Boss {
     this.group.add(this.sBoss);
   }
 
-  checkCollide(sPlayer) {
+  checkCollideOverlap(sPlayer) {
     const self = this;
     self.game.physics.arcade.collide(sPlayer, self.sBoss);
     self.game.physics.arcade.overlap(
@@ -33,8 +33,6 @@ export default class Boss {
       sPlayer.player.bullets,
       (sprite, bullet) => {
         bullet.kill();
-        // self.sBoss.destroy();
-        // self.explosion.boom(sprite, 'kaboom');
         self.socket.emit('kill boss', {
           camp: self.camp,
         });

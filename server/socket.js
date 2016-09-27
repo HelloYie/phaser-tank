@@ -112,7 +112,7 @@ class SocketHandler {
 
     const roomPlayers = self.rooms.roomPlayers(client.roomId);
     for (const player of roomPlayers) {
-      if (player.x && player.y && (player.camp || player.camp === 0)
+      if (player.x && player.y && player.camp
        && player.id !== client.id) {
         // 只同步已加入且非自己的玩家
         client.emit(
