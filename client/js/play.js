@@ -27,7 +27,7 @@ export default class Play {
     // 初始化触摸移动类
     self.touchControl = new TouchControl(this.game, this);
     // 初始化陆地
-    self.land = self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
+    self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     // 初始化爆炸类
     self.explosion = new Explosion(self.game);
     // 初始化攻击类

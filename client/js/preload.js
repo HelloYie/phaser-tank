@@ -39,10 +39,10 @@ export default class Load {
   }
 
   create() {
+    this.game.stage.backgroundColor = '#fff';
   }
 
   onLoadStart() {
-    console.info('start');
   }
 
   onLoadComplete() {

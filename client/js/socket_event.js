@@ -111,7 +111,7 @@ export default class SocketEvent {
     if (utils.clientId(data.id) === self.socket.id) {
       this.game.physics.arcade.velocityFromAngle(
         data.angle,
-        data.speed * 3,
+        data.speed === 0 ? 0 : (data.speed * 2) + 50,
         movesPlayer.body.velocity
       );
     } else {
