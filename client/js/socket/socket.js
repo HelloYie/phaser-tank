@@ -6,8 +6,8 @@
  */
 
 import utils from 'base_utils';
-import Player from './player';
-import TankGame from './game';
+import Player from '../role/player';
+import TankGame from '../game/game';
 
 
 export default class SocketEvent {

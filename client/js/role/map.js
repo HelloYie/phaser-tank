@@ -3,7 +3,7 @@
  *  地图类
  */
 
-import tileMapJson from '../assets/tank/map.json';
+import tileMapJson from '../../assets/tank/map.json';
 
 export default class Map {
   constructor(game, explosion, socket) {

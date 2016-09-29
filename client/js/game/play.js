@@ -2,12 +2,13 @@
  * 开始游戏
  */
 
-import GameMap from './map';
-import Player from './player';
-import TouchControl from './touch_control';
-import Attack from './attack';
-import Explosion from './explosion';
-import Boss from './boss';
+import GameMap from '../role/map';
+import Player from '../role/player';
+import TouchControl from '../tool/touch_control';
+import Attack from '../tool/attack';
+import Explosion from '../tool/explosion';
+import Boss from '../role/boss';
+import Equipment from '../equipment/equipment';
 
 export default class Play {
   constructor(game) {
@@ -30,10 +31,12 @@ export default class Play {
     self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     // 初始化爆炸类
     self.explosion = new Explosion(self.game);
-    // 初始化攻击类
-    new Attack(self.game, self.room.socket);
     // 初始化地图类
     self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
+    // 初始化攻击类
+    new Attack(self.game, self.room.socket);
+    // 初始化装备
+    self.equipment = new Equipment(self.game);
     // 初始化玩家, 哪个队先进来，那个队就在下面.
     const isTopCamp = self.room.camp === '1';
     self.player = new Player(
@@ -94,5 +97,6 @@ export default class Play {
     self.enemiesBoss.checkCollideOverlap(self.sPlayer);
     self.player.checkCollideOverlap(enemiesGroup);
     self.player.move(self.touchControl);
+    self.equipment.checkCollide(self.sPlayer);
   }
 }

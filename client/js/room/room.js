@@ -7,12 +7,10 @@
  */
 
 import 'css/room.css';
-
 import wx from 'weixin-js-sdk';
 import queryString from 'query-string';
-
 import utils from 'base_utils';
-import SocketEvent from './socket_event';
+import SocketEvent from '../socket/socket';
 import {
   define,
   tips,
@@ -22,8 +20,8 @@ import {
   modeDisplay,
 } from 'displays';
 
-class Room {
 
+export default class Room {
   constructor() {
     const self = this;
     const queryArgs = queryString.parse(location.hash);
@@ -333,4 +331,3 @@ class Room {
     }
   }
 }
-export default Room;
