@@ -11,9 +11,9 @@ import 'css/base.css';
 import 'css/reset.css';
 import 'css/game.css';
 
-import Room from './room';
-import { RoomEvents } from './events';
-import { ImagePreLoader } from './images';
+import Room from './room/room';
+import { RoomEvents } from './room/events';
+import { ImagePreLoader } from './game/images';
 
 
 // 主入口调用

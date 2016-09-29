@@ -4,7 +4,7 @@
  *   玩家基类
  */
 
-import HealthBar from './health_bar';
+import HealthBar from '../tool/health_bar';
 
 
 export default class Player {
@@ -155,6 +155,15 @@ export default class Player {
         killerId: killer.id,
       });
     }
+  }
+
+  // 获得道具
+  addEquipmentBuff(buff) {
+    console.info(buff);
+  }
+
+  removeEquipmentBuff(buff) {
+    console.info(buff);
   }
 
   checkCollideOverlap(enemiesGroup) {
