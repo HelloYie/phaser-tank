@@ -157,15 +157,6 @@ export default class Player {
     }
   }
 
-  // 获得道具
-  addEquipmentBuff(buff) {
-    console.info(buff);
-  }
-
-  removeEquipmentBuff(buff) {
-    console.info(buff);
-  }
-
   checkCollideOverlap(enemiesGroup) {
     const self = this;
     self.game.physics.arcade.collide(
