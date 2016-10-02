@@ -1,14 +1,15 @@
 /**
  * @summary
- *   激光弹类
+ *   弹射弹类
  */
  import Equipment from './equipment';
 
- export default class BulletLaser extends Equipment {
+ export default class BulletSprial extends Equipment {
    constructor(game, key, socket) {
      super(game, key, 0, 0, socket);
-     this.x = 200;
+     this.x = 300;
      this.y = 500;
+     this.bulletList = [];
      this.create();
    }
 
@@ -19,7 +20,7 @@
        self.equipmentBox,
        (sprite, box) => {
          box.kill();
-         self.changeBullet(sprite.player, 'bulletLaser');
+         self.changeBullet(sprite.player, 'bulletSprial');
        },
        null,
        self

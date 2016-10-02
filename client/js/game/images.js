@@ -18,7 +18,9 @@ import grossPng from '../../assets/tank/gross.png';
 import bossTopPng from '../../assets/tank/boss-top.png';
 import bossBottomPng from '../../assets/tank/boss-bottom.png';
 import eqBulletLaserPng from '../../assets/tank/eq_laser_box.png';
+import eqBulletSprialPng from '../../assets/tank/eq_spiral_box.png';
 import bulletLaserPng from '../../assets/tank/laser_bullet.png';
+import bulletSprialPng from '../../assets/tank/eq_spiral_box1.png';
 
 
 const images = [
@@ -28,6 +30,7 @@ const images = [
   explosionBrickPng, stonePng, brickPng,
   grossPng, bossTopPng, bossBottomPng,
   eqBulletLaserPng, bulletLaserPng,
+  eqBulletSprialPng, bulletSprialPng,
 ];
 
 class ImagePreLoader {
