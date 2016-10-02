@@ -20,7 +20,6 @@ export default class Load {
       eqBulletLaserPng, bulletLaserPng,
       eqBulletSprialPng, bulletSprialPng,
     ] = images;
-    let gameRatio = window.innerWidth / window.innerHeight;
     this.game.load.image('bullet', bulletPng);
     this.game.load.image('bulletLaser', bulletLaserPng);
     this.game.load.image('bulletSprial', bulletSprialPng);
@@ -43,16 +42,6 @@ export default class Load {
     this.game.load.spritesheet('brickKaboom', explosionBrickPng, 24, 24, 7);
     this.game.load.onLoadStart.add(this.onLoadStart, this);
     this.game.load.onLoadComplete.add(this.onLoadComplete, this);
-    this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    this.game.scale.forceOrientation(false, true);
-    this.game.scale.enterIncorrectOrientation.add(() => {
-    });
-    this.game.scale.leaveIncorrectOrientation.add(() => {
-      gameRatio = window.innerWidth / window.innerHeight;
-      this.game.width = Math.ceil(640 * gameRatio);
-      this.game.height = 640;
-      this.game.renderer.resize(this.game.width, this.game.height);
-    });
   }
 
   create() {
