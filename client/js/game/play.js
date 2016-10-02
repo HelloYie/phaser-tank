@@ -8,7 +8,8 @@ import TouchControl from '../tool/touch_control';
 import Attack from '../tool/attack';
 import Explosion from '../tool/explosion';
 import Boss from '../role/boss';
-import Equipment from '../equipment/equipment';
+import BulletLaser from '../equipment/bullet_laser';
+import BulletSprial from '../equipment/bullet_sprial';
 
 export default class Play {
   constructor(game) {
@@ -35,8 +36,6 @@ export default class Play {
     self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
-    // 初始化装备
-    self.equipment = new Equipment(self.game);
     // 初始化玩家, 哪个队先进来，那个队就在下面.
     const isTopCamp = self.room.camp === '1';
     self.player = new Player(
@@ -84,6 +83,12 @@ export default class Play {
       self.explosion,
       self.room.socket
     );
+
+    // 初始化激光弹
+    self.bulletLaser = new BulletLaser(self.game, 'eqBulletLaser', self.room.socket);
+    // 初始化回旋弹
+    self.bulletSprial = new BulletSprial(self.game, 'eqBulletSprial', self.room.socket);
+
     self.game.camera.follow(self.sPlayer);
     self.room.player = self.player;
     self.game.world.bringToTop(self.gameMap.crossGroup);
@@ -97,6 +102,7 @@ export default class Play {
     self.enemiesBoss.checkCollideOverlap(self.sPlayer);
     self.player.checkCollideOverlap(enemiesGroup);
     self.player.move(self.touchControl);
-    self.equipment.checkCollide(self.sPlayer);
+    self.bulletLaser.checkCollide(self.sPlayer);
+    self.bulletSprial.checkCollide(self.sPlayer);
   }
 }

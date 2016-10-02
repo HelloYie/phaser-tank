@@ -8,17 +8,19 @@
  */
 
  export default class Equipment {
-   constructor(game, socket) {
+   constructor(game, key, x, y, socket) {
      this.game = game;
-     this.bulletKey = 'BulletLaser';
+     this.key = key;
+     this.x = x;
+     this.y = y;
      this.socket = socket;
-     this.create();
    }
+
    create() {
-     this.eqBulletLaserBox = this.game.add.sprite(300, 500, 'eqBulletLaser');
-     this.game.physics.enable(this.eqBulletLaserBox, Phaser.Physics.ARCADE);
-     this.eqBulletLaserBox.width = 20;
-     this.eqBulletLaserBox.height = 20;
+     this.equipmentBox = this.game.add.sprite(this.x, this.y, this.key);
+     this.game.physics.enable(this.equipmentBox, Phaser.Physics.ARCADE);
+     this.equipmentBox.width = 20;
+     this.equipmentBox.height = 20;
    }
 
    // 改变武器的道具
@@ -31,19 +33,5 @@
 
    changeHealth() {
 
-   }
-
-   checkCollide(sPlayer) {
-     const self = this;
-     self.game.physics.arcade.overlap(
-       sPlayer,
-       self.eqBulletLaserBox,
-       (sprite, box) => {
-         box.kill();
-         self.changeBullet(sprite.player, 'bulletLaser');
-       },
-       null,
-       self
-     );
    }
  }

@@ -54,6 +54,12 @@ export default class Map {
       self.collideGroup,
       sPlayer.player.bullets,
       (sprite, bullet) => {
+        // TODO: 转弯弹
+        if (bullet.key === 'bulletSprial') {
+          const vX = bullet.body.velocity.x;
+          const vY = bullet.body.velocity.y;
+          bullet.body.velocity.set(vY, vX);
+        }
         if (sprite.key === 'stone') {
           bullet.kill();
         } else if (sprite.key === 'brick') {

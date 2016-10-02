@@ -9,9 +9,10 @@ export default class TankGame {
   constructor(room, callback) {
     const self = this;
     $('.room_container').remove();
+    const gameRatio = window.innerWidth / window.innerHeight;
     self.game = new Phaser.Game(
-      '100',
-      '100',
+      640 * gameRatio,
+      640,
       Phaser.CANVAS,
       ''
     );
@@ -20,5 +21,6 @@ export default class TankGame {
     self.game.state.add('preload', preload);
     self.game.state.add('play', play);
     self.game.state.start('preload');
+    self.game.angle = 90;
   }
 }
