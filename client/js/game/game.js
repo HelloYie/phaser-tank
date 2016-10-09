@@ -12,7 +12,7 @@ export default class TankGame {
     self.game = new Phaser.Game(
       '100',
       '100',
-      Phaser.CANVAS,
+      Phaser.AUTO,
       ''
     );
     self.game.room = room;
