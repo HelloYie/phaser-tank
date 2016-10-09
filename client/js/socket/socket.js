@@ -6,10 +6,10 @@
  */
 
 import utils from 'base_utils';
-import gameEvents from './game';
-import playerEvents from './player';
-import brickEvents from './brick';
-import bossEvents from './boss';
+import gameEvents from './game_events';
+import playerEvents from './player_events';
+import brickEvents from './brick_events';
+import bossEvents from './boss_events';
 
 
 export default class SocketEvent {

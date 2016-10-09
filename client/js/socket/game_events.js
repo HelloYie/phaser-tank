@@ -3,6 +3,7 @@
  */
 
 import TankGame from '../game/game';
+import utils from 'base_utils';
 
 export default {
   onSocketConnected: function x() {
@@ -39,9 +40,10 @@ export default {
       self.gameMap = o.gameMap;
       self.boss = o.boss;
       self.enemiesBoss = o.enemiesBoss;
-      // enemiesGroup
-      self.enemiesGroup = self.game.add.group();
+      // gamersGroup
+      self.gamersGroup = self.game.add.physicsGroup();
       self.gamers[self.player.id] = self.player;
+      self.gamersGroup.add(self.player.sPlayer);
 
       // 解绑之前的所有事件
       Object.keys(self.roomEvents).forEach((event) => {

@@ -2,36 +2,58 @@
  * @summary
  *   道具类
  * @description
- *  + 武器: 可以改变子弹
+ *  + 武器: 普通子弹，激光子弹
  *  + 医疗: 可以加血
  *  + 无敌: 可以暂时无敌
  */
 
- export default class Equipment {
-   constructor(game, key, x, y, socket) {
-     this.game = game;
-     this.key = key;
-     this.x = x;
-     this.y = y;
-     this.socket = socket;
-   }
+import { SingleBulletWeapon, BeamBulletWeapon } from '../tool/bullet';
 
-   create() {
-     this.equipmentBox = this.game.add.sprite(this.x, this.y, this.key);
-     this.game.physics.enable(this.equipmentBox, Phaser.Physics.ARCADE);
-     this.equipmentBox.width = 20;
-     this.equipmentBox.height = 20;
-   }
 
-   // 改变武器的道具
-   changeBullet(player, newKey) {
-     const bullets = player.bullets;
-     bullets.children.forEach((bullet) => {
-       bullet.loadTexture(newKey);
-     });
-   }
+export default class Equipment {
+  constructor(game, sPlayer, socket) {
+    this.game = game;
+    this.x = 500;
+    this.y = 500;
+    this.sPlayer = sPlayer;
+    this.socket = socket;
+    this.equipmentKeys = ['eqBulletLaser'];
+    this.group = this.game.add.physicsGroup();
 
-   changeHealth() {
+    this.singleBullet = new SingleBulletWeapon(game, this.sPlayer.player);
+    this.beamBullet = new BeamBulletWeapon(game, this.sPlayer.player);
 
-   }
- }
+    this.equipmentKeys.forEach((eqKey) => {
+      const equipment = this.group.create(this.x, this.y, eqKey);
+      equipment.width = 20;
+      equipment.height = 20;
+    });
+  }
+
+ // 改变武器的道具
+  changeBullet(player, newKey) {
+    if (newKey === 'beam') {
+      player.weapon = this.beamBullet;
+    } else {
+      player.weapon = this.singleBullet;
+    }
+  }
+
+  changeHealth() {
+
+  }
+
+  checkCollide(sPlayer) {
+    const self = this;
+    self.game.physics.arcade.collide(
+      sPlayer,
+      self.group,
+      (sprite, box) => {
+        box.kill();
+        self.changeBullet(sprite.player, 'beam');
+      },
+      null,
+      self
+    );
+  }
+}

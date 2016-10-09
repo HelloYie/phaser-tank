@@ -12,17 +12,4 @@
      this.create();
    }
 
-   checkCollide(sPlayer) {
-     const self = this;
-     self.game.physics.arcade.overlap(
-       sPlayer,
-       self.equipmentBox,
-       (sprite, box) => {
-         box.kill();
-         self.changeBullet(sprite.player, 'bulletLaser');
-       },
-       null,
-       self
-     );
-   }
  }

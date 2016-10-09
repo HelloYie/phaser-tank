@@ -7,7 +7,6 @@ import Player from '../role/player';
 export default {
   // 别人加入游戏
   onNewPlayer: function x(data) {
-    console.info(this);
     const self = this;
     console.log('New player connected:', data.id);
     const duplicate = self.gamerById(data.id, true);
@@ -30,13 +29,10 @@ export default {
       data.avatar,
       data.x,
       data.y,
-      'bullet',
       self.socket,
     );
     other.sPlayer.body.immovable = true;
-    if (other.camp !== self.player.camp) {
-      self.enemiesGroup.add(other.sPlayer);
-    }
+    self.gamersGroup.add(other.sPlayer);
     self.game.world.bringToTop(self.gameMap.crossGroup);
     self.gamers[utils.clientId(data.id)] = other;
   },
