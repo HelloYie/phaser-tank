@@ -20,10 +20,10 @@
        self.equipmentBox,
        (sprite, box) => {
          box.kill();
-         self.changeBullet(sprite.player, 'bulletSprial');
+         self.changeBullet(sprite.player, 'laser');
        },
        null,
-       self
+       self,
      );
    }
  }

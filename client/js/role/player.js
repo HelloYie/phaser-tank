@@ -5,10 +5,10 @@
  */
 
 import HealthBar from '../tool/health_bar';
-
+import { SingleBulletWeapon } from '../tool/bullet';
 
 export default class Player {
-  constructor(id, game, key, name, sex, camp, avatar, startX, startY, bulletKey, socket) {
+  constructor(id, game, key, name, sex, camp, avatar, startX, startY, socket) {
     this.id = id;
     this.game = game;
     this.name = name;
@@ -18,21 +18,20 @@ export default class Player {
     this.key = key;
     this.startX = startX;
     this.startY = startY;
-    this.bulletKey = bulletKey;
     this.socket = socket;
     this.alive = true;
     this.currentSpeed = 0;
     this.angle = this.camp === '1' ? 90 : -90;
     this.health = 5;
     this.stopped = false;
-    this.setBullet();
+    this.weapon = new SingleBulletWeapon(game, this);
     this.setSplayer();
     this.setName();
     this.setHealthBar();
   }
 
   setSplayer() {
-    this.group = this.game.add.group();
+    this.group = this.game.add.physicsGroup();
     this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key);
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.anchor.setTo(0.5, 0.5);
@@ -51,7 +50,6 @@ export default class Player {
     this.sPlayer.group = this.group;
 
     this.group.add(this.sPlayer);
-    this.weapon.trackSprite(this.sPlayer, 0, 0, true);
   }
 
   setHealthBar() {
@@ -63,18 +61,6 @@ export default class Player {
     });
     this.sPlayer.addChild(this.healthBar.bgSprite);
     this.healthBar.bgSprite.angle = 90;
-  }
-
-  // 初始化子弹
-  setBullet() {
-    const self = this;
-    self.weapon = self.game.add.weapon(5, self.bulletKey);
-    self.bullets = self.weapon.bullets;
-    self.bullets.owner = self;
-    self.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-    self.weapon.bulletSpeed = 400;
-    self.weapon.fireRate = 500;
-    self.weapon.bulletAngleOffset = 90;
   }
 
   // 设置玩家名称
@@ -143,13 +129,20 @@ export default class Player {
   }
 
   hitPlayerHandler(gamer, bullet) {
-    const self = this;
-    const killer = bullet.parent.owner;
+    const killer = bullet.bullet.owner;
+    // 击中自己
+    if (killer.id === gamer.player.id) {
+      return;
+    }
     bullet.kill();
+    // 不是自己攻击
+    if (this.id !== killer.id) {
+      return;
+    }
     if (killer.isTeammates(gamer)) {
       // 击中队友
     } else {
-      self.socket.emit('kill player', {
+      this.socket.emit('kill player', {
         id: gamer.player.id,
         health: gamer.player.health,
         killerId: killer.id,
@@ -157,15 +150,18 @@ export default class Player {
     }
   }
 
-  checkCollideOverlap(enemiesGroup) {
+  checkCollideOverlap(gamersGroup) {
     const self = this;
+    const weaponsGroup = gamersGroup.children.map((gamer) => {
+      return gamer.player.weapon.group;
+    });
     self.game.physics.arcade.collide(
       self.group,
-      enemiesGroup,
+      gamersGroup,
     );
     self.game.physics.arcade.overlap(
-      enemiesGroup,
-      self.bullets,
+      gamersGroup,
+      weaponsGroup,
       self.hitPlayerHandler,
       null,
       self
