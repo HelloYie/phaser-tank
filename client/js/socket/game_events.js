@@ -3,7 +3,7 @@
  */
 
 import TankGame from '../game/game';
-import utils from 'base_utils';
+
 
 export default {
   onSocketConnected: function x() {
@@ -41,7 +41,7 @@ export default {
       self.boss = o.boss;
       self.enemiesBoss = o.enemiesBoss;
       // gamersGroup
-      self.gamersGroup = self.game.add.physicsGroup();
+      self.gamersGroup = self.game.add.group();
       self.gamers[self.player.id] = self.player;
       self.gamersGroup.add(self.player.sPlayer);
 
@@ -57,8 +57,7 @@ export default {
   },
 
   onLeaveRoom: function x(data) {
-    const clientId = utils.clientId(data.id);
-    $(`.room_user#${clientId}`).remove();
+    $(`.room_user#${data.id}`).remove();
   },
 
   onLoadingProgress: function x(data) {

@@ -18,11 +18,11 @@ export default class Map {
   init() {
     const self = this;
     const layers = tileMapJson.layers[0].data;
-    self.collideGroup = self.game.add.physicsGroup();
-    self.crossGroup = self.game.add.physicsGroup();
+    self.collideGroup = self.game.add.group();
+    self.crossGroup = self.game.add.group();
     layers.forEach((item, index) => {
       let key;
-      let physicsGroup = self.collideGroup;
+      let mapSpritesGroup = self.collideGroup;
       const row = Math.floor(index / 30);
       const col = index % 30;
       if (item === 0) {
@@ -34,9 +34,9 @@ export default class Map {
         key = 'stone';
       } else if (item === 3) {
         key = 'gross';
-        physicsGroup = self.crossGroup;
+        mapSpritesGroup = self.crossGroup;
       }
-      const mapSprite = physicsGroup.create(col * 20, row * 15, key);
+      const mapSprite = mapSpritesGroup.create(col * 20, row * 15, key);
       mapSprite.width = 20;
       mapSprite.height = 15;
       self.game.physics.enable(mapSprite, Phaser.Physics.ARCADE);

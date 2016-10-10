@@ -20,7 +20,6 @@ export default class Player {
     this.startY = startY;
     this.socket = socket;
     this.alive = true;
-    this.currentSpeed = 0;
     this.angle = this.camp === '1' ? 90 : -90;
     this.health = 5;
     this.stopped = false;
@@ -31,7 +30,7 @@ export default class Player {
   }
 
   setSplayer() {
-    this.group = this.game.add.physicsGroup();
+    this.group = this.game.add.group();
     this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key);
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.anchor.setTo(0.5, 0.5);
@@ -88,28 +87,31 @@ export default class Player {
   }
 
   move(touchControl) {
-    const touchSpeed = touchControl.speed;
     const touchCursors = touchControl.cursors;
+    const touchSpeed = touchControl.speed || {};
+    let speed;
     if (touchCursors.left) {
       this.angle = 180;
-      this.currentSpeed = touchSpeed.x;
+      speed = touchSpeed.x;
     } else if (touchCursors.right) {
       this.angle = 0;
-      this.currentSpeed = touchSpeed.x;
+      speed = touchSpeed.x;
     } else if (touchCursors.up) {
       this.angle = -90;
-      this.currentSpeed = touchSpeed.y;
+      speed = touchSpeed.y;
     } else if (touchCursors.down) {
       this.angle = 90;
-      this.currentSpeed = touchSpeed.y;
+      speed = touchSpeed.y;
     }
-
     if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
+    } else {
+      this.currentSpeed = Math.min(Math.abs(speed * 2) + 20, 100);
     }
+
     const moveInfo = {
       angle: this.angle,
-      speed: Math.abs(this.currentSpeed),
+      speed: this.currentSpeed,
       x: this.sPlayer.x,
       y: this.sPlayer.y,
     };

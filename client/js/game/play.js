@@ -32,8 +32,6 @@ export default class Play {
     self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     // 初始化爆炸类
     self.explosion = new Explosion(self.game);
-    // 初始化地图类
-    self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
     // 初始化玩家, 哪个队先进来，那个队就在下面.
@@ -62,6 +60,8 @@ export default class Play {
       }
     );
     self.sPlayer = self.player.sPlayer;
+    // 初始化地图类
+    self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化自己的 boss
     self.boss = new Boss(
       self.game,

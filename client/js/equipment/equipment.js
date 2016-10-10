@@ -18,13 +18,14 @@ export default class Equipment {
     this.sPlayer = sPlayer;
     this.socket = socket;
     this.equipmentKeys = ['eqBulletLaser'];
-    this.group = this.game.add.physicsGroup();
+    this.group = this.game.add.group();
 
     this.singleBullet = new SingleBulletWeapon(game, this.sPlayer.player);
     this.beamBullet = new BeamBulletWeapon(game, this.sPlayer.player);
 
     this.equipmentKeys.forEach((eqKey) => {
       const equipment = this.group.create(this.x, this.y, eqKey);
+      this.game.physics.enable(equipment, Phaser.Physics.ARCADE);
       equipment.width = 20;
       equipment.height = 20;
     });

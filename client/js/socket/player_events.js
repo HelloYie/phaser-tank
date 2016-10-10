@@ -1,8 +1,8 @@
 /**
  * 处理玩家事件
  */
-import utils from 'base_utils';
 import Player from '../role/player';
+
 
 export default {
   // 别人加入游戏
@@ -15,12 +15,12 @@ export default {
       console.log('not ready player!');
       return;
     }
-    if (duplicate || utils.clientId(data.id) === self.socket.id) {
+    if (duplicate || data.id === self.socket.id) {
       console.log('Duplicate player!');
       return;
     }
     const other = new Player(
-      utils.clientId(data.id),
+      data.id,
       self.game,
       'enemy',
       data.name,
@@ -33,8 +33,8 @@ export default {
     );
     other.sPlayer.body.immovable = true;
     self.gamersGroup.add(other.sPlayer);
-    self.game.world.bringToTop(self.gameMap.crossGroup);
-    self.gamers[utils.clientId(data.id)] = other;
+    // self.game.world.bringToTop(self.gameMap.crossGroup);
+    self.gamers[data.id] = other;
   },
 
   onMovePlayer: function x(data) {
@@ -46,10 +46,10 @@ export default {
     const movesPlayer = movePlayer.sPlayer;
     movesPlayer.angle = data.angle;
     // TODO: 此处可以都用物理引擎, 但是会移动不同步，需要校准，故暂时不改
-    if (utils.clientId(data.id) === self.socket.id) {
+    if (data.id === self.socket.id) {
       this.game.physics.arcade.velocityFromAngle(
         data.angle,
-        data.speed === 0 ? 0 : (data.speed * 2) + 50,
+        data.speed === 0 ? 0 : data.speed,
         movesPlayer.body.velocity
       );
     } else {
@@ -65,9 +65,9 @@ export default {
 
   onKillPlayer: function x(data) {
     const self = this;
-    const killedId = utils.clientId(data.id);
+    const killedId = data.id;
     const killedPlayer = self.gamerById(killedId);
-    const killerId = utils.clientId(data.killerId);
+    const killerId = data.killerId;
     const killer = self.gamerById(killerId);
     if (!killedPlayer) {
       return;

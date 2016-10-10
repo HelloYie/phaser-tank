@@ -160,13 +160,12 @@ export default class Room {
   otherJoined(data) {
     // 其他玩家加入房间
     const self = this;
-    data.clientId = utils.clientId(data.id);
     $('.user_container').append(
       self.userTpl(data)
     );
     if (data.loadingProgress === 0) {
       // 可能是异常链接, 进度条不会涨, 10s后无响应则移除之
-      const $user_container = $(`.user_container #${data.clientId}`);
+      const $user_container = $(`.user_container #${data.id}`);
       setTimeout(
         () => {
           if (parseInt($user_container.find('.progress-bar').css('width'), 10) === 0) {
