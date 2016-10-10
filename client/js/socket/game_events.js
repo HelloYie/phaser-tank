@@ -40,8 +40,8 @@ export default {
       self.gameMap = o.gameMap;
       self.boss = o.boss;
       self.enemiesBoss = o.enemiesBoss;
-      // gamersGroup
-      self.gamersGroup = self.game.add.group();
+      self.gamersGroup = o.gamersGroup;
+      self.equipments = o.equipments;
       self.gamers[self.player.id] = self.player;
       self.gamersGroup.add(self.player.sPlayer);
 

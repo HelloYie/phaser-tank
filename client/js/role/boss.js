@@ -20,8 +20,8 @@ export default class Boss {
     this.game.physics.enable(this.sBoss, Phaser.Physics.ARCADE);
     this.sBoss.anchor.setTo(0.5, 0.5);
     this.sBoss.body.immovable = true;
-    this.sBoss.width = 80;
-    this.sBoss.height = 40;
+    this.sBoss.width = 40;
+    this.sBoss.height = 20;
     this.group.add(this.sBoss);
   }
 

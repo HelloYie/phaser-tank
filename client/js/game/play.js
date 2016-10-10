@@ -21,7 +21,7 @@ export default class Play {
   create() {
     // 初始化游戏设置
     const self = this;
-    self.game.world.setBounds(0, 0, 600, 600);
+    self.game.world.setBounds(0, 0, 600, 450);
     self.game.camera.focusOnXY(0, 0);
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
@@ -60,6 +60,8 @@ export default class Play {
       }
     );
     self.sPlayer = self.player.sPlayer;
+    // 存储所有玩家
+    self.gamersGroup = self.game.add.group();
     // 初始化地图类
     self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化自己的 boss
@@ -68,7 +70,7 @@ export default class Play {
       isTopCamp ? 'bossTop' : 'bossBottom',
       self.room.camp,
       self.game.world.centerX,
-      isTopCamp ? 20 : self.game.world.height - 20,
+      isTopCamp ? 15 : self.game.world.height - 15,
       self.explosion,
       self.room.socket
     );
@@ -78,27 +80,26 @@ export default class Play {
       isTopCamp ? 'bossBottom' : 'bossTop',
       isTopCamp ? '2' : '1',
       self.game.world.centerX,
-      isTopCamp ? self.game.world.height - 20 : 20,
+      isTopCamp ? self.game.world.height - 15 : 15,
       self.explosion,
       self.room.socket
     );
 
     // 初始化装备
-    self.equipment = new Equipment(self.game, self.sPlayer, self.room.socket);
+    self.equipments = new Equipment(self.game, self.sPlayer, self.room.socket);
 
     self.game.camera.follow(self.sPlayer);
     self.room.player = self.player;
-    self.game.world.bringToTop(self.gameMap.crossGroup);
     self.callback(self);
   }
 
   update() {
     const self = this;
-    const gamersGroup = self.room.sEvent.gamersGroup;
-    self.gameMap.checkCollideOverlap(self.sPlayer, gamersGroup);
+    // const gamersGroup = self.room.sEvent.gamersGroup;
+    self.gameMap.checkCollideOverlap(self.sPlayer, self.gamersGroup);
     self.enemiesBoss.checkCollideOverlap(self.sPlayer);
-    self.player.checkCollideOverlap(gamersGroup);
+    self.player.checkCollideOverlap(self.gamersGroup);
     self.player.move(self.touchControl);
-    self.equipment.checkCollide(self.sPlayer);
+    self.equipments.checkCollide(self.sPlayer);
   }
 }

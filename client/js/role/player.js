@@ -106,7 +106,7 @@ export default class Player {
     if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
     } else {
-      this.currentSpeed = Math.min(Math.abs(speed * 2) + 20, 100);
+      this.currentSpeed = Math.min(Math.abs(speed * 3) + 20, 100);
     }
 
     const moveInfo = {
