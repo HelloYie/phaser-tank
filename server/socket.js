@@ -59,6 +59,7 @@ class SocketHandler {
         events[event](client, data);
       });
     });
+    self.addEquipment(client);
   }
 
   /**
@@ -271,6 +272,34 @@ class SocketHandler {
       // 组队对战
       self.startTeamFight(client, data.persons);
     }
+  }
+
+  addEquipment(client) {
+    // 隔一段时间生成一个随机的装备
+    const self = this;
+    const rndTime = Math.random() * 30 * 1000;
+    const equipments = ['eqBulletLaser'];
+    const rndEquipment = equipments[Math.floor(Math.random() * equipments.length)];
+    let baseTime = 3 * 1000;
+    let id = 0;
+
+    const create = () => {
+      self.eqAddTimer = setTimeout(() => {
+        self.socket.sockets.to(client.roomId).emit(
+          'add equipment',
+          {
+            key: rndEquipment,
+            x: Math.random() * 600,
+            y: Math.random() * 450,
+            id,
+          });
+        baseTime = 0;
+        id++;
+        clearTimeout(self.eqAddTimer);
+        create();
+      }, baseTime + rndTime);
+    };
+    create();
   }
 
   startHell(client) {

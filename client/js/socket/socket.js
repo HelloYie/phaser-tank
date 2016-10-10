@@ -9,6 +9,7 @@ import gameEvents from './game_events';
 import playerEvents from './player_events';
 import brickEvents from './brick_events';
 import bossEvents from './boss_events';
+import equipmentEvents from './equipment_events';
 
 
 export default class SocketEvent {
@@ -40,6 +41,7 @@ export default class SocketEvent {
       'kill brick': brickEvents.onKillBrick,
       'kill boss': bossEvents.onKillBoss,
       shot: playerEvents.onShot,
+      'add equipment': equipmentEvents.onAddEquipment,
     };
     Object.keys(self.roomEvents).forEach((event) => {
       self.socket.on(event, self.roomEvents[event].bind(self));

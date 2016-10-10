@@ -33,7 +33,6 @@ export default {
     );
     other.sPlayer.body.immovable = true;
     self.gamersGroup.add(other.sPlayer);
-    // self.game.world.bringToTop(self.gameMap.crossGroup);
     self.gamers[data.id] = other;
   },
 
