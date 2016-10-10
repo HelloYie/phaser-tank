@@ -5,7 +5,6 @@
  * @description:
  */
 
-import utils from 'base_utils';
 import gameEvents from './game_events';
 import playerEvents from './player_events';
 import brickEvents from './brick_events';
@@ -50,7 +49,7 @@ export default class SocketEvent {
 
   gamerById(id, silence = false) {
     const self = this;
-    const gamer = self.gamers[utils.clientId(id)];
+    const gamer = self.gamers[id];
     if (gamer) {
       return gamer;
     }

@@ -9,7 +9,6 @@ const util = require('util');
 const io = require('socket.io');
 const Player = require('./player');
 const uuid = require('uuid');
-const utils = require('./utils');
 const TeamFightPool = require('./team_fight_pool')
 const Rooms = require('./rooms')
 
@@ -69,7 +68,7 @@ class SocketHandler {
    */
   playerById(id, silence) {
     const self = this;
-    const playerObj = self.players.get(utils.serverId(id));
+    const playerObj = self.players.get(id);
     if (playerObj) {
       return playerObj;
     }
@@ -205,6 +204,7 @@ class SocketHandler {
   }
 
   onJoinRoom(client, data) {
+    console.info(client.id);
     const self = client.handler;
     const newPlayer = new Player({
       avatar: data.avatar,
@@ -251,8 +251,8 @@ class SocketHandler {
 
   onLoadingProgress(client, data) {
     const self = client.handler;
-    const player = self.playerById(data.id);
-    player.loadingProgress = data.progress;
+    let player = self.playerById(data.id);
+    player.setLoadingProgress(data.progress);
     client.to(client.roomId).emit(
       'loading progress',
       {
