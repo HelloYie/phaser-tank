@@ -47,23 +47,17 @@ export default class Map {
     return self;
   }
 
-  checkCollideOverlap(sPlayer, gamersGroup) {
+  checkCollideOverlap(sPlayer) {
     const self = this;
-    const weaponGroup = gamersGroup.children.map((other) => {
-      return other.player.weapon.group;
-    });
     self.game.physics.arcade.collide(sPlayer, self.collideGroup);
     self.game.physics.arcade.collide(
       self.collideGroup,
-      weaponGroup,
+      sPlayer.player.weapon.group,
       (sprite, bullet) => {
-        bullet.kill();
-        self.explosion.boom(sprite, 'brickKaboom');
-        if (bullet.bullet.owner.id === sPlayer.player.id) {
-          self.socket.emit('kill brick', {
-            id: sprite.id,
-          });
-        }
+        self.socket.emit('kill brick', {
+          id: sprite.id,
+          bulletOwnerId: bullet.bullet.owner.id,
+        });
       },
       null,
       self
