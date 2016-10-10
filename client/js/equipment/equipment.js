@@ -38,10 +38,10 @@ export default class Equipment {
     equipment.height = 15;
   }
 
-  checkCollide(sPlayer) {
+  checkCollide(gamersGroup) {
     const self = this;
     self.game.physics.arcade.collide(
-      sPlayer,
+      gamersGroup,
       self.group,
       (sprite, box) => {
         box.kill();

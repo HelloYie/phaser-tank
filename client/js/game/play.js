@@ -95,11 +95,10 @@ export default class Play {
 
   update() {
     const self = this;
-    // const gamersGroup = self.room.sEvent.gamersGroup;
     self.gameMap.checkCollideOverlap(self.sPlayer, self.gamersGroup);
     self.enemiesBoss.checkCollideOverlap(self.sPlayer);
     self.player.checkCollideOverlap(self.gamersGroup);
     self.player.move(self.touchControl);
-    self.equipments.checkCollide(self.sPlayer);
+    self.equipments.checkCollide(self.gamersGroup);
   }
 }

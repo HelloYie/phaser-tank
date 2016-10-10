@@ -52,8 +52,8 @@ export class Weapon {
     if (this.game.time.time < this.nextFire) {
       return;
     }
-    const sBullet = this.group.getFirstExists(false);
-    sBullet.bullet.fire(
+    this.sBullet = this.group.getFirstExists(false);
+    this.sBullet.bullet.fire(
       this.bulletSpeed,
       0,
       0,

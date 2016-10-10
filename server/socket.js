@@ -190,6 +190,7 @@ class SocketHandler {
       'kill brick',
       {
         id: data.id,
+        bulletOwnerId: data.bulletOwnerId,
       }
     );
   }
