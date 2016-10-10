@@ -251,7 +251,7 @@ class SocketHandler {
 
   onLoadingProgress(client, data) {
     const self = client.handler;
-    let player = self.playerById(data.id);
+    const player = self.playerById(data.id);
     player.setLoadingProgress(data.progress);
     client.to(client.roomId).emit(
       'loading progress',
