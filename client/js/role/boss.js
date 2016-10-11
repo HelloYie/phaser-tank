@@ -11,7 +11,7 @@ export default class Boss {
     this.y = y;
     this.explosion = explosion;
     this.socket = socket;
-    this.group = this.game.add.group();
+    this.group = this.game.add.group(this.game.world, 'boss group');
     this.init();
   }
 

@@ -18,8 +18,8 @@ export default class Map {
   init() {
     const self = this;
     const layers = tileMapJson.layers[0].data;
-    self.collideGroup = self.game.add.group();
-    self.crossGroup = self.game.add.group();
+    self.collideGroup = self.game.add.group(self.game.world, 'map collide group');
+    self.crossGroup = self.game.add.group(self.game.world, 'map cross group');
     layers.forEach((item, index) => {
       let key;
       let mapSpritesGroup = self.collideGroup;

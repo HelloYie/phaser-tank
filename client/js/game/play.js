@@ -32,8 +32,14 @@ export default class Play {
     self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     // 初始化爆炸类
     self.explosion = new Explosion(self.game);
+    // 存储所有子弹
+    self.weaponsGroupList = [];
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
+    // 存储所有玩家组
+    self.gamersGroup = self.game.add.group(self.game.world, 'gamers group');
+    // 初始化地图类
+    self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化玩家, 哪个队先进来，那个队就在下面.
     const isTopCamp = self.room.camp === '1';
     self.player = new Player(
@@ -61,12 +67,6 @@ export default class Play {
       }
     );
     self.sPlayer = self.player.sPlayer;
-    // 存储所有玩家
-    self.gamersGroup = self.game.add.group(self.game.world, 'gamers group');
-    // 存储所有子弹
-    self.weaponsGroupList = [];
-    // 初始化地图类
-    self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化自己的 boss
     self.boss = new Boss(
       self.game,
@@ -87,9 +87,10 @@ export default class Play {
       self.explosion,
       self.room.socket
     );
-
     // 初始化装备
     self.equipments = new Equipment(self.game, self.sPlayer, self.weaponsGroupList, self.room.socket);
+    // 初始化爆炸组, 位于游戏最顶层
+    self.explosion.setGroup('explosion group');
 
     self.game.camera.follow(self.sPlayer);
     self.room.player = self.player;

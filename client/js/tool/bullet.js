@@ -38,12 +38,12 @@ export class Weapon {
     this.nextFire = 0;
     this.group = this.game.add.group(
       game.world,
-      'Single Bullet',
+      'weapon group',
       false,
       true,
       Phaser.Physics.ARCADE
     );
-    for (let i = 0; i < 64; i++) {
+    for (let i = 0; i < 4; i++) {
       this.group.add(new Bullet(game, this.key, player).sBullet, true);
     }
   }
