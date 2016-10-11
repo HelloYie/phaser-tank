@@ -29,10 +29,12 @@ export default {
       data.avatar,
       data.x,
       data.y,
+      self.explosion,
       self.socket,
     );
     other.sPlayer.body.immovable = true;
     self.gamersGroup.add(other.sPlayer);
+    self.weaponsGroupList.push(other.weapon.group);
     self.gamers[data.id] = other;
   },
 
@@ -71,29 +73,24 @@ export default {
     if (!killedPlayer) {
       return;
     }
-    let health = data.health;
-    health--;
-    setTimeout(() => {
-      if (health < 1) {
-        self.explosion.boom(killedPlayer.sPlayer, 'kaboom');
-        killedPlayer.sPlayer.destroy();
-        delete self.gamers[killedId];
-        if (self.kills[killerId] && self.kills[killerId].players.indexOf(killedPlayer) === -1) {
-          self.kills[killerId].players.push(killedPlayer);
-        } else {
-          self.kills[killerId] = {
-            name: killer.name,
-            sex: killer.sex,
-            avatar: killer.avatar,
-            camp: killer.camp,
-            players: [killedPlayer],
-          };
-        }
-        self.room.checkGameEnd();
+    // 矫正一下是否真的打中
+    const health = data.health;
+
+    if (health < 1) {
+      delete self.gamers[killedId];
+      if (self.kills[killerId] && self.kills[killerId].players.indexOf(killedPlayer) === -1) {
+        self.kills[killerId].players.push(killedPlayer);
       } else {
-        killedPlayer.setHealth(health);
+        self.kills[killerId] = {
+          name: killer.name,
+          sex: killer.sex,
+          avatar: killer.avatar,
+          camp: killer.camp,
+          players: [killedPlayer],
+        };
       }
-    }, 100);
+      self.room.checkGameEnd();
+    }
   },
 
   onRemovePlayer: function x(data) {

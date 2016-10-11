@@ -11,23 +11,28 @@ import { SingleBulletWeapon, BeamBulletWeapon } from '../tool/bullet';
 
 
 export default class Equipment {
-  constructor(game, sPlayer, socket) {
+  constructor(game, sPlayer, weaponsGroupList, socket) {
     this.game = game;
     this.sPlayer = sPlayer;
     this.socket = socket;
+    this.weaponsGroupList = weaponsGroupList;
     this.group = this.game.add.group();
-
-    this.singleBullet = new SingleBulletWeapon(game, this.sPlayer.player);
-    this.beamBullet = new BeamBulletWeapon(game, this.sPlayer.player);
   }
 
- // 改变武器的道具
+  // 改变武器的道具
   changeBullet(player, newKey) {
     if (newKey === 'beam') {
-      player.weapon = this.beamBullet;
+      player.weapon = new BeamBulletWeapon(this.game, player);
     } else {
-      player.weapon = this.singleBullet;
+      player.weapon = new SingleBulletWeapon(this.game, player);
     }
+    // 换子弹后以前存放子弹的数组要更新
+    this.weaponsGroupList.forEach((weaponGroup, index) => {
+      const ownerId = weaponGroup.children[0].bullet.owner.id;
+      if (player.id === ownerId) {
+        this.weaponsGroupList[index] = player.weapon.group;
+      }
+    });
   }
 
   // 生成道具
