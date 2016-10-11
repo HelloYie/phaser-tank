@@ -46,6 +46,7 @@ export default class Play {
       self.room.avatar,
       self.game.world.centerX + 100,
       isTopCamp ? 50 : self.game.world.height - 14,
+      self.explosion,
       self.room.socket
     );
     self.room.socket.emit(
@@ -61,7 +62,9 @@ export default class Play {
     );
     self.sPlayer = self.player.sPlayer;
     // 存储所有玩家
-    self.gamersGroup = self.game.add.group();
+    self.gamersGroup = self.game.add.group(self.game.world, 'gamers group');
+    // 存储所有子弹
+    self.weaponsGroupList = [];
     // 初始化地图类
     self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化自己的 boss
@@ -86,7 +89,7 @@ export default class Play {
     );
 
     // 初始化装备
-    self.equipments = new Equipment(self.game, self.sPlayer, self.room.socket);
+    self.equipments = new Equipment(self.game, self.sPlayer, self.weaponsGroupList, self.room.socket);
 
     self.game.camera.follow(self.sPlayer);
     self.room.player = self.player;
@@ -95,7 +98,7 @@ export default class Play {
 
   update() {
     const self = this;
-    self.gameMap.checkCollideOverlap(self.sPlayer, self.gamersGroup);
+    self.gameMap.checkCollideOverlap(self.sPlayer, self.weaponsGroupList);
     self.enemiesBoss.checkCollideOverlap(self.sPlayer);
     self.player.checkCollideOverlap(self.gamersGroup);
     self.player.move(self.touchControl);

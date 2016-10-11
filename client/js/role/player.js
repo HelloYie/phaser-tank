@@ -8,7 +8,7 @@ import HealthBar from '../tool/health_bar';
 import { SingleBulletWeapon } from '../tool/bullet';
 
 export default class Player {
-  constructor(id, game, key, name, sex, camp, avatar, startX, startY, socket) {
+  constructor(id, game, key, name, sex, camp, avatar, startX, startY, explosion, socket) {
     this.id = id;
     this.game = game;
     this.name = name;
@@ -18,6 +18,7 @@ export default class Player {
     this.key = key;
     this.startX = startX;
     this.startY = startY;
+    this.explosion = explosion;
     this.socket = socket;
     this.alive = true;
     this.angle = this.camp === '1' ? 90 : -90;
@@ -47,7 +48,6 @@ export default class Player {
     this.sPlayer.name = this.name;
     this.sPlayer.player = this;
     this.sPlayer.group = this.group;
-
     this.group.add(this.sPlayer);
   }
 
@@ -131,24 +131,33 @@ export default class Player {
   }
 
   hitPlayerHandler(gamer, bullet) {
+    const self = this;
     const killer = bullet.bullet.owner;
-    // 击中自己
+    // 自己击中自己
     if (killer.id === gamer.player.id) {
       return;
     }
+
     bullet.kill();
-    // 不是自己攻击
-    if (this.id !== killer.id) {
-      return;
-    }
+
     if (killer.isTeammates(gamer)) {
       // 击中队友
-    } else {
-      this.socket.emit('kill player', {
+      return;
+    }
+
+    let health = gamer.player.health;
+    health--;
+
+    if (health < 1) {
+      self.explosion.boom(gamer, 'kaboom');
+      gamer.destroy();
+      self.socket.emit('kill player', {
         id: gamer.player.id,
-        health: gamer.player.health,
+        health,
         killerId: killer.id,
       });
+    } else {
+      gamer.player.setHealth(health);
     }
   }
 

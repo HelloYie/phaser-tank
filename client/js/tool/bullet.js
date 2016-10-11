@@ -77,7 +77,6 @@ export class SingleBulletWeapon extends Weapon {
 export class BeamBulletWeapon extends Weapon {
   constructor(game, player) {
     super(game, 'bulletLaser', player);
-    this.owner = player;
     this.bulletSpeed = 600;
     this.fireRate = 500;
   }
