@@ -8,6 +8,7 @@
 export default class Explosion {
   constructor(game) {
     this.game = game;
+    this.group = this.game.add.group(this.game.world, 'explosion group');
   }
 
   /**
@@ -16,11 +17,18 @@ export default class Explosion {
    * @return Explosion
    */
   boom(sprite, key) {
-    const explosionAni = this.game.add.sprite(0, 0, key);
-    explosionAni.anchor.setTo(0.5, 0.5);
-    explosionAni.animations.add('kaboom');
-    explosionAni.reset(sprite.centerX, sprite.centerY);
-    explosionAni.play('kaboom', 20, false, true);
+    let explosion = this.group.getFirstDead();
+    console.info(explosion);
+    if (explosion === null) {
+      explosion = this.game.add.sprite(0, 0, key);
+      explosion.anchor.setTo(0.5, 0.5);
+      const animation = explosion.animations.add('kaboom');
+      animation.killOnComplete = true;
+      this.group.add(explosion);
+    }
+    explosion.revive();
+    explosion.reset(sprite.centerX, sprite.centerY);
+    explosion.animations.play('kaboom', 20, false, true);
     return this;
   }
 }
