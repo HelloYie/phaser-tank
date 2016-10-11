@@ -16,7 +16,7 @@ export default class Equipment {
     this.sPlayer = sPlayer;
     this.socket = socket;
     this.weaponsGroupList = weaponsGroupList;
-    this.group = this.game.add.group();
+    this.group = this.game.add.group(this.game.world, 'equipment group');
   }
 
   // 改变武器的道具

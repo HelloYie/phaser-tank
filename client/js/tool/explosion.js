@@ -18,7 +18,6 @@ export default class Explosion {
    */
   boom(sprite, key) {
     let explosion = this.group.getFirstDead();
-    console.info(explosion);
     if (explosion === null) {
       explosion = this.game.add.sprite(0, 0, key);
       explosion.anchor.setTo(0.5, 0.5);
