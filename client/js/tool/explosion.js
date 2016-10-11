@@ -8,7 +8,10 @@
 export default class Explosion {
   constructor(game) {
     this.game = game;
-    this.group = this.game.add.group(this.game.world, 'explosion group');
+  }
+
+  setGroup(name) {
+    this.group = this.game.add.group(this.game.world, name);
   }
 
   /**
@@ -17,8 +20,8 @@ export default class Explosion {
    * @return Explosion
    */
   boom(sprite, key) {
-    let explosion = this.group.getFirstDead();
-    if (explosion === null) {
+    let explosion = _.filter(this.group.children, (exp) => exp.key === key)[0];
+    if (!explosion) {
       explosion = this.game.add.sprite(0, 0, key);
       explosion.anchor.setTo(0.5, 0.5);
       const animation = explosion.animations.add('kaboom');
