@@ -19,6 +19,7 @@ class Bullet {
 
   fire(speed, gx = 0, gy = 0) {
     const owner = this.owner.sPlayer;
+    this.speed = speed;
     this.sBullet.reset(owner.x, owner.y);
     this.sBullet.scale.set(1);
     this.game.physics.arcade.velocityFromAngle(
@@ -90,7 +91,7 @@ export class BeamBulletWeapon extends Weapon {
 export class SprialBulletWeapon extends Weapon {
   constructor(game) {
     super(game, 'bulletSprial', 1);
-    this.bulletSpeed = 600;
+    this.bulletSpeed = 300;
     this.fireRate = 600;
   }
 }
