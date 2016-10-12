@@ -50,21 +50,24 @@ export default class Map {
   checkCollideOverlap(sPlayer, weaponsGroup) {
     const self = this;
     self.game.physics.arcade.collide(sPlayer, self.collideGroup);
-    self.game.physics.arcade.collide(
+    self.game.physics.arcade.overlap(
       self.collideGroup,
       weaponsGroup,
-      (sprite, bullet) => {
-        if (bullet.key === 'bulletSprial') {
+      (sprite, sBullet) => {
+        if (sBullet.key === 'bulletSprial') {
           const angles = [0, 90, -90, -180];
           const rndAngle = angles[Math.floor(Math.random() * angles.length)];
           self.game.physics.arcade.velocityFromAngle(
             rndAngle,
             300,
-            bullet.body.velocity
+            sBullet.body.velocity
           );
           return;
         }
-        bullet.kill();
+        sBullet.bullet.power--;
+        if (sBullet.bullet.power === 0) {
+          sBullet.kill();
+        }
         self.explosion.boom(sprite, 'brickKaboom');
         if (sprite.key === 'brick') {
           sprite.kill();

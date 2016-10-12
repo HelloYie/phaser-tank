@@ -27,7 +27,7 @@ export default class Player {
     this.stopped = false;
 
     this.weapon = new SingleBulletWeapon(game);
-    this.weapon.singleBullet = this.weapon;
+    this.singleBullet = this.weapon;
     this.weapon.setBullet(this);
 
     this.setSplayer();
@@ -46,8 +46,8 @@ export default class Player {
     this.sPlayer.body.maxVelocity.setTo(400, 400);
     this.sPlayer.body.collideWorldBounds = true;
 
-    this.sPlayer.width = 35;
-    this.sPlayer.height = 28;
+    this.sPlayer.width = 30;
+    this.sPlayer.height = 24;
     this.sPlayer.angle = this.angle;
 
     this.sPlayer.name = this.name;
@@ -64,7 +64,7 @@ export default class Player {
       height: 5,
     });
     this.sPlayer.addChild(this.healthBar.bgSprite);
-    this.healthBar.bgSprite.angle = 90;
+    this.healthBar.bgSprite.angle = this.sPlayer.angle;
   }
 
   // 设置玩家名称
@@ -135,15 +135,14 @@ export default class Player {
     return this.camp === player.camp;
   }
 
-  hitPlayerHandler(gamer, bullet) {
+  hitPlayerHandler(gamer, sBullet) {
     const self = this;
-    const killer = bullet.bullet.owner;
+    const killer = sBullet.bullet.owner;
     // 自己击中自己
     if (killer.id === gamer.player.id) {
       return;
     }
-
-    bullet.kill();
+    sBullet.kill();
 
     if (killer.isTeammates(gamer)) {
       // 击中队友
@@ -151,7 +150,7 @@ export default class Player {
     }
 
     let health = gamer.player.health;
-    health--;
+    health -= sBullet.bullet.power;
 
     if (health < 1) {
       self.explosion.boom(gamer, 'kaboom');

@@ -18,22 +18,7 @@ export default class Equipment {
     this.group = this.game.add.group(this.game.world, 'equipment group');
   }
 
-  // 改变武器的道具
-  changeBullet(player, key) {
-    console.info(key);
-    switch (key) {
-      case 'eqBulletLaser':
-        player.weapon = player.weapon.beamBullet || new BeamBulletWeapon(this.game);
-        player.weapon.beamBullet = player.weapon;
-        break;
-      case 'eqBulletSprial':
-        player.weapon = player.weapon.sprialBullet || new SprialBulletWeapon(this.game);
-        player.weapon.sprialBullet = player.weapon;
-        break;
-      default:
-        player.weapon = player.weapon.singleBullet;
-    }
-    player.weapon.setBullet(player);
+  updateWeaponGroupList(player) {
     // 换子弹后以前存放子弹的数组要更新
     this.weaponsGroupList.forEach((weaponGroup, index) => {
       const ownerId = weaponGroup.children[0].bullet.owner.id;
@@ -41,6 +26,24 @@ export default class Equipment {
         this.weaponsGroupList[index] = player.weapon.group;
       }
     });
+  }
+
+  // 改变武器的道具
+  changeBullet(player, key) {
+    switch (key) {
+      case 'eqBulletLaser':
+        player.weapon = player.weapon.beamBullet || new BeamBulletWeapon(this.game);
+        player.beamBullet = player.weapon;
+        break;
+      case 'eqBulletSprial':
+        player.weapon = player.weapon.sprialBullet || new SprialBulletWeapon(this.game);
+        player.sprialBullet = player.weapon;
+        break;
+      default:
+        break;
+    }
+    player.weapon.setBullet(player);
+    this.updateWeaponGroupList(player);
   }
 
   // 生成道具
