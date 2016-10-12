@@ -59,7 +59,7 @@ export default class Map {
           const rndAngle = angles[Math.floor(Math.random() * angles.length)];
           self.game.physics.arcade.velocityFromAngle(
             rndAngle,
-            300,
+            sBullet.bullet.speed,
             sBullet.body.velocity
           );
           return;
