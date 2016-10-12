@@ -41,6 +41,7 @@ export default {
       self.boss = o.boss;
       self.enemiesBoss = o.enemiesBoss;
       self.gamersGroup = o.gamersGroup;
+      self.weaponGroup = o.weaponGroup;
       self.weaponsGroupList = o.weaponsGroupList;
       self.equipments = o.equipments;
       self.gamers[self.player.id] = self.player;

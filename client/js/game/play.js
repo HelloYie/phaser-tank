@@ -40,6 +40,12 @@ export default class Play {
     self.gamersGroup = self.game.add.group(self.game.world, 'gamers group');
     // 初始化地图类
     self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
+    // 初始化装备
+    self.equipments = new Equipment(
+      self.game,
+      self.weaponsGroupList,
+      self.room.socket
+    );
     // 初始化玩家, 哪个队先进来，那个队就在下面.
     const isTopCamp = self.room.camp === '1';
     self.player = new Player(
@@ -53,6 +59,7 @@ export default class Play {
       self.game.world.centerX + 100,
       isTopCamp ? 50 : self.game.world.height - 14,
       self.explosion,
+      self.equipments,
       self.room.socket
     );
     self.room.socket.emit(
@@ -87,8 +94,6 @@ export default class Play {
       self.explosion,
       self.room.socket
     );
-    // 初始化装备
-    self.equipments = new Equipment(self.game, self.sPlayer, self.weaponsGroupList, self.room.socket);
     // 初始化爆炸组, 位于游戏最顶层
     self.explosion.setGroup('explosion group');
 

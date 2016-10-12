@@ -32,27 +32,30 @@ class Bullet {
 
 
 export class Weapon {
-  constructor(game, key, player) {
+  constructor(game, key) {
     this.game = game;
     this.key = key;
     this.nextFire = 0;
     this.group = this.game.add.group(
-      game.world,
+      this.game.world,
       'weapon group',
       false,
       true,
       Phaser.Physics.ARCADE
     );
-    for (let i = 0; i < 4; i++) {
-      this.group.add(new Bullet(game, this.key, player).sBullet, true);
-    }
+    this.setBullet = (player) => {
+      for (let i = 0; i < 50; i++) {
+        this.group.add(new Bullet(game, this.key, player).sBullet, true);
+      }
+    };
   }
 
   fire() {
     if (this.game.time.time < this.nextFire) {
       return;
     }
-    this.sBullet = this.group.getFirstExists(false);
+    this.sBullet = this.group.getFirstDead(false) || this.group.getFirstExists(false);
+    this.sBullet.revive();
     this.sBullet.bullet.fire(
       this.bulletSpeed,
       0,
@@ -62,22 +65,29 @@ export class Weapon {
   }
 }
 
-/**
- * 普通子弹
- */
+// 普通弹
 export class SingleBulletWeapon extends Weapon {
-  constructor(game, player) {
-    super(game, 'bullet', player);
+  constructor(game) {
+    super(game, 'bullet');
     this.bulletSpeed = 600;
-    this.fireRate = 500;
+    this.fireRate = 300;
   }
 }
 
 // 激光弹
 export class BeamBulletWeapon extends Weapon {
-  constructor(game, player) {
-    super(game, 'bulletLaser', player);
+  constructor(game) {
+    super(game, 'bulletLaser');
     this.bulletSpeed = 600;
-    this.fireRate = 500;
+    this.fireRate = 300;
+  }
+}
+
+// 转弯弹
+export class SprialBulletWeapon extends Weapon {
+  constructor(game) {
+    super(game, 'bulletSprial');
+    this.bulletSpeed = 600;
+    this.fireRate = 300;
   }
 }

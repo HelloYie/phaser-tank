@@ -54,10 +54,21 @@ export default class Map {
       self.collideGroup,
       weaponsGroup,
       (sprite, bullet) => {
+        if (bullet.key === 'bulletSprial') {
+          const angles = [0, 90, -90, -180];
+          const rndAngle = angles[Math.floor(Math.random() * angles.length)];
+          self.game.physics.arcade.velocityFromAngle(
+            rndAngle,
+            300,
+            bullet.body.velocity
+          );
+          return;
+        }
         bullet.kill();
         self.explosion.boom(sprite, 'brickKaboom');
         if (sprite.key === 'brick') {
-          sprite.destroy();
+          sprite.kill();
+          sprite = null;
         }
       },
       null,
