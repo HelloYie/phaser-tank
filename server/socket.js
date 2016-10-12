@@ -59,7 +59,6 @@ class SocketHandler {
         events[event](client, data);
       });
     });
-    self.addEquipment(client);
   }
 
   /**
@@ -266,13 +265,14 @@ class SocketHandler {
 
   onStartGame(client, data) {
     const self = client.handler;
-    if (data.mode === 'hell'){
+    if (data.mode === 'hell') {
       // 地狱乱斗
       self.startHell(client);
-    } else if (data.mode === 'team_fight' ){
+    } else if (data.mode === 'team_fight') {
       // 组队对战
       self.startTeamFight(client, data.persons);
     }
+    self.addEquipment(client);
   }
 
   addEquipment(client) {
