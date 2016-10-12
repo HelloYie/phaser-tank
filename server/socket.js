@@ -279,13 +279,13 @@ class SocketHandler {
     // 隔一段时间生成一个随机的装备
     const self = this;
     const rndTime = Math.random() * 30 * 1000;
-    const equipments = ['eqBulletLaser'];
-    const rndEquipment = equipments[Math.floor(Math.random() * equipments.length)];
+    const equipments = ['eqBulletLaser', 'eqBulletSprial'];
     let baseTime = 3 * 1000;
     let id = 0;
 
     const create = () => {
       self.eqAddTimer = setTimeout(() => {
+        const rndEquipment = equipments[Math.floor(Math.random() * equipments.length)];
         self.socket.sockets.to(client.roomId).emit(
           'add equipment',
           {

@@ -19,8 +19,8 @@ import bossTopPng from '../../assets/tank/boss-top.png';
 import bossBottomPng from '../../assets/tank/boss-bottom.png';
 import eqBulletLaserPng from '../../assets/tank/eq_laser_box.png';
 import eqBulletSprialPng from '../../assets/tank/eq_spiral_box.png';
-import bulletLaserPng from '../../assets/tank/laser_bullet.png';
-import bulletSprialPng from '../../assets/tank/eq_spiral_box1.png';
+import bulletLaserPng from '../../assets/tank/bullet_beam.png';
+import bulletSprialPng from '../../assets/tank/bullet_sprial.png';
 
 
 const images = [

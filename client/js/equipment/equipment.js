@@ -7,25 +7,33 @@
  *  + 无敌: 可以暂时无敌
  */
 
-import { SingleBulletWeapon, BeamBulletWeapon } from '../tool/bullet';
+import { BeamBulletWeapon, SprialBulletWeapon } from '../tool/bullet';
 
 
 export default class Equipment {
-  constructor(game, sPlayer, weaponsGroupList, socket) {
+  constructor(game, weaponsGroupList, socket) {
     this.game = game;
-    this.sPlayer = sPlayer;
     this.socket = socket;
     this.weaponsGroupList = weaponsGroupList;
     this.group = this.game.add.group(this.game.world, 'equipment group');
   }
 
   // 改变武器的道具
-  changeBullet(player, newKey) {
-    if (newKey === 'beam') {
-      player.weapon = new BeamBulletWeapon(this.game, player);
-    } else {
-      player.weapon = new SingleBulletWeapon(this.game, player);
+  changeBullet(player, key) {
+    console.info(key);
+    switch (key) {
+      case 'eqBulletLaser':
+        player.weapon = player.weapon.beamBullet || new BeamBulletWeapon(this.game);
+        player.weapon.beamBullet = player.weapon;
+        break;
+      case 'eqBulletSprial':
+        player.weapon = player.weapon.sprialBullet || new SprialBulletWeapon(this.game);
+        player.weapon.sprialBullet = player.weapon;
+        break;
+      default:
+        player.weapon = player.weapon.singleBullet;
     }
+    player.weapon.setBullet(player);
     // 换子弹后以前存放子弹的数组要更新
     this.weaponsGroupList.forEach((weaponGroup, index) => {
       const ownerId = weaponGroup.children[0].bullet.owner.id;
@@ -50,7 +58,7 @@ export default class Equipment {
       self.group,
       (sprite, box) => {
         box.kill();
-        self.changeBullet(sprite.player, 'beam');
+        self.changeBullet(sprite.player, box.key);
       },
       null,
       self

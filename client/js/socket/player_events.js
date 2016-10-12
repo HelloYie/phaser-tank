@@ -30,6 +30,7 @@ export default {
       data.x,
       data.y,
       self.explosion,
+      self.equipments,
       self.socket,
     );
     other.sPlayer.body.immovable = true;

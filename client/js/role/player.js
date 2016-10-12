@@ -8,7 +8,7 @@ import HealthBar from '../tool/health_bar';
 import { SingleBulletWeapon } from '../tool/bullet';
 
 export default class Player {
-  constructor(id, game, key, name, sex, camp, avatar, startX, startY, explosion, socket) {
+  constructor(id, game, key, name, sex, camp, avatar, startX, startY, explosion, equipments, socket) {
     this.id = id;
     this.game = game;
     this.name = name;
@@ -19,12 +19,17 @@ export default class Player {
     this.startX = startX;
     this.startY = startY;
     this.explosion = explosion;
+    this.equipments = equipments;
     this.socket = socket;
     this.alive = true;
     this.angle = this.camp === '1' ? 90 : -90;
     this.health = 5;
     this.stopped = false;
-    this.weapon = new SingleBulletWeapon(game, this);
+
+    this.weapon = new SingleBulletWeapon(game);
+    this.weapon.singleBullet = this.weapon;
+    this.weapon.setBullet(this);
+
     this.setSplayer();
     this.setName();
     this.setHealthBar();
