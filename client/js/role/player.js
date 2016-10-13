@@ -5,8 +5,6 @@
  */
 
 import HealthBar from '../tool/health_bar';
-// import { SingleBulletWeapon } from '../tool/bullet';
-// import Equipment from '../equipment/equipment';
 import { SingleBulletWeapon, BeamBulletWeapon, SprialBulletWeapon } from '../tool/bullet';
 
 

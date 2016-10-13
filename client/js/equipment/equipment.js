@@ -21,8 +21,7 @@ export default class Equipment {
     // 换子弹后以前存放子弹的数组要更新
     const weaponsGroupList = key === 'eqBulletSprial' ?
       this.sprialWeaponsGroupList : this.otherWeaponsGroupList;
-    [].concat(this.otherWeaponsGroupList, this.sprialWeaponsGroupList)
-    .forEach((weaponGroup, index) => {
+    weaponsGroupList.forEach((weaponGroup, index) => {
       const ownerId = weaponGroup.children[0].bullet.owner.id;
       if (player.id === ownerId) {
         weaponsGroupList[index] = player.weapon.group;
