@@ -46,7 +46,6 @@ export class Weapon {
       true,
       Phaser.Physics.ARCADE
     );
-    // console.info(game, key, power);
     for (let i = 0; i < 50; i++) {
       this.group.add(new Bullet(game, this.key, player, power).sBullet, true);
     }
