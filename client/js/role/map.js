@@ -47,23 +47,29 @@ export default class Map {
     return self;
   }
 
-  checkCollideOverlap(sPlayer, weaponsGroup) {
+  checkCollideOverlap(sPlayer, otherWeaponsGroupList, sprialWeaponsGroupList) {
     const self = this;
     self.game.physics.arcade.collide(sPlayer, self.collideGroup);
+    // 转弯弹做 collide, 其余做 overlap
+    self.game.physics.arcade.collide(
+      self.collideGroup,
+      sprialWeaponsGroupList,
+      (sprite, sBullet) => {
+        const angles = [0, 90, -90, -180];
+        const rndAngle = angles[Math.floor(Math.random() * angles.length)];
+        self.game.physics.arcade.velocityFromAngle(
+          rndAngle,
+          sBullet.bullet.speed,
+          sBullet.body.velocity
+        );
+      },
+      null,
+      self,
+    );
     self.game.physics.arcade.overlap(
       self.collideGroup,
-      weaponsGroup,
+      otherWeaponsGroupList,
       (sprite, sBullet) => {
-        if (sBullet.key === 'bulletSprial') {
-          const angles = [0, 90, -90, -180];
-          const rndAngle = angles[Math.floor(Math.random() * angles.length)];
-          self.game.physics.arcade.velocityFromAngle(
-            rndAngle,
-            sBullet.bullet.speed,
-            sBullet.body.velocity
-          );
-          return;
-        }
         sBullet.bullet.power--;
         if (sBullet.bullet.power === 0) {
           sBullet.kill();

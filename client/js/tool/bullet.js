@@ -34,7 +34,7 @@ class Bullet {
 
 
 export class Weapon {
-  constructor(game, key, power) {
+  constructor(game, key, player, power) {
     this.game = game;
     this.key = key;
     this.power = power;
@@ -46,11 +46,10 @@ export class Weapon {
       true,
       Phaser.Physics.ARCADE
     );
-    this.setBullet = (player) => {
-      for (let i = 0; i < 50; i++) {
-        this.group.add(new Bullet(game, this.key, player, power).sBullet, true);
-      }
-    };
+    // console.info(game, key, power);
+    for (let i = 0; i < 50; i++) {
+      this.group.add(new Bullet(game, this.key, player, power).sBullet, true);
+    }
   }
 
   fire() {
@@ -71,8 +70,8 @@ export class Weapon {
 
 // 普通弹
 export class SingleBulletWeapon extends Weapon {
-  constructor(game) {
-    super(game, 'bullet', 1);
+  constructor(game, player) {
+    super(game, 'bullet', player, 1);
     this.bulletSpeed = 600;
     this.fireRate = 300;
   }
@@ -80,8 +79,8 @@ export class SingleBulletWeapon extends Weapon {
 
 // 激光弹
 export class BeamBulletWeapon extends Weapon {
-  constructor(game) {
-    super(game, 'bulletLaser', 2);
+  constructor(game, player) {
+    super(game, 'bulletLaser', player, 2);
     this.bulletSpeed = 600;
     this.fireRate = 600;
   }
@@ -89,8 +88,8 @@ export class BeamBulletWeapon extends Weapon {
 
 // 转弯弹
 export class SprialBulletWeapon extends Weapon {
-  constructor(game) {
-    super(game, 'bulletSprial', 1);
+  constructor(game, player) {
+    super(game, 'bulletSprial', player, 1);
     this.bulletSpeed = 300;
     this.fireRate = 600;
   }

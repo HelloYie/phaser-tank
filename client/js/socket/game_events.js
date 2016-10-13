@@ -41,12 +41,18 @@ export default {
       self.boss = o.boss;
       self.enemiesBoss = o.enemiesBoss;
       self.gamersGroup = o.gamersGroup;
-      self.weaponGroup = o.weaponGroup;
-      self.weaponsGroupList = o.weaponsGroupList;
       self.equipments = o.equipments;
+      self.otherWeaponsGroupList = o.otherWeaponsGroupList;
+      self.sprialWeaponsGroupList = o.sprialWeaponsGroupList;
       self.gamers[self.player.id] = self.player;
       self.gamersGroup.add(self.player.sPlayer);
-      self.weaponsGroupList.push(self.player.weapon.group);
+
+      const weaponKey = self.player.weapon.group.getFirstExists(false).key;
+      if (weaponKey === 'bulletSprial') {
+        self.sprialWeaponsGroupList.push(self.player.weapon.group);
+      } else {
+        self.otherWeaponsGroupList.push(self.player.weapon.group);
+      }
 
       // 解绑之前的所有事件
       Object.keys(self.roomEvents).forEach((event) => {
