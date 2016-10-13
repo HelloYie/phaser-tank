@@ -7,23 +7,25 @@
  *  + 无敌: 可以暂时无敌
  */
 
-import { BeamBulletWeapon, SprialBulletWeapon } from '../tool/bullet';
-
 
 export default class Equipment {
-  constructor(game, weaponsGroupList, socket) {
+  constructor(game, otherWeaponsGroupList, sprialWeaponsGroupList, socket) {
     this.game = game;
     this.socket = socket;
-    this.weaponsGroupList = weaponsGroupList;
+    this.otherWeaponsGroupList = otherWeaponsGroupList;
+    this.sprialWeaponsGroupList = sprialWeaponsGroupList;
     this.group = this.game.add.group(this.game.world, 'equipment group');
   }
 
-  updateWeaponGroupList(player) {
+  updateWeaponGroupList(player, key) {
     // 换子弹后以前存放子弹的数组要更新
-    this.weaponsGroupList.forEach((weaponGroup, index) => {
+    const weaponsGroupList = key === 'eqBulletSprial' ?
+      this.sprialWeaponsGroupList : this.otherWeaponsGroupList;
+    [].concat(this.otherWeaponsGroupList, this.sprialWeaponsGroupList)
+    .forEach((weaponGroup, index) => {
       const ownerId = weaponGroup.children[0].bullet.owner.id;
       if (player.id === ownerId) {
-        this.weaponsGroupList[index] = player.weapon.group;
+        weaponsGroupList[index] = player.weapon.group;
       }
     });
   }
@@ -32,26 +34,32 @@ export default class Equipment {
   changeBullet(player, key) {
     switch (key) {
       case 'eqBulletLaser':
-        player.weapon = player.weapon.beamBullet || new BeamBulletWeapon(this.game);
-        player.beamBullet = player.weapon;
+        player.weapon = player.beamBullet;
         break;
       case 'eqBulletSprial':
-        player.weapon = player.weapon.sprialBullet || new SprialBulletWeapon(this.game);
-        player.sprialBullet = player.weapon;
+        player.weapon = player.sprialBullet;
         break;
       default:
         break;
     }
-    player.weapon.setBullet(player);
-    this.updateWeaponGroupList(player);
+    this.updateWeaponGroupList(player, key);
   }
 
   // 生成道具
-  add(key, x, y) {
+  create(key, x, y) {
     const equipment = this.group.create(x, y, key);
     this.game.physics.enable(equipment, Phaser.Physics.ARCADE);
     equipment.width = 20;
     equipment.height = 15;
+    // 装备出现 5s 后消失
+    const timeout = 5 * 1000;
+    const interval = setInterval(() => {
+      equipment.timer -= 1000;
+      if (timeout === 0) {
+        equipment.destroy();
+        clearInterval(interval);
+      }
+    }, 1000);
   }
 
   checkCollide(gamersGroup) {

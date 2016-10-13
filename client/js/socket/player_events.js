@@ -30,13 +30,18 @@ export default {
       data.x,
       data.y,
       self.explosion,
-      self.equipments,
       self.socket,
     );
     other.sPlayer.body.immovable = true;
     self.gamersGroup.add(other.sPlayer);
-    self.weaponsGroupList.push(other.weapon.group);
     self.gamers[data.id] = other;
+
+    const weaponKey = other.weapon.group.getFirstExists(false).key;
+    if (weaponKey === 'bulletSprial') {
+      self.sprialWeaponsGroupList.push(other.weapon.group);
+    } else {
+      self.otherWeaponsGroupList.push(other.weapon.group);
+    }
   },
 
   onMovePlayer: function x(data) {

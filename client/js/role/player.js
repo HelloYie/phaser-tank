@@ -5,10 +5,13 @@
  */
 
 import HealthBar from '../tool/health_bar';
-import { SingleBulletWeapon } from '../tool/bullet';
+// import { SingleBulletWeapon } from '../tool/bullet';
+// import Equipment from '../equipment/equipment';
+import { SingleBulletWeapon, BeamBulletWeapon, SprialBulletWeapon } from '../tool/bullet';
+
 
 export default class Player {
-  constructor(id, game, key, name, sex, camp, avatar, startX, startY, explosion, equipments, socket) {
+  constructor(id, game, key, name, sex, camp, avatar, startX, startY, explosion, socket) {
     this.id = id;
     this.game = game;
     this.name = name;
@@ -19,16 +22,16 @@ export default class Player {
     this.startX = startX;
     this.startY = startY;
     this.explosion = explosion;
-    this.equipments = equipments;
     this.socket = socket;
     this.alive = true;
     this.angle = this.camp === '1' ? 90 : -90;
     this.health = 5;
     this.stopped = false;
 
-    this.weapon = new SingleBulletWeapon(game);
-    this.singleBullet = this.weapon;
-    this.weapon.setBullet(this);
+    this.singleBullet = new SingleBulletWeapon(this.game, this);
+    this.beamBullet = new BeamBulletWeapon(this.game, this);
+    this.sprialBullet = new SprialBulletWeapon(this.game, this);
+    this.weapon = this.singleBullet;
 
     this.setSplayer();
     this.setName();
@@ -165,11 +168,9 @@ export default class Player {
     }
   }
 
-  checkCollideOverlap(gamersGroup) {
+  checkCollideOverlap(gamersGroup, otherWeaponsGroupList, sprialWeaponsGroupList) {
     const self = this;
-    const weaponsGroup = gamersGroup.children.map((gamer) => {
-      return gamer.player.weapon.group;
-    });
+    const weaponsGroup = [].concat(otherWeaponsGroupList, sprialWeaponsGroupList);
     self.game.physics.arcade.collide(
       self.group,
       gamersGroup,
