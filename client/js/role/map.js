@@ -47,9 +47,20 @@ export default class Map {
     return self;
   }
 
-  checkCollideOverlap(sPlayer, otherWeaponsGroupList, sprialWeaponsGroupList) {
+  checkCollideOverlap(sPlayer, weaponsGroupList) {
     const self = this;
     self.game.physics.arcade.collide(sPlayer, self.collideGroup);
+    const sprialWeaponsGroupList = [];
+    const otherWeaponsGroupList = [];
+
+    weaponsGroupList.forEach((weaponsGroup) => {
+      const weaponKey = weaponsGroup.getFirstExists(false).key;
+      if (weaponKey === 'bulletSprial') {
+        sprialWeaponsGroupList.push(weaponsGroup);
+      } else {
+        otherWeaponsGroupList.push(weaponsGroup);
+      }
+    });
     // 转弯弹做 collide, 其余做 overlap
     self.game.physics.arcade.collide(
       self.collideGroup,

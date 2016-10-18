@@ -4,6 +4,7 @@ class Bullet {
     this.key = key;
     this.power = power;
     this.sBullet = game.add.sprite(0, 0, key);
+    this.game.physics.enable(this.sBullet, Phaser.Physics.ARCADE);
     this.sBullet.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
     this.sBullet.anchor.set(0.5);
 
@@ -20,14 +21,31 @@ class Bullet {
   fire(speed, gx = 0, gy = 0) {
     const owner = this.owner.sPlayer;
     this.speed = speed;
-    this.sBullet.reset(owner.x, owner.y);
+    let x = 0;
+    let y = 0;
+    switch (owner.angle) {
+      case 90:
+        y = 10;
+        break;
+      case -90:
+        y = -10;
+        break;
+      case 0:
+        x = 10;
+        break;
+      case -180:
+        x = -10;
+        break;
+      default:
+        break;
+    }
+    this.sBullet.reset(owner.x + x, owner.y + y);
     this.sBullet.scale.set(1);
     this.game.physics.arcade.velocityFromAngle(
       owner.angle,
       speed,
       this.sBullet.body.velocity
     );
-    this.sBullet.angle = owner.angle + 90;
     this.sBullet.body.gravity.set(gx, gy);
   }
 }
@@ -41,12 +59,9 @@ export class Weapon {
     this.nextFire = 0;
     this.group = this.game.add.group(
       this.game.world,
-      'weapon group',
-      false,
-      true,
-      Phaser.Physics.ARCADE
+      'weapon group'
     );
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 20; i++) {
       this.group.add(new Bullet(game, this.key, player, power).sBullet, true);
     }
   }
@@ -76,15 +91,23 @@ export class SingleBulletWeapon extends Weapon {
   }
 }
 
-// 激光弹
-export class BeamBulletWeapon extends Weapon {
+// 激光弹(vertical)
+export class BeamBulletWeaponVtc extends Weapon {
   constructor(game, player) {
-    super(game, 'bulletLaser', player, 2);
+    super(game, 'bulletBeam', player, 2);
     this.bulletSpeed = 600;
     this.fireRate = 600;
   }
 }
 
+// 激光弹(horizen）
+export class BeamBulletWeaponHrz extends Weapon {
+  constructor(game, player) {
+    super(game, 'bulletBeamHrz', player, 2);
+    this.bulletSpeed = 600;
+    this.fireRate = 600;
+  }
+}
 // 转弯弹
 export class SprialBulletWeapon extends Weapon {
   constructor(game, player) {

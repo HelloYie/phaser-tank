@@ -5,7 +5,12 @@
  */
 
 import HealthBar from '../tool/health_bar';
-import { SingleBulletWeapon, BeamBulletWeapon, SprialBulletWeapon } from '../tool/bullet';
+import {
+  SingleBulletWeapon,
+  BeamBulletWeaponVtc,
+  BeamBulletWeaponHrz,
+  SprialBulletWeapon,
+} from '../tool/bullet';
 
 
 export default class Player {
@@ -27,9 +32,10 @@ export default class Player {
     this.stopped = false;
 
     this.singleBullet = new SingleBulletWeapon(this.game, this);
-    this.beamBullet = new BeamBulletWeapon(this.game, this);
+    this.beamVtcBullet = new BeamBulletWeaponVtc(this.game, this);
+    this.beamHrzBullet = new BeamBulletWeaponHrz(this.game, this);
     this.sprialBullet = new SprialBulletWeapon(this.game, this);
-    this.weapon = this.singleBullet;
+    this.weapon = this.beamVtcBullet;
 
     this.setSplayer();
     this.setName();
@@ -129,6 +135,7 @@ export default class Player {
       this.socket.emit('move player', moveInfo);
       this.stopped = true;
     }
+
     return this;
   }
 
@@ -166,16 +173,15 @@ export default class Player {
     }
   }
 
-  checkCollideOverlap(gamersGroup, otherWeaponsGroupList, sprialWeaponsGroupList) {
+  checkCollideOverlap(gamersGroup, weaponsGroupList) {
     const self = this;
-    const weaponsGroup = [].concat(otherWeaponsGroupList, sprialWeaponsGroupList);
     self.game.physics.arcade.collide(
       self.group,
       gamersGroup,
     );
     self.game.physics.arcade.overlap(
       gamersGroup,
-      weaponsGroup,
+      weaponsGroupList,
       self.hitPlayerHandler,
       null,
       self
