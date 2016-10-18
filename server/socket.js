@@ -279,7 +279,7 @@ class SocketHandler {
     // 隔一段时间生成一个随机的装备
     const self = this;
     const rndTime = Math.random() * 30 * 1000;
-    const equipments = ['eqBulletLaser', 'eqBulletSprial'];
+    const equipments = ['eqBulletBeam', 'eqBulletSprial'];
     let baseTime = 30 * 1000;
     let id = 0;
 
