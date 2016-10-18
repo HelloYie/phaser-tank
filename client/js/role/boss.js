@@ -22,20 +22,26 @@ export default class Boss {
     this.sBoss.body.immovable = true;
     this.sBoss.width = 40;
     this.sBoss.height = 20;
+    this.sBoss.boss = this;
     this.group.add(this.sBoss);
   }
 
-  checkCollideOverlap(sPlayer) {
+  checkCollideOverlap(sPlayer, bossGroupList, weaponsGroupList) {
     const self = this;
-    self.game.physics.arcade.collide(sPlayer, self.sBoss);
-    self.game.physics.arcade.overlap(
-      self.group,
-      sPlayer.player.bullets,
-      (sprite, bullet) => {
-        bullet.kill();
-        self.socket.emit('kill boss', {
-          camp: self.camp,
-        });
+    self.game.physics.arcade.collide(sPlayer, bossGroupList);
+    self.game.physics.arcade.collide(
+      bossGroupList,
+      weaponsGroupList,
+      (sBoss, sBullet) => {
+        sBullet.kill();
+        const bulletOwner = sBullet.bullet.owner;
+        if (sBoss.boss.camp !== bulletOwner.camp) {
+          self.explosion.boom(sBoss, 'kaboom');
+          sBoss.destroy();
+          self.socket.emit('kill boss', {
+            camp: sBoss.boss.camp,
+          });
+        }
       },
       null,
       self

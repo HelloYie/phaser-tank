@@ -91,6 +91,8 @@ export default class Play {
     );
     // 存储所有玩家组
     self.gamersGroup = self.game.add.group(self.game.world, 'gamers group');
+    // 存储boss组
+    self.bossGroupList = [self.boss.group, self.enemiesBoss.group];
     // 初始化地图类
     self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化爆炸组, 位于游戏最顶层
@@ -104,7 +106,7 @@ export default class Play {
   update() {
     const self = this;
     self.gameMap.checkCollideOverlap(self.sPlayer, self.weaponsGroupList);
-    self.enemiesBoss.checkCollideOverlap(self.sPlayer);
+    self.boss.checkCollideOverlap(self.sPlayer, self.bossGroupList, self.weaponsGroupList);
     self.player.checkCollideOverlap(self.gamersGroup, self.weaponsGroupList);
     self.player.move(self.touchControl);
     self.equipments.checkCollide(self.gamersGroup);

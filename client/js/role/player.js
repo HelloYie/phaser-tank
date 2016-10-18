@@ -35,7 +35,7 @@ export default class Player {
     this.beamVtcBullet = new BeamBulletWeaponVtc(this.game, this);
     this.beamHrzBullet = new BeamBulletWeaponHrz(this.game, this);
     this.sprialBullet = new SprialBulletWeapon(this.game, this);
-    this.weapon = this.beamVtcBullet;
+    this.weapon = this.singleBullet;
 
     this.setSplayer();
     this.setName();
@@ -43,7 +43,6 @@ export default class Player {
   }
 
   setSplayer() {
-    this.group = this.game.add.group(this.game.world, 'player group');
     this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key);
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.anchor.setTo(0.5, 0.5);
@@ -59,8 +58,6 @@ export default class Player {
 
     this.sPlayer.name = this.name;
     this.sPlayer.player = this;
-    this.sPlayer.group = this.group;
-    this.group.add(this.sPlayer);
   }
 
   setHealthBar() {
@@ -176,7 +173,7 @@ export default class Player {
   checkCollideOverlap(gamersGroup, weaponsGroupList) {
     const self = this;
     self.game.physics.arcade.collide(
-      self.group,
+      self.sPlayer,
       gamersGroup,
     );
     self.game.physics.arcade.overlap(
