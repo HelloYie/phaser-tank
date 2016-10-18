@@ -280,10 +280,11 @@ class SocketHandler {
     const self = this;
     const rndTime = Math.random() * 30 * 1000;
     const equipments = ['eqBulletLaser', 'eqBulletSprial'];
-    let baseTime = 3 * 1000;
+    let baseTime = 30 * 1000;
     let id = 0;
 
     const create = () => {
+      console.info('add equipments....');
       self.eqAddTimer = setTimeout(() => {
         const rndEquipment = equipments[Math.floor(Math.random() * equipments.length)];
         self.socket.sockets.to(client.roomId).emit(

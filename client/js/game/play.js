@@ -32,20 +32,14 @@ export default class Play {
     self.game.add.tileSprite(0, 0, 2000, 2000, 'earth');
     // 初始化爆炸类
     self.explosion = new Explosion(self.game);
-    // 存储除了转弯弹之外的子弹
-    self.otherWeaponsGroupList = [];
-    // 存储转弯弹
-    self.sprialWeaponsGroupList = [];
+    // 存储所有子弹
+    self.weaponsGroupList = [];
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
-    // 存储所有玩家组
-    self.gamersGroup = self.game.add.group(self.game.world, 'gamers group');
-    // 初始化地图类
-    self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
+    // 初始化装备类
     this.equipments = new Equipment(
       self.game,
-      self.otherWeaponsGroupList,
-      self.sprialWeaponsGroupList,
+      self.weaponsGroupList,
       self.room.socket
     );
     // 初始化玩家, 哪个队先进来，那个队就在下面.
@@ -95,6 +89,10 @@ export default class Play {
       self.explosion,
       self.room.socket
     );
+    // 存储所有玩家组
+    self.gamersGroup = self.game.add.group(self.game.world, 'gamers group');
+    // 初始化地图类
+    self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
     // 初始化爆炸组, 位于游戏最顶层
     self.explosion.setGroup('explosion group');
 
@@ -105,9 +103,9 @@ export default class Play {
 
   update() {
     const self = this;
-    self.gameMap.checkCollideOverlap(self.sPlayer, self.otherWeaponsGroupList, self.sprialWeaponsGroupList);
+    self.gameMap.checkCollideOverlap(self.sPlayer, self.weaponsGroupList);
     self.enemiesBoss.checkCollideOverlap(self.sPlayer);
-    self.player.checkCollideOverlap(self.gamersGroup, self.otherWeaponsGroupList, self.sprialWeaponsGroupList);
+    self.player.checkCollideOverlap(self.gamersGroup, self.weaponsGroupList);
     self.player.move(self.touchControl);
     self.equipments.checkCollide(self.gamersGroup);
   }

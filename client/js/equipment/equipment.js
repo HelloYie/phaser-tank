@@ -9,22 +9,19 @@
 
 
 export default class Equipment {
-  constructor(game, otherWeaponsGroupList, sprialWeaponsGroupList, socket) {
+  constructor(game, weaponsGroupList, socket) {
     this.game = game;
     this.socket = socket;
-    this.otherWeaponsGroupList = otherWeaponsGroupList;
-    this.sprialWeaponsGroupList = sprialWeaponsGroupList;
+    this.weaponsGroupList = weaponsGroupList;
     this.group = this.game.add.group(this.game.world, 'equipment group');
   }
 
-  updateWeaponGroupList(player, key) {
+  updateWeaponGroupList(player) {
     // 换子弹后以前存放子弹的数组要更新
-    const weaponsGroupList = key === 'eqBulletSprial' ?
-      this.sprialWeaponsGroupList : this.otherWeaponsGroupList;
-    weaponsGroupList.forEach((weaponGroup, index) => {
+    this.weaponsGroupList.forEach((weaponGroup, index) => {
       const ownerId = weaponGroup.children[0].bullet.owner.id;
       if (player.id === ownerId) {
-        weaponsGroupList[index] = player.weapon.group;
+        this.weaponsGroupList[index] = player.weapon.group;
       }
     });
   }
@@ -32,7 +29,7 @@ export default class Equipment {
   // 改变武器的道具
   changeBullet(player, key) {
     switch (key) {
-      case 'eqBulletLaser':
+      case 'eqBulletBeam':
         player.weapon = player.beamBullet;
         break;
       case 'eqBulletSprial':
@@ -41,7 +38,7 @@ export default class Equipment {
       default:
         break;
     }
-    this.updateWeaponGroupList(player, key);
+    this.updateWeaponGroupList(player);
   }
 
   // 生成道具
@@ -50,10 +47,10 @@ export default class Equipment {
     this.game.physics.enable(equipment, Phaser.Physics.ARCADE);
     equipment.width = 20;
     equipment.height = 15;
-    // 装备出现 5s 后消失
-    const timeout = 5 * 1000;
+    // 装备出现 10s 后消失
+    let timeout = 10 * 1000;
     const interval = setInterval(() => {
-      equipment.timer -= 1000;
+      timeout -= 1000;
       if (timeout === 0) {
         equipment.destroy();
         clearInterval(interval);

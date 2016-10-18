@@ -34,14 +34,8 @@ export default {
     );
     other.sPlayer.body.immovable = true;
     self.gamersGroup.add(other.sPlayer);
+    self.weaponsGroupList.push(other.weapon.group);
     self.gamers[data.id] = other;
-
-    const weaponKey = other.weapon.group.getFirstExists(false).key;
-    if (weaponKey === 'bulletSprial') {
-      self.sprialWeaponsGroupList.push(other.weapon.group);
-    } else {
-      self.otherWeaponsGroupList.push(other.weapon.group);
-    }
   },
 
   onMovePlayer: function x(data) {
@@ -113,9 +107,21 @@ export default {
 
   onShot: function x(data) {
     const gamer = this.gamerById(data.id);
+    const sPlayer = gamer.sPlayer;
     if (!gamer) {
       return;
     }
+    if (sPlayer.angle === 90 || sPlayer.angle === -90) {
+      gamer.weapon = gamer.beamVtcBullet;
+    } else {
+      gamer.weapon = gamer.beamHrzBullet;
+    }
+    this.weaponsGroupList.forEach((weaponGroup, index) => {
+      const ownerId = weaponGroup.children[0].bullet.owner.id;
+      if (gamer.id === ownerId) {
+        this.weaponsGroupList[index] = gamer.weapon.group;
+      }
+    });
     gamer.weapon.fire();
   },
 };
