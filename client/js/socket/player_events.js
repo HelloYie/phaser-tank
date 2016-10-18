@@ -111,17 +111,19 @@ export default {
     if (!gamer) {
       return;
     }
-    if (sPlayer.angle === 90 || sPlayer.angle === -90) {
-      gamer.weapon = gamer.beamVtcBullet;
-    } else {
-      gamer.weapon = gamer.beamHrzBullet;
-    }
-    this.weaponsGroupList.forEach((weaponGroup, index) => {
-      const ownerId = weaponGroup.children[0].bullet.owner.id;
-      if (gamer.id === ownerId) {
-        this.weaponsGroupList[index] = gamer.weapon.group;
+    if (gamer.weapon.key === 'bulletBeam' || gamer.weapon.key === 'bulletBeamHrz') {
+      if (sPlayer.angle === 90 || sPlayer.angle === -90) {
+        gamer.weapon = gamer.beamVtcBullet;
+      } else {
+        gamer.weapon = gamer.beamHrzBullet;
       }
-    });
+      this.weaponsGroupList.forEach((weaponGroup, index) => {
+        const ownerId = weaponGroup.children[0].bullet.owner.id;
+        if (gamer.id === ownerId) {
+          this.weaponsGroupList[index] = gamer.weapon.group;
+        }
+      });
+    }
     gamer.weapon.fire();
   },
 };
