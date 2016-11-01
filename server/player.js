@@ -33,6 +33,10 @@ class Player {
     this.y = y;
   }
 
+  setLoadingProgress(progress) {
+    this.loadingProgress = progress;
+  }
+
   getAngle() {
     return this.angle;
   }

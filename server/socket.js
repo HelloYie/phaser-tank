@@ -9,7 +9,6 @@ const util = require('util');
 const io = require('socket.io');
 const Player = require('./player');
 const uuid = require('uuid');
-const utils = require('./utils');
 const TeamFightPool = require('./team_fight_pool')
 const Rooms = require('./rooms')
 
@@ -69,7 +68,7 @@ class SocketHandler {
    */
   playerById(id, silence) {
     const self = this;
-    const playerObj = self.players.get(utils.serverId(id));
+    const playerObj = self.players.get(id);
     if (playerObj) {
       return playerObj;
     }
@@ -112,7 +111,7 @@ class SocketHandler {
 
     const roomPlayers = self.rooms.roomPlayers(client.roomId);
     for (const player of roomPlayers) {
-      if (player.x && player.y && (player.camp || player.camp === 0)
+      if (player.x && player.y && player.camp
        && player.id !== client.id) {
         // 只同步已加入且非自己的玩家
         client.emit(
@@ -190,6 +189,7 @@ class SocketHandler {
       'kill brick',
       {
         id: data.id,
+        killerId: data.killerId,
       }
     );
   }
@@ -205,6 +205,7 @@ class SocketHandler {
   }
 
   onJoinRoom(client, data) {
+    console.info(client.id);
     const self = client.handler;
     const newPlayer = new Player({
       avatar: data.avatar,
@@ -252,7 +253,7 @@ class SocketHandler {
   onLoadingProgress(client, data) {
     const self = client.handler;
     const player = self.playerById(data.id);
-    player.loadingProgress = data.progress;
+    player.setLoadingProgress(data.progress);
     client.to(client.roomId).emit(
       'loading progress',
       {
@@ -264,13 +265,43 @@ class SocketHandler {
 
   onStartGame(client, data) {
     const self = client.handler;
-    if (data.mode === 'hell'){
+    if (data.mode === 'hell') {
       // 地狱乱斗
       self.startHell(client);
-    } else if (data.mode === 'team_fight' ){
+    } else if (data.mode === 'team_fight') {
       // 组队对战
       self.startTeamFight(client, data.persons);
     }
+    self.addEquipment(client);
+  }
+
+  addEquipment(client) {
+    // 隔一段时间生成一个随机的装备
+    const self = this;
+    const rndTime = Math.random() * 30 * 1000;
+    const equipments = ['eqBulletBeam', 'eqBulletSprial'];
+    let baseTime = 30 * 1000;
+    let id = 0;
+
+    const create = () => {
+      console.info('add equipments....');
+      self.eqAddTimer = setTimeout(() => {
+        const rndEquipment = equipments[Math.floor(Math.random() * equipments.length)];
+        self.socket.sockets.to(client.roomId).emit(
+          'add equipment',
+          {
+            key: rndEquipment,
+            x: Math.random() * 600,
+            y: Math.random() * 450,
+            id,
+          });
+        baseTime = 0;
+        id++;
+        clearTimeout(self.eqAddTimer);
+        create();
+      }, baseTime + rndTime);
+    };
+    create();
   }
 
   startHell(client) {

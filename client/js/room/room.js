@@ -7,12 +7,10 @@
  */
 
 import 'css/room.css';
-
 import wx from 'weixin-js-sdk';
 import queryString from 'query-string';
-
 import utils from 'base_utils';
-import SocketEvent from './socket_event';
+import SocketEvent from '../socket/socket';
 import {
   define,
   tips,
@@ -22,8 +20,8 @@ import {
   modeDisplay,
 } from 'displays';
 
-class Room {
 
+export default class Room {
   constructor() {
     const self = this;
     const queryArgs = queryString.parse(location.hash);
@@ -162,13 +160,12 @@ class Room {
   otherJoined(data) {
     // 其他玩家加入房间
     const self = this;
-    data.clientId = utils.clientId(data.id);
     $('.user_container').append(
       self.userTpl(data)
     );
     if (data.loadingProgress === 0) {
       // 可能是异常链接, 进度条不会涨, 10s后无响应则移除之
-      const $user_container = $(`.user_container #${data.clientId}`);
+      const $user_container = $(`.user_container #${data.id}`);
       setTimeout(
         () => {
           if (parseInt($user_container.find('.progress-bar').css('width'), 10) === 0) {
@@ -276,7 +273,7 @@ class Room {
         avatar: self.avatar,
         name: self.name,
         sex: self.sex,
-        camp: self.camp,
+        camp: String(self.camp),
         players: [],
       };
     }
@@ -326,11 +323,10 @@ class Room {
         return true;
       });
       if (!has_enemy) {
-        self.gamEnd('你赢了');
+        self.gameEnd('你赢了');
       } else if (!has_friend) {
-        self.gamEnd('你输了');
+        self.gameEnd('你输了');
       }
     }
   }
 }
-export default Room;

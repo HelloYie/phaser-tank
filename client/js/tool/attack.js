@@ -5,6 +5,7 @@
  * @description:
  *
  */
+
 export default class Attack {
   /**
    * game: Phaser.Game

@@ -4,35 +4,45 @@
  *   玩家基类
  */
 
-import HealthBar from './health_bar';
+import HealthBar from '../tool/health_bar';
+import {
+  SingleBulletWeapon,
+  BeamBulletWeaponVtc,
+  BeamBulletWeaponHrz,
+  SprialBulletWeapon,
+} from '../tool/bullet';
 
 
 export default class Player {
-  constructor(id, game, key, name, sex, camp, avatar, startX, startY, bulletKey, socket) {
+  constructor(id, game, key, name, sex, camp, avatar, startX, startY, explosion, socket) {
     this.id = id;
     this.game = game;
     this.name = name;
     this.sex = sex;
     this.avatar = avatar;
-    this.camp = camp;
+    this.camp = String(camp);
     this.key = key;
     this.startX = startX;
     this.startY = startY;
-    this.bulletKey = bulletKey;
+    this.explosion = explosion;
     this.socket = socket;
     this.alive = true;
-    this.currentSpeed = 0;
-    this.angle = String(camp) === '1' ? 90 : -90;
+    this.angle = this.camp === '1' ? 90 : -90;
     this.health = 5;
     this.stopped = false;
-    this.setBullet();
+
+    this.singleBullet = new SingleBulletWeapon(this.game, this);
+    this.beamVtcBullet = new BeamBulletWeaponVtc(this.game, this);
+    this.beamHrzBullet = new BeamBulletWeaponHrz(this.game, this);
+    this.sprialBullet = new SprialBulletWeapon(this.game, this);
+    this.weapon = this.singleBullet;
+
     this.setSplayer();
     this.setName();
     this.setHealthBar();
   }
 
   setSplayer() {
-    this.group = this.game.add.group();
     this.sPlayer = this.game.add.sprite(this.startX, this.startY, this.key);
     this.game.physics.enable(this.sPlayer, Phaser.Physics.ARCADE);
     this.sPlayer.anchor.setTo(0.5, 0.5);
@@ -42,16 +52,12 @@ export default class Player {
     this.sPlayer.body.maxVelocity.setTo(400, 400);
     this.sPlayer.body.collideWorldBounds = true;
 
-    this.sPlayer.width = 35;
-    this.sPlayer.height = 28;
+    this.sPlayer.width = 30;
+    this.sPlayer.height = 24;
     this.sPlayer.angle = this.angle;
 
     this.sPlayer.name = this.name;
     this.sPlayer.player = this;
-    this.sPlayer.group = this.group;
-
-    this.group.add(this.sPlayer);
-    this.weapon.trackSprite(this.sPlayer, 0, 0, true);
   }
 
   setHealthBar() {
@@ -62,19 +68,7 @@ export default class Player {
       height: 5,
     });
     this.sPlayer.addChild(this.healthBar.bgSprite);
-    this.healthBar.bgSprite.angle = 90;
-  }
-
-  // 初始化子弹
-  setBullet() {
-    const self = this;
-    self.weapon = self.game.add.weapon(5, self.bulletKey);
-    self.bullets = self.weapon.bullets;
-    self.bullets.owner = self;
-    self.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-    self.weapon.bulletSpeed = 400;
-    self.weapon.fireRate = 500;
-    self.weapon.bulletAngleOffset = 90;
+    this.healthBar.bgSprite.angle = this.sPlayer.angle;
   }
 
   // 设置玩家名称
@@ -102,28 +96,31 @@ export default class Player {
   }
 
   move(touchControl) {
-    const touchSpeed = touchControl.speed;
     const touchCursors = touchControl.cursors;
+    const touchSpeed = touchControl.speed || {};
+    let speed;
     if (touchCursors.left) {
       this.angle = 180;
-      this.currentSpeed = touchSpeed.x;
+      speed = touchSpeed.x;
     } else if (touchCursors.right) {
       this.angle = 0;
-      this.currentSpeed = touchSpeed.x;
+      speed = touchSpeed.x;
     } else if (touchCursors.up) {
       this.angle = -90;
-      this.currentSpeed = touchSpeed.y;
+      speed = touchSpeed.y;
     } else if (touchCursors.down) {
       this.angle = 90;
-      this.currentSpeed = touchSpeed.y;
+      speed = touchSpeed.y;
     }
-
     if (touchSpeed.x === 0 && touchSpeed.y === 0) {
       this.currentSpeed = 0;
+    } else {
+      this.currentSpeed = Math.min(Math.abs(speed * 3) + 20, 180);
     }
+
     const moveInfo = {
       angle: this.angle,
-      speed: Math.abs(this.currentSpeed),
+      speed: this.currentSpeed,
       x: this.sPlayer.x,
       y: this.sPlayer.y,
     };
@@ -135,6 +132,7 @@ export default class Player {
       this.socket.emit('move player', moveInfo);
       this.stopped = true;
     }
+
     return this;
   }
 
@@ -142,34 +140,45 @@ export default class Player {
     return this.camp === player.camp;
   }
 
-  hitPlayerHandler(gamer, bullet) {
+  hitPlayerHandler(gamer, sBullet) {
     const self = this;
-    const killer = bullet.parent.owner;
-    bullet.kill();
+    const killer = sBullet.bullet.owner;
+    // 自己击中自己
+    if (killer.id === gamer.player.id) {
+      return;
+    }
+    sBullet.kill();
+
     if (killer.isTeammates(gamer)) {
       // 击中队友
-    } else {
+      return;
+    }
+
+    let health = gamer.player.health;
+    health -= sBullet.bullet.power;
+
+    if (health < 1) {
+      self.explosion.boom(gamer, 'kaboom');
+      gamer.destroy();
       self.socket.emit('kill player', {
         id: gamer.player.id,
-        health: gamer.player.health,
+        health,
         killerId: killer.id,
       });
+    } else {
+      gamer.player.setHealth(health);
     }
   }
 
-  checkCollide(enemiesGroup) {
+  checkCollideOverlap(gamersGroup, weaponsGroupList) {
     const self = this;
     self.game.physics.arcade.collide(
-      self.group,
-      enemiesGroup,
+      self.sPlayer,
+      gamersGroup,
     );
-  }
-
-  checkBulletOverlap(enemiesGroup) {
-    const self = this;
     self.game.physics.arcade.overlap(
-      enemiesGroup,
-      self.bullets,
+      gamersGroup,
+      weaponsGroupList,
       self.hitPlayerHandler,
       null,
       self
