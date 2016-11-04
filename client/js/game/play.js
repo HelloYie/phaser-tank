@@ -47,7 +47,7 @@ export default class Play {
       self.room.sex,
       self.room.camp,
       self.room.avatar,
-      self.game.world.centerX + 100,
+      self.get_bornx(),
       isTopCamp ? 50 : self.game.world.height - 14,
       self.explosion,
       self.room.socket
@@ -120,4 +120,14 @@ export default class Play {
     console.log(self.game.time.fps);
   }
   */
+
+  get_bornx() {
+    let bornx;
+    if (Math.random() < 0.5) {
+      bornx = Math.floor((Math.random() * 250) + 350);
+    } else {
+      bornx = Math.floor((Math.random() * 250) + 0);
+    }
+    return bornx;
+  }
 }
