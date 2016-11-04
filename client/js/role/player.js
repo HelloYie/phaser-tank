@@ -29,14 +29,16 @@ export default class Player {
     this.alive = true;
     this.angle = this.camp === '1' ? 90 : -90;
     this.health = 5;
-    this.stopped = false;
+    this.move_action = 'stop';
 
     this.singleBullet = new SingleBulletWeapon(this.game, this);
     this.beamVtcBullet = new BeamBulletWeaponVtc(this.game, this);
     this.beamHrzBullet = new BeamBulletWeaponHrz(this.game, this);
     this.sprialBullet = new SprialBulletWeapon(this.game, this);
+    // 10次没同步， 就同步一次
+    this.no_move = 1;
+    this.no_move_limit = 20;
     this.weapon = this.singleBullet;
-
     this.setSplayer();
     this.setName();
     this.setHealthBar();
@@ -51,6 +53,7 @@ export default class Player {
 
     this.sPlayer.body.maxVelocity.setTo(400, 400);
     this.sPlayer.body.collideWorldBounds = true;
+    // this.sPlayer.body.immovable = true;
 
     this.sPlayer.width = 30;
     this.sPlayer.height = 24;
@@ -97,42 +100,48 @@ export default class Player {
 
   move(touchControl) {
     const touchCursors = touchControl.cursors;
-    const touchSpeed = touchControl.speed || {};
-    let speed;
-    if (touchCursors.left) {
-      this.angle = 180;
-      speed = touchSpeed.x;
-    } else if (touchCursors.right) {
-      this.angle = 0;
-      speed = touchSpeed.x;
-    } else if (touchCursors.up) {
-      this.angle = -90;
-      speed = touchSpeed.y;
-    } else if (touchCursors.down) {
-      this.angle = 90;
-      speed = touchSpeed.y;
-    }
-    if (touchSpeed.x === 0 && touchSpeed.y === 0) {
+    this.currentSpeed = 100;
+    if (this.game.input.activePointer.isDown) {
+      // 在操作
+      if (touchCursors.left && this.move_action !== 'left') {
+        this.angle = 180;
+        this.move_action = 'left';
+      } else if (touchCursors.right && this.move_action !== 'right') {
+        this.angle = 0;
+        this.move_action = 'right';
+      } else if (touchCursors.up && this.move_action !== 'up') {
+        this.angle = -90;
+        this.move_action = 'up';
+      } else if (touchCursors.down && this.move_action !== 'down') {
+        this.angle = 90;
+        this.move_action = 'down';
+      } else if (this.no_move % this.no_move_limit) {
+        // 没有动作，直接返回
+        this.no_move += 1;
+        return false;
+      }
+    } else if (this.move_action !== 'stop') {
+      // 未操作边缘
+      this.move_action = 'stop';
       this.currentSpeed = 0;
     } else {
-      this.currentSpeed = Math.min(Math.abs(speed * 3) + 20, 180);
+      // 未操作
+      if (this.no_move % this.no_move_limit) {
+        // 没有动作，直接返回
+        this.no_move += 1;
+        return false;
+      }
+      this.currentSpeed = 0;
     }
-
     const moveInfo = {
       angle: this.angle,
       speed: this.currentSpeed,
       x: this.sPlayer.x,
       y: this.sPlayer.y,
     };
-    if (this.game.input.activePointer.isDown) {
-      this.socket.emit('move player', moveInfo);
-      this.stopped = false;
-    } else if (!this.stopped) {
-      moveInfo.speed = 0;
-      this.socket.emit('move player', moveInfo);
-      this.stopped = true;
-    }
 
+    this.socket.emit('move player', moveInfo);
+    this.no_move = 1;
     return this;
   }
 

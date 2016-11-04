@@ -25,6 +25,7 @@ export default class Play {
     self.game.camera.focusOnXY(0, 0);
     self.game.physics.startSystem(Phaser.Physics.ARCADE);
     self.game.input.justPressedRate = 30;
+    self.game.time.desiredFps = 26;
 
     // 初始化触摸移动类
     self.touchControl = new TouchControl(this.game, this);
@@ -105,10 +106,18 @@ export default class Play {
 
   update() {
     const self = this;
-    self.gameMap.checkCollideOverlap(self.sPlayer, self.weaponsGroupList);
+    self.gameMap.checkCollideOverlap(self.gamersGroup, self.weaponsGroupList);
     self.boss.checkCollideOverlap(self.sPlayer, self.bossGroupList, self.weaponsGroupList);
     self.player.checkCollideOverlap(self.gamersGroup, self.weaponsGroupList);
     self.player.move(self.touchControl);
     self.equipments.checkCollide(self.gamersGroup);
   }
+
+  /*
+  render() {
+    const self = this;
+    self.game.debug.text(`${self.game.time.fps}`, 2, 14, '#000');
+    console.log(self.game.time.fps);
+  }
+  */
 }

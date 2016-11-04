@@ -32,7 +32,7 @@ export default {
       self.explosion,
       self.socket,
     );
-    other.sPlayer.body.immovable = true;
+    // other.sPlayer.body.immovable = true;
     self.gamersGroup.add(other.sPlayer);
     self.weaponsGroupList.push(other.weapon.group);
     self.gamers[data.id] = other;
@@ -47,16 +47,25 @@ export default {
     const movesPlayer = movePlayer.sPlayer;
     movesPlayer.angle = data.angle;
     // TODO: 此处可以都用物理引擎, 但是会移动不同步，需要校准，故暂时不改
+    /*
     if (data.id === self.socket.id) {
-      this.game.physics.arcade.velocityFromAngle(
-        data.angle,
-        data.speed === 0 ? 0 : data.speed,
-        movesPlayer.body.velocity
-      );
-    } else {
+    }
+    */
+    if (Math.abs(movesPlayer.x - data.x) > 10) {
       movesPlayer.x = data.x;
+    }
+    if (Math.abs(movesPlayer.y - data.y) > 10) {
       movesPlayer.y = data.y;
     }
+    this.game.physics.arcade.velocityFromAngle(
+      data.angle,
+      data.speed === 0 ? 0 : data.speed,
+      movesPlayer.body.velocity
+    );
+    /*
+    else {
+    }
+    */
     if (data.speed === 0) {
       movesPlayer.animations.play('stop');
     } else {
