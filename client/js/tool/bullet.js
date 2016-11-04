@@ -1,19 +1,20 @@
 class Bullet {
-  constructor(game, key, player, power) {
+  constructor(game, key, width, height, player, power) {
     this.game = game;
     this.key = key;
     this.power = power;
     this.sBullet = game.add.sprite(0, 0, key);
     this.game.physics.enable(this.sBullet, Phaser.Physics.ARCADE);
-    this.sBullet.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
     this.sBullet.anchor.set(0.5);
+    this.sBullet.width = width;
+    this.sBullet.height = height;
+    this.sBullet.body.setSize(width, height);
 
     this.sBullet.checkWorldBounds = true;
     this.sBullet.outOfBoundsKill = true;
     this.sBullet.exists = false;
 
     this.sBullet.tracking = false;
-    this.sBullet.scaleSpeed = 0;
     this.sBullet.bullet = this;
     this.owner = player;
   }
@@ -40,7 +41,6 @@ class Bullet {
         break;
     }
     this.sBullet.reset(owner.x + x, owner.y + y);
-    this.sBullet.scale.set(1);
     this.game.physics.arcade.velocityFromAngle(
       owner.angle,
       speed,
@@ -52,7 +52,7 @@ class Bullet {
 
 
 export class Weapon {
-  constructor(game, key, player, power) {
+  constructor(game, key, width, height, player, power) {
     this.game = game;
     this.key = key;
     this.power = power;
@@ -62,7 +62,7 @@ export class Weapon {
       'weapon group'
     );
     for (let i = 0; i < 20; i++) {
-      this.group.add(new Bullet(game, this.key, player, power).sBullet, true);
+      this.group.add(new Bullet(game, this.key, width, height, player, power).sBullet, true);
     }
   }
 
@@ -85,7 +85,7 @@ export class Weapon {
 // 普通弹
 export class SingleBulletWeapon extends Weapon {
   constructor(game, player) {
-    super(game, 'bullet', player, 1);
+    super(game, 'bullet', 10, 10, player, 1);
     this.bulletSpeed = 600;
     this.fireRate = 300;
   }
@@ -94,7 +94,7 @@ export class SingleBulletWeapon extends Weapon {
 // 激光弹(vertical)
 export class BeamBulletWeaponVtc extends Weapon {
   constructor(game, player) {
-    super(game, 'bulletBeam', player, 2);
+    super(game, 'bulletBeam', 13, 49, player, 2);
     this.bulletSpeed = 600;
     this.fireRate = 600;
   }
@@ -103,7 +103,7 @@ export class BeamBulletWeaponVtc extends Weapon {
 // 激光弹(horizen）
 export class BeamBulletWeaponHrz extends Weapon {
   constructor(game, player) {
-    super(game, 'bulletBeamHrz', player, 2);
+    super(game, 'bulletBeamHrz', 49, 13, player, 2);
     this.bulletSpeed = 600;
     this.fireRate = 600;
   }
@@ -111,7 +111,7 @@ export class BeamBulletWeaponHrz extends Weapon {
 // 转弯弹
 export class SprialBulletWeapon extends Weapon {
   constructor(game, player) {
-    super(game, 'bulletSprial', player, 1);
+    super(game, 'bulletSprial', 10, 10, player, 1);
     this.bulletSpeed = 300;
     this.fireRate = 600;
   }
