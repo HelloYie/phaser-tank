@@ -51,7 +51,7 @@ export default class Room {
     self.modeDisplay = modeDisplay[self.mode];
     $('.persons').text(self.personsDisplay);
     $('.mode').text(self.modeDisplay);
-    self.socket = IO.connect();
+    self.socket = IO;
     self.sEvent = new SocketEvent(self, self.socket);
     self.compileTpls();
     self.init();
@@ -69,7 +69,7 @@ export default class Room {
     const self = this;
     $('.user_container').append(
       self.userTpl({
-        clientId: 'self',
+        id: 'self',
         name: self.name,
         avatar: self.avatar,
         sex: self.sex,
