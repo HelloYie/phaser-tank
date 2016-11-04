@@ -30,7 +30,7 @@ export default class Equipment {
   changeBullet(player, key) {
     switch (key) {
       case 'eqBulletBeam':
-        player.weapon = player.beamBullet;
+        player.weapon = player.beamHrzBullet;
         break;
       case 'eqBulletSprial':
         player.weapon = player.sprialBullet;

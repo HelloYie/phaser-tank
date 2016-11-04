@@ -7,7 +7,7 @@ class Bullet {
     this.game.physics.enable(this.sBullet, Phaser.Physics.ARCADE);
     this.sBullet.anchor.set(0.5);
     this.sBullet.width = width;
-    this.sBullet.height = width;
+    this.sBullet.height = height;
     this.sBullet.body.setSize(width, height);
 
     this.sBullet.checkWorldBounds = true;
