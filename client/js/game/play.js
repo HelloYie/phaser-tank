@@ -36,12 +36,6 @@ export default class Play {
     self.weaponsGroupList = [];
     // 初始化攻击类
     new Attack(self.game, self.room.socket);
-    // 初始化装备类
-    this.equipments = new Equipment(
-      self.game,
-      self.weaponsGroupList,
-      self.room.socket
-    );
     // 初始化玩家, 哪个队先进来，那个队就在下面.
     const isTopCamp = self.room.camp === '1';
     self.player = new Player(
@@ -95,6 +89,12 @@ export default class Play {
     self.bossGroupList = [self.boss.group, self.enemiesBoss.group];
     // 初始化地图类
     self.gameMap = new GameMap(self.game, self.explosion, self.room.socket);
+    // 初始化装备类
+    this.equipments = new Equipment(
+      self.game,
+      self.weaponsGroupList,
+      self.room.socket
+    );
     // 初始化爆炸组, 位于游戏最顶层
     self.explosion.setGroup('explosion group');
 
