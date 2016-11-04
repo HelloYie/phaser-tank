@@ -100,6 +100,10 @@ export default class Player {
 
   move(touchControl) {
     const touchCursors = touchControl.cursors;
+    if (this.health <= 0) {
+      // 已死亡，不能再操作
+      return false;
+    }
     this.currentSpeed = 100;
     if (this.game.input.activePointer.isDown) {
       // 在操作
@@ -174,6 +178,7 @@ export default class Player {
         health,
         killerId: killer.id,
       });
+      gamer.player.setHealth(health);
     } else {
       gamer.player.setHealth(health);
     }

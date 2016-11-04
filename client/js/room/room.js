@@ -292,6 +292,7 @@ export default class Room {
       return 0;
     });
     tplData.otherKills = tplData.otherKills.slice(0, 5);
+    console.log(tplData);
     self.lgModal.find('.modal-content').html(self.endTpl(tplData));
     self.lgModal.modal({
       backdrop: 'static',
